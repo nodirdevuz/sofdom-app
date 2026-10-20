@@ -55,3 +55,23 @@
    * Алгоритм проверки количества объявлений на номере телефона для фильтрации агентств.
 4. **Калькулятор дельты цены за 1 м²:**
    * Определение недооцененных квартир относительно среднегородской медианы.
+
+---
+
+## 7. Этап 2: Реверс-инжиниринг ЦИАН, анализ Joymee и агрегатор собственников (21.10.2026)
+
+### Что сделано:
+1. **Декомпиляция XAPK ЦИАН (v2.449.0):**
+   - Файл: `/Users/macbookairm5/Downloads/Циан.+Недвижимость,+квартиры_2.449.0_APKPure.xapk` (228 МБ).
+   - Разобраны классы `classes4.dex`, `classes14.dex`, `classes16.dex`, `classes7.dex`:
+     - Эндпоинты `SearchOfferService` (`/search-offers/v4/search-offers-mobile-apps/`, `/v2/`).
+     - Модель `JsonDataModel` со 148 параметрами (ключевой: `byHomeowner: TypeTerm<Boolean>`, `commission: TypeTerm<Integer>`).
+     - Антибот-защита ЦИАН: **Yandex SmartCaptcha + Yandex Cloud WAF** (`AntiBotInterceptor`, `CaptchaInterceptor`).
+2. **Пробитие веб-выдачи ЦИАН (Live Ingestion):**
+   - Запросы через `curl_cffi` (Chrome 120 TLS fingerprint) к `cian.ru/cat.php?deal_type=rent&engine_version=2&offer_type=flat&region=1&is_by_homeowner=1` стабильно отдают **HTTP 200 OK без капчи**.
+   - Извлечён стейт `initialState.results.offers` с полными данными 28 объявлений от собственников с незамаскированными номерами, координатами, фото и залогами (`/realty/cian_owners_sample.json`).
+3. **Анализ интерфейса Joymee (`joymee.uz`):**
+   - Изучен UX скриншота: переключатели вкладок («Аренда / Продажа / Посуточная»), акцентный чип «Собственник», режим карты, карточки без визуального шума.
+4. **Интерактивный веб-прототип:**
+   - Файл: `/realty/realty_aggregator_demo.html` (открыт в браузере).
+   - Полноценная интерактивная карта Leaflet с метками цен реальных квартир, фото, бейджи «Экономия 40 000 ₽», модалка покупки тарифов (490 ₽, 990 ₽, 1490 ₽).
