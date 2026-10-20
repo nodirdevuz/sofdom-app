@@ -94,3 +94,19 @@
 4. **Сгенерирован и открыт интерактивный отчёт:**
    - [`realty/avito_secret_apartment_4326801484.html`](file:///Users/macbookairm5/Desktop/Проекты/Снайпер/realty/avito_secret_apartment_4326801484.html).
    - Скрипт снайпера: [`realty/avito_secret_scraper.py`](file:///Users/macbookairm5/Desktop/Проекты/Снайпер/realty/avito_secret_scraper.py).
+
+---
+
+## 9. Этап 4: Локальный хостинг 0 ₽ на Mac и запуск без Vercel в РФ (21.10.2026)
+
+### Что сделано:
+1. **Автономный локальный сервер:**
+   - Файл: [`realty/server.py`](file:///Users/macbookairm5/Desktop/Проекты/Снайпер/realty/server.py).
+   - Запуск: `python3 realty/server.py`.
+   - Доступен на Маке: `http://localhost:8080`
+   - Доступен на телефоне по Wi-Fi: `http://172.20.10.3:8080` (0 ₽ расходов, 0% риска блокировок РКН).
+   - Поддерживает API: `/api/feed` (живой поток), `/api/status`, `/api/sync` (обновление базы с Авито и ЦИАН).
+2. **GitHub Pages (Бесплатный публичный веб-хостинг в РФ):**
+   - Скопирован `index.html` в корень репозитория.
+   - Vercel заблокирован в РФ, но GitHub (`github.io`) работает на 100% без VPN и блокировок.
+   - URL: `https://nodirdevuz.github.io/market-sniper/` (активируется в настройках репозитория).
