@@ -1,0 +1,2124 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Joymee — O‘zbekistonda kvartira, uy va ijara e’lonlari (0% комиссия)</title>
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" sizes="32x32" href="https://joymee.uz/favicon/favicon-32x32.png">
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Leaflet Map CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <style>
+    /* CSS RESET & VARIABLES */
+    :root {
+      --bg-page: #f8fafc;
+      --bg-surface: #ffffff;
+      --bg-card: #ffffff;
+      --bg-muted: #f1f5f9;
+      --bg-hover: #e2e8f0;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --text-sub: #94a3b8;
+      --border-light: #e2e8f0;
+      --border-subtle: #f1f5f9;
+      
+      --brand-yellow: #facc15;
+      --brand-yellow-hover: #eab308;
+      --brand-yellow-light: #fef08a;
+      --brand-yellow-bg: #fefce8;
+      --brand-dark: #0f172a;
+      
+      --accent-green: #10b981;
+      --accent-green-bg: #ecfdf5;
+      --accent-green-border: #a7f3d0;
+      
+      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.04);
+      --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --radius-xl: 20px;
+      --radius-full: 9999px;
+      
+      --header-height: 72px;
+      --bottom-bar-height: 64px;
+      --max-width: 1440px;
+    }
+
+    [data-theme="dark"] {
+      --bg-page: #0b0f17;
+      --bg-surface: #131b2a;
+      --bg-card: #162032;
+      --bg-muted: #1e293b;
+      --bg-hover: #334155;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-sub: #64748b;
+      --border-light: #1e293b;
+      --border-subtle: #1e293b;
+      
+      --brand-yellow-bg: #292510;
+      --accent-green-bg: #064e3b;
+      --accent-green-border: #047857;
+      
+      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+      font-family: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-page);
+      color: var(--text-main);
+      overflow-x: hidden;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      transition: background-color 0.25s ease, color 0.25s ease;
+    }
+
+    /* TACTILE TAP FEEDBACK */
+    button, .clickable {
+      cursor: pointer;
+      user-select: none;
+      transition: transform 0.16s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease;
+    }
+    button:active, .clickable:active {
+      transform: scale(0.96) !important;
+    }
+
+    /* HEADER */
+    header.site-header {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      background: rgba(255, 255, 255, 0.88);
+      backdrop-filter: blur(24px) saturate(180%);
+      -webkit-backdrop-filter: blur(24px) saturate(180%);
+      border-bottom: 1px solid var(--border-light);
+      padding: 12px 24px;
+      transition: background 0.25s ease, border-color 0.25s ease;
+    }
+    [data-theme="dark"] header.site-header {
+      background: rgba(19, 27, 42, 0.88);
+    }
+
+    .header-container {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    /* LOGO & LANG */
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .brand-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: var(--text-main);
+      font-weight: 800;
+      font-size: 22px;
+      letter-spacing: -0.5px;
+    }
+    .brand-icon {
+      width: 36px;
+      height: 36px;
+      background: #000;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+    }
+    .brand-icon svg {
+      width: 22px;
+      height: 22px;
+      fill: var(--brand-yellow);
+    }
+
+    .lang-switcher {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      font-weight: 700;
+      padding: 6px 12px;
+      border-radius: var(--radius-full);
+      border: 1px solid var(--border-light);
+      background: var(--bg-surface);
+      color: var(--text-main);
+    }
+
+    .theme-toggle-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border: 1px solid var(--border-light);
+      background: var(--bg-surface);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-main);
+    }
+
+    /* SEARCH BAR */
+    .header-center {
+      flex: 1;
+      max-width: 580px;
+      position: relative;
+    }
+    .search-wrapper {
+      position: relative;
+      width: 100%;
+    }
+    .search-input {
+      width: 100%;
+      height: 44px;
+      padding: 0 44px 0 46px;
+      border-radius: var(--radius-full);
+      border: 1px solid var(--border-light);
+      background: var(--bg-muted);
+      color: var(--text-main);
+      font-size: 14px;
+      font-weight: 500;
+      outline: none;
+      transition: all 0.2s ease;
+    }
+    .search-input:focus {
+      border-color: var(--brand-yellow);
+      background: var(--bg-surface);
+      box-shadow: 0 0 0 3px rgba(250, 204, 21, 0.25);
+    }
+    .search-icon {
+      position: absolute;
+      left: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-sub);
+      pointer-events: none;
+    }
+    .search-clear-btn {
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: var(--text-sub);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 4px;
+      border-radius: 50%;
+    }
+    .search-clear-btn.active {
+      display: flex;
+    }
+
+    /* ACTIONS RIGHT */
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .action-icon-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: 1px solid transparent;
+      background: transparent;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-main);
+      position: relative;
+    }
+    .action-icon-btn:hover {
+      background: var(--bg-muted);
+    }
+    .badge-counter {
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      background: #ef4444;
+      color: #fff;
+      font-size: 10px;
+      font-weight: 800;
+      min-width: 16px;
+      height: 16px;
+      padding: 0 4px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .btn-create-ad {
+      background: var(--brand-yellow);
+      color: #000;
+      font-weight: 800;
+      font-size: 14px;
+      padding: 10px 22px;
+      border-radius: var(--radius-full);
+      border: none;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 4px 12px rgba(250, 204, 21, 0.3);
+    }
+    .btn-create-ad:hover {
+      background: var(--brand-yellow-hover);
+    }
+
+    .user-avatar-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      overflow: hidden;
+      border: 2px solid var(--border-light);
+      padding: 0;
+      background: none;
+    }
+    .user-avatar-btn img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    /* TOOLBAR ROW 1 (Views, Map button, Filters) */
+    .toolbar-row {
+      background: var(--bg-surface);
+      border-bottom: 1px solid var(--border-light);
+      padding: 12px 24px;
+      transition: background 0.25s ease;
+    }
+    .toolbar-container {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .view-switchers {
+      display: flex;
+      align-items: center;
+      background: var(--bg-muted);
+      padding: 3px;
+      border-radius: var(--radius-md);
+      gap: 2px;
+    }
+    .view-btn {
+      padding: 7px 12px;
+      border-radius: 8px;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .view-btn.active {
+      background: var(--brand-yellow);
+      color: #000;
+      font-weight: 700;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .pill-action-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 18px;
+      border-radius: var(--radius-full);
+      border: 1px solid var(--border-light);
+      background: var(--bg-muted);
+      color: var(--text-main);
+      font-size: 13.5px;
+      font-weight: 700;
+    }
+    .pill-action-btn:hover {
+      background: var(--bg-hover);
+    }
+    .pill-action-btn.active {
+      background: var(--brand-yellow);
+      color: #000;
+      border-color: var(--brand-yellow);
+    }
+
+    /* SERVICES ROW (Баннеры ипотеки и консультации) */
+    .services-banner-row {
+      max-width: var(--max-width);
+      margin: 16px auto 0;
+      padding: 0 24px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    .service-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-xl);
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      text-decoration: none;
+      color: var(--text-main);
+      box-shadow: var(--shadow-sm);
+      transition: all 0.2s ease;
+    }
+    .service-card:hover {
+      border-color: var(--brand-yellow);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+    .service-info {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .service-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: var(--brand-yellow);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #000;
+      flex-shrink: 0;
+    }
+    .service-texts h4 {
+      font-size: 15px;
+      font-weight: 800;
+      letter-spacing: -0.2px;
+    }
+    .service-texts p {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-top: 2px;
+      font-weight: 500;
+    }
+    .service-arrow {
+      color: var(--text-sub);
+    }
+
+    /* SEGMENTED TABS (Продажа / Аренда / Посуточная) */
+    .segmented-tabs-wrapper {
+      max-width: var(--max-width);
+      margin: 16px auto 0;
+      padding: 0 24px;
+    }
+    .segmented-tabs {
+      display: flex;
+      background: var(--bg-muted);
+      padding: 4px;
+      border-radius: var(--radius-full);
+      gap: 4px;
+    }
+    .deal-tab {
+      flex: 1;
+      padding: 10px 20px;
+      border-radius: var(--radius-full);
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      font-size: 14px;
+      font-weight: 700;
+      text-align: center;
+    }
+    .deal-tab.active {
+      background: var(--brand-yellow);
+      color: #000;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    }
+
+    /* QUICK CHIPS ROW */
+    .quick-chips-wrapper {
+      max-width: var(--max-width);
+      margin: 14px auto 0;
+      padding: 0 24px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+    .quick-chips-wrapper::-webkit-scrollbar {
+      display: none;
+    }
+    .quick-chips {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: max-content;
+    }
+    .filter-chip {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      border-radius: var(--radius-full);
+      border: 1px solid var(--border-light);
+      background: var(--bg-surface);
+      color: var(--text-main);
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .filter-chip:hover {
+      background: var(--bg-muted);
+    }
+    .filter-chip.chip-owner {
+      background: var(--accent-green-bg);
+      border-color: var(--accent-green-border);
+      color: var(--accent-green);
+      font-weight: 700;
+    }
+    .filter-chip.active {
+      background: var(--brand-yellow);
+      color: #000;
+      border-color: var(--brand-yellow);
+    }
+
+    /* VIP SECTION */
+    .vip-section {
+      max-width: var(--max-width);
+      margin: 28px auto 0;
+      padding: 0 24px;
+      position: relative;
+    }
+    .vip-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+    .vip-title {
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: -0.3px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .vip-carousel-nav {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .carousel-nav-btn {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      border: 1px solid var(--border-light);
+      background: var(--bg-surface);
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: var(--shadow-sm);
+    }
+    .carousel-nav-btn:hover {
+      background: var(--bg-muted);
+      border-color: var(--text-sub);
+    }
+
+    .vip-carousel {
+      display: grid;
+      grid-auto-flow: column;
+      grid-auto-columns: calc((100% - 64px) / 5);
+      gap: 16px;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      scrollbar-width: none;
+      padding-bottom: 8px;
+    }
+    .vip-carousel::-webkit-scrollbar {
+      display: none;
+    }
+
+    .vip-card {
+      position: relative;
+      height: 240px;
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      scroll-snap-align: start;
+      cursor: pointer;
+      box-shadow: var(--shadow-md);
+      transition: all 0.25s ease;
+    }
+    .vip-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-xl);
+    }
+    .vip-card img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.4s ease;
+    }
+    .vip-card:hover img {
+      transform: scale(1.05);
+    }
+    .vip-gradient-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.3) 40%, rgba(0,0,0,0.88) 100%);
+    }
+    .vip-badge {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: var(--brand-yellow);
+      color: #000;
+      font-size: 11px;
+      font-weight: 800;
+      padding: 3px 8px;
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    }
+    .vip-content {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 14px;
+      color: #fff;
+    }
+    .vip-price {
+      font-size: 19px;
+      font-weight: 800;
+      letter-spacing: -0.2px;
+      text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+    }
+    .vip-card-title {
+      font-size: 13px;
+      font-weight: 500;
+      margin-top: 4px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      color: rgba(255, 255, 255, 0.9);
+    }
+    .vip-saving-tag {
+      display: inline-block;
+      margin-top: 4px;
+      font-size: 10.5px;
+      font-weight: 700;
+      background: rgba(16, 185, 129, 0.9);
+      color: #fff;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+
+    /* VIP DOT INDICATOR */
+    .vip-dots {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 6px;
+      margin-top: 12px;
+    }
+    .vip-dot {
+      width: 20px;
+      height: 3px;
+      background: var(--border-light);
+      border-radius: 2px;
+      transition: all 0.25s ease;
+    }
+    .vip-dot.active {
+      background: #000;
+      width: 32px;
+    }
+    [data-theme="dark"] .vip-dot.active {
+      background: #fff;
+    }
+
+    /* MAIN CONTENT & FEED */
+    .main-section {
+      max-width: var(--max-width);
+      margin: 32px auto;
+      padding: 0 24px;
+      flex: 1;
+      width: 100%;
+    }
+
+    .feed-header-bar {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .feed-counts h2 {
+      font-size: 26px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+    }
+    .feed-counts p {
+      font-size: 14px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .feed-sort-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .sort-select {
+      padding: 8px 14px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-light);
+      background: var(--bg-surface);
+      color: var(--text-main);
+      font-size: 13.5px;
+      font-weight: 600;
+      outline: none;
+      cursor: pointer;
+    }
+
+    /* LAYOUT: FEED + MAP SPLIT */
+    .content-layout {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 24px;
+      transition: all 0.3s ease;
+    }
+    .content-layout.split-map-active {
+      grid-template-columns: 1fr 480px;
+    }
+
+    /* CARDS GRID */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+    }
+    .content-layout.split-map-active .cards-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    /* LIST VIEW STYLES */
+    .cards-grid.mode-list {
+      grid-template-columns: 1fr !important;
+    }
+    .cards-grid.mode-list .offer-card {
+      flex-direction: row;
+      height: 200px;
+    }
+    .cards-grid.mode-list .card-thumb-box {
+      width: 260px;
+      height: 100%;
+      flex-shrink: 0;
+    }
+    .cards-grid.mode-list .card-info-box {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    /* CARD STYLING */
+    .offer-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: all 0.22s ease;
+      cursor: pointer;
+      position: relative;
+    }
+    .offer-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-lg);
+      border-color: var(--text-sub);
+    }
+
+    .card-thumb-box {
+      position: relative;
+      height: 200px;
+      background: var(--bg-muted);
+      overflow: hidden;
+    }
+    .card-thumb-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.35s ease;
+    }
+    .offer-card:hover .card-thumb-box img {
+      transform: scale(1.04);
+    }
+
+    .card-badges-top {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      display: flex;
+      gap: 6px;
+      z-index: 2;
+    }
+    .badge-tag {
+      font-size: 11px;
+      font-weight: 800;
+      padding: 3px 8px;
+      border-radius: var(--radius-sm);
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+    .badge-new {
+      background: rgba(0, 0, 0, 0.75);
+      color: #fff;
+    }
+    .badge-top {
+      background: var(--brand-yellow);
+      color: #000;
+    }
+    .badge-owner-verified {
+      background: var(--accent-green);
+      color: #fff;
+    }
+
+    .card-fav-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(8px);
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #475569;
+      z-index: 2;
+      transition: all 0.15s ease;
+    }
+    .card-fav-btn.active {
+      color: #ef4444;
+      background: #fff;
+    }
+
+    .card-info-box {
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+
+    .card-price-row {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .card-price {
+      font-size: 21px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.5px;
+    }
+    .card-deal-type {
+      font-size: 11.5px;
+      font-weight: 700;
+      color: var(--text-sub);
+      background: var(--bg-muted);
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+
+    .card-title {
+      font-size: 14.5px;
+      font-weight: 700;
+      margin-top: 6px;
+      line-height: 1.35;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      color: var(--text-main);
+    }
+
+    .card-address {
+      font-size: 12.5px;
+      color: var(--text-muted);
+      margin-top: 6px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .card-terms {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: 10px;
+      font-size: 12px;
+      color: var(--text-sub);
+    }
+    .term-item {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .term-zero-fee {
+      color: var(--accent-green);
+      font-weight: 700;
+    }
+
+    .card-savings-banner {
+      margin-top: 12px;
+      background: var(--accent-green-bg);
+      border: 1px solid var(--accent-green-border);
+      border-radius: var(--radius-sm);
+      padding: 6px 10px;
+      font-size: 11.5px;
+      font-weight: 700;
+      color: #047857;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    [data-theme="dark"] .card-savings-banner {
+      color: #34d399;
+    }
+
+    .card-btn-contact {
+      margin-top: 14px;
+      width: 100%;
+      height: 40px;
+      border-radius: var(--radius-md);
+      background: var(--brand-yellow);
+      border: none;
+      color: #000;
+      font-weight: 800;
+      font-size: 13.5px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    .card-btn-contact:hover {
+      background: var(--brand-yellow-hover);
+    }
+
+    /* SIDE MAP CONTAINER */
+    .map-sidebar-container {
+      display: none;
+      position: sticky;
+      top: 88px;
+      height: calc(100vh - 120px);
+      border-radius: var(--radius-xl);
+      overflow: hidden;
+      border: 1px solid var(--border-light);
+      box-shadow: var(--shadow-lg);
+    }
+    .content-layout.split-map-active .map-sidebar-container {
+      display: block;
+    }
+    #leafletMap {
+      width: 100%;
+      height: 100%;
+    }
+
+    /* MAP MARKER PILL */
+    .map-price-pill {
+      background: #000;
+      color: #fff;
+      font-weight: 800;
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: var(--radius-full);
+      border: 2px solid var(--brand-yellow);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+      white-space: nowrap;
+      text-align: center;
+    }
+
+    /* FLOATING ACTION DOCK (Screenshot widget) */
+    .floating-widget-dock {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(15, 23, 42, 0.92);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: var(--radius-full);
+      padding: 8px 16px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      color: #fff;
+      z-index: 999;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+    }
+    .dock-close-btn {
+      background: none;
+      border: none;
+      color: rgba(255,255,255,0.6);
+      display: flex;
+    }
+    .dock-dots {
+      letter-spacing: 2px;
+      font-size: 11px;
+      color: rgba(255,255,255,0.7);
+    }
+    .dock-check {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #10b981;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      color: #fff;
+    }
+
+    /* MOBILE BOTTOM TAB BAR */
+    .mobile-bottom-bar {
+      display: none;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: var(--bottom-bar-height);
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-top: 1px solid var(--border-light);
+      z-index: 1000;
+      padding-bottom: env(safe-area-inset-bottom);
+      grid-template-columns: repeat(5, 1fr);
+      align-items: center;
+    }
+    [data-theme="dark"] .mobile-bottom-bar {
+      background: rgba(19, 27, 42, 0.92);
+    }
+
+    .mobile-tab-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      height: 100%;
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 10.5px;
+      font-weight: 600;
+      text-decoration: none;
+    }
+    .mobile-tab-item.active {
+      color: #000;
+      font-weight: 800;
+    }
+    [data-theme="dark"] .mobile-tab-item.active {
+      color: var(--brand-yellow);
+    }
+    .mobile-tab-center-icon {
+      width: 38px;
+      height: 38px;
+      background: var(--brand-yellow);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #000;
+      box-shadow: 0 4px 10px rgba(250, 204, 21, 0.4);
+      margin-top: -12px;
+    }
+
+    /* MODAL (Phone Contact Dialog) */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(8px);
+      z-index: 2000;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+    .modal-overlay.active {
+      display: flex;
+    }
+    .modal-card {
+      background: var(--bg-surface);
+      border-radius: var(--radius-xl);
+      border: 1px solid var(--border-light);
+      width: 100%;
+      max-width: 440px;
+      padding: 24px;
+      box-shadow: var(--shadow-xl);
+      position: relative;
+      animation: modalSlideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    @keyframes modalSlideUp {
+      from { transform: translateY(20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    .modal-close-btn {
+      position: absolute;
+      top: 18px;
+      right: 18px;
+      background: var(--bg-muted);
+      border: none;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-main);
+    }
+
+    .modal-owner-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--accent-green-bg);
+      color: var(--accent-green);
+      font-size: 12px;
+      font-weight: 800;
+      padding: 4px 10px;
+      border-radius: var(--radius-full);
+      margin-bottom: 12px;
+    }
+    .modal-phone-box {
+      background: var(--bg-muted);
+      border: 1px dashed var(--border-light);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      text-align: center;
+      margin: 16px 0;
+    }
+    .modal-phone-number {
+      font-size: 24px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      color: var(--text-main);
+    }
+    .modal-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .btn-action-tg {
+      background: #0088cc;
+      color: #fff;
+      font-weight: 700;
+      padding: 11px;
+      border-radius: var(--radius-md);
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      text-decoration: none;
+      font-size: 13.5px;
+    }
+    .btn-action-copy {
+      background: var(--brand-yellow);
+      color: #000;
+      font-weight: 800;
+      padding: 11px;
+      border-radius: var(--radius-md);
+      border: none;
+      font-size: 13.5px;
+    }
+
+    /* TOAST */
+    .toast-msg {
+      position: fixed;
+      top: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-100px);
+      background: #000;
+      color: #fff;
+      padding: 12px 24px;
+      border-radius: var(--radius-full);
+      font-size: 14px;
+      font-weight: 700;
+      z-index: 3000;
+      opacity: 0;
+      pointer-events: none;
+      box-shadow: var(--shadow-xl);
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .toast-msg.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+
+    /* FOOTER */
+    footer.site-footer {
+      background: var(--bg-surface);
+      border-top: 1px solid var(--border-light);
+      padding: 32px 24px 64px;
+      margin-top: 48px;
+    }
+    .footer-container {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      flex-wrap: wrap;
+      color: var(--text-muted);
+      font-size: 13.5px;
+    }
+    .footer-links {
+      display: flex;
+      gap: 24px;
+    }
+    .footer-links a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-weight: 500;
+    }
+    .footer-links a:hover {
+      color: var(--text-main);
+    }
+    .footer-socials {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .social-circle {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: var(--bg-muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      text-decoration: none;
+    }
+    .social-circle:hover {
+      color: var(--text-main);
+      background: var(--bg-hover);
+    }
+
+    /* RESPONSIVE BREAKPOINTS */
+    @media (max-width: 1200px) {
+      .cards-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+      .vip-carousel {
+        grid-auto-columns: calc((100% - 32px) / 3);
+      }
+    }
+
+    @media (max-width: 900px) {
+      .cards-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .vip-carousel {
+        grid-auto-columns: calc((100% - 16px) / 2.2);
+      }
+      .services-banner-row {
+        grid-template-columns: 1fr;
+      }
+      .content-layout.split-map-active {
+        grid-template-columns: 1fr;
+      }
+      .map-sidebar-container {
+        display: none !important;
+      }
+    }
+
+    @media (max-width: 640px) {
+      header.site-header {
+        padding: 10px 16px;
+      }
+      .header-right .btn-create-ad,
+      .header-right .action-icon-btn.hide-on-mobile {
+        display: none;
+      }
+      .lang-switcher span {
+        display: none;
+      }
+      .toolbar-row, .services-banner-row, .segmented-tabs-wrapper, .quick-chips-wrapper, .vip-section, .main-section {
+        padding-left: 16px;
+        padding-right: 16px;
+      }
+      .cards-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+      }
+      .vip-carousel {
+        grid-auto-columns: 78%;
+      }
+      .mobile-bottom-bar {
+        display: grid;
+      }
+      footer.site-footer {
+        padding-bottom: 96px;
+      }
+      .floating-widget-dock {
+        bottom: 76px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- TOAST NOTIFICATION -->
+  <div id="toast" class="toast-msg"></div>
+
+  <!-- SITE HEADER -->
+  <header class="site-header">
+    <div class="header-container">
+      <!-- LEFT -->
+      <div class="header-left">
+        <a href="#" class="brand-logo" onclick="window.location.reload(); return false;">
+          <div class="brand-icon">
+            <svg viewBox="0 0 24 24">
+              <path d="M12 3L2 12h3v8h6v-6h2v6h6v-8h3L12 3z"/>
+            </svg>
+          </div>
+          <span>JOYMEE</span>
+        </a>
+        
+        <button class="lang-switcher clickable" id="langBtn" onclick="toggleLang()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+          </svg>
+          <span id="langLabel">RU</span>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+
+        <button class="theme-toggle-btn clickable" id="themeBtn" onclick="toggleTheme()" title="Переключить тему">
+          <svg id="themeIconMoon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>
+          </svg>
+          <svg id="themeIconSun" style="display:none;" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- CENTER SEARCH -->
+      <div class="header-center">
+        <div class="search-wrapper">
+          <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
+          </svg>
+          <input type="text" id="searchInput" class="search-input" placeholder="Поиск по адресу, району, метро..." autocomplete="off">
+          <button class="search-clear-btn" id="searchClearBtn" onclick="clearSearch()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- RIGHT ACTIONS -->
+      <div class="header-right">
+        <button class="action-icon-btn clickable hide-on-mobile" title="Профиль">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+          </svg>
+        </button>
+
+        <button class="action-icon-btn clickable" id="favHeaderBtn" onclick="toggleFavFilter()" title="Избранное">
+          <svg id="favHeaderIcon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
+          </svg>
+          <span class="badge-counter" id="favCountBadge" style="display:none;">0</span>
+        </button>
+
+        <button class="btn-create-ad clickable" onclick="openNewAdModal()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5v14"/></svg>
+          <span>Разместить</span>
+        </button>
+
+        <button class="action-icon-btn clickable hide-on-mobile" title="Риелторам">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
+          </svg>
+        </button>
+
+        <button class="action-icon-btn clickable hide-on-mobile" title="Уведомления">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>
+          </svg>
+        </button>
+
+        <button class="user-avatar-btn clickable" title="Мой аккаунт">
+          <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80" alt="Avatar">
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- TOOLBAR ROW 1 (Switchers, Map, Filters) -->
+  <div class="toolbar-row">
+    <div class="toolbar-container">
+      <!-- VIEW SWITCHER -->
+      <div class="view-switchers">
+        <button class="view-btn active clickable" id="viewGridBtn" onclick="setViewMode('grid')">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/>
+          </svg>
+        </button>
+        <button class="view-btn clickable" id="viewListBtn" onclick="setViewMode('list')">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <line x1="8" x2="21" y1="6" y2="6"/><line x1="8" x2="21" y1="12" y2="12"/><line x1="8" x2="21" y1="18" y2="18"/><line x1="3" x2="3.01" y1="6" y2="6"/><line x1="3" x2="3.01" y1="12" y2="12"/><line x1="3" x2="3.01" y1="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- MAP TOGGLE -->
+      <button class="pill-action-btn clickable" id="mapToggleBtn" onclick="toggleMapSplit()">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/>
+          <line x1="9" x2="9" y1="3" y2="18"/><line x1="15" x2="15" y1="6" y2="21"/>
+        </svg>
+        <span>Смотреть на карте</span>
+      </button>
+
+      <!-- FILTERS BUTTON -->
+      <button class="pill-action-btn clickable" onclick="openFilterModal()">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="4" x2="20" y1="21" y2="21"/><line x1="4" x2="20" y1="3" y2="3"/><line x1="4" x2="20" y1="12" y2="12"/><circle cx="14" cy="21" r="2"/><circle cx="8" cy="12" r="2"/><circle cx="16" cy="3" r="2"/>
+        </svg>
+        <span>Фильтры</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- SERVICE BANNERS (Ипотека & Консультация) -->
+  <div class="services-banner-row">
+    <a href="#" class="service-card clickable" onclick="showToast('Заявка на ипотеку: одобрение сразу в 10+ банках!'); return false;">
+      <div class="service-info">
+        <div class="service-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+          </svg>
+        </div>
+        <div class="service-texts">
+          <h4>Заявка на ипотеку</h4>
+          <p>Сразу в 10+ банков</p>
+        </div>
+      </div>
+      <div class="service-arrow">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>
+      </div>
+    </a>
+
+    <a href="#" class="service-card clickable" onclick="showToast('Специалист перезвонит вам в течение 10 минут!'); return false;">
+      <div class="service-info">
+        <div class="service-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+          </svg>
+        </div>
+        <div class="service-texts">
+          <h4>Бесплатная консультация</h4>
+          <p>Специалист перезвонит</p>
+        </div>
+      </div>
+      <div class="service-arrow">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>
+      </div>
+    </a>
+  </div>
+
+  <!-- SEGMENTED TABS (Продажа / Аренда / Посуточная) -->
+  <div class="segmented-tabs-wrapper">
+    <div class="segmented-tabs">
+      <button class="deal-tab active clickable" onclick="setDealType('all', this)">Все варианты</button>
+      <button class="deal-tab clickable" onclick="setDealType('Продажа', this)">Продажа</button>
+      <button class="deal-tab clickable" onclick="setDealType('Аренда', this)">Аренда</button>
+      <button class="deal-tab clickable" onclick="setDealType('Посуточная', this)">Посуточная</button>
+    </div>
+  </div>
+
+  <!-- QUICK CHIPS -->
+  <div class="quick-chips-wrapper">
+    <div class="quick-chips">
+      <button class="filter-chip clickable" onclick="openFilterModal()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="16" height="20" x="4" y="2" rx="2"/><path d="M9 22v-4h6v4M8 6h.01M16 6h.01M8 10h.01M16 10h.01M8 14h.01M16 14h.01"/></svg>
+        <span>Тип недвижимости</span>
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+      </button>
+
+      <button class="filter-chip chip-owner clickable" id="chipOwnerBtn" onclick="toggleOwnerFilter()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <span>Собственник</span>
+      </button>
+
+      <button class="filter-chip clickable" onclick="showToast('Фильтр: Доступна ипотека')">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" x2="21" y1="22" y2="22"/><line x1="6" x2="6" y1="11" y2="18"/><line x1="10" x2="10" y1="11" y2="18"/><line x1="14" x2="14" y1="11" y2="18"/><line x1="18" x2="18" y1="11" y2="18"/><polygon points="12 2 20 7 4 7"/></svg>
+        <span>Доступна ипотека</span>
+      </button>
+
+      <button class="filter-chip clickable" onclick="filterByPeriod('week')">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        <span>За неделю</span>
+      </button>
+
+      <button class="filter-chip clickable" onclick="filterByPeriod('month')">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
+        <span>За месяц</span>
+      </button>
+
+      <button class="filter-chip clickable" style="background:var(--accent-green-bg); color:var(--accent-green); border-color:var(--accent-green-border);" onclick="showToast('Абсолютно 0% комиссии на все объекты!');">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        <span>0% комиссии риелтора</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- VIP ОБЪЯВЛЕНИЯ -->
+  <section class="vip-section">
+    <div class="vip-header">
+      <div class="vip-title">
+        <span>VIP объявления</span>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m9 18 6-6-6-6"/></svg>
+      </div>
+      <div class="vip-carousel-nav">
+        <button class="carousel-nav-btn clickable" onclick="scrollVip(-1)">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m15 18-6-6 6-6"/></svg>
+        </button>
+        <button class="carousel-nav-btn clickable" onclick="scrollVip(1)">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m9 18 6-6-6-6"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- VIP CAROUSEL -->
+    <div class="vip-carousel" id="vipCarousel">
+      <!-- Populated via JS -->
+    </div>
+
+    <!-- DOTS -->
+    <div class="vip-dots" id="vipDots">
+      <div class="vip-dot active"></div>
+      <div class="vip-dot"></div>
+      <div class="vip-dot"></div>
+      <div class="vip-dot"></div>
+      <div class="vip-dot"></div>
+    </div>
+  </section>
+
+  <!-- MAIN FEED & MAP SECTION -->
+  <main class="main-section">
+    <div class="feed-header-bar">
+      <div class="feed-counts">
+        <h2 id="foundCount">Найдено: 37,001</h2>
+        <p id="totalCount">Все объявления: 71,466 • Прямые контакты собственников</p>
+      </div>
+
+      <div class="feed-sort-wrapper">
+        <select class="sort-select" id="sortSelect" onchange="handleSort(this.value)">
+          <option value="newest">Сортировка: Самые новые</option>
+          <option value="price_asc">Сначала дешевле</option>
+          <option value="price_desc">Сначала дороже</option>
+          <option value="savings">Максимальная экономия</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- CONTENT LAYOUT (CARDS GRID + OPTIONAL SIDE MAP) -->
+    <div class="content-layout" id="contentLayout">
+      <!-- FEED GRID -->
+      <div class="cards-grid" id="cardsGrid">
+        <!-- Rendered via JS -->
+      </div>
+
+      <!-- MAP SIDEBAR -->
+      <div class="map-sidebar-container" id="mapSidebar">
+        <div id="leafletMap"></div>
+      </div>
+    </div>
+  </main>
+
+  <!-- FLOATING ACTION DOCK (Screenshot widget) -->
+  <div class="floating-widget-dock clickable" onclick="showToast('Платформа проверена: 100% собственников, 0% риелторов')">
+    <button class="dock-close-btn" onclick="event.stopPropagation(); this.parentElement.style.display='none';">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6 6 18M6 6l12 12"/></svg>
+    </button>
+    <div class="dock-dots">••••••••••</div>
+    <div class="dock-check">✓</div>
+  </div>
+
+  <!-- CONTACT PHONE MODAL -->
+  <div class="modal-overlay" id="contactModal" onclick="closeContactModal()">
+    <div class="modal-card" onclick="event.stopPropagation()">
+      <button class="modal-close-btn clickable" onclick="closeContactModal()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+
+      <div class="modal-owner-badge">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        <span>ПРОВЕРЕННЫЙ СОБСТВЕННИК</span>
+      </div>
+
+      <h3 id="modalTitle" style="font-size: 18px; font-weight:800; line-height:1.3;">Квартира</h3>
+      <p id="modalAddress" style="color:var(--text-muted); font-size:13px; margin-top:4px;">Адрес объекта</p>
+
+      <div class="modal-phone-box">
+        <p style="font-size:12px; color:var(--text-muted); font-weight:600; text-transform:uppercase;">Прямой номер хозяина</p>
+        <div class="modal-phone-number" id="modalPhone">+7 (985) 802-49-25</div>
+        <p style="font-size:11.5px; color:#10b981; font-weight:700; margin-top:4px;" id="modalSavingsTag">✓ Экономия: 45 000 ₽ на комиссии</p>
+      </div>
+
+      <div class="modal-actions">
+        <a id="modalTgLink" href="https://t.me" target="_blank" class="btn-action-tg clickable">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 0 0-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.74-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .38z"/></svg>
+          <span>Telegram</span>
+        </a>
+        <button class="btn-action-copy clickable" onclick="copyModalPhone()">
+          <span>Копировать</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- FILTER MODAL -->
+  <div class="modal-overlay" id="filterModal" onclick="closeFilterModal()">
+    <div class="modal-card" onclick="event.stopPropagation()">
+      <button class="modal-close-btn clickable" onclick="closeFilterModal()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+
+      <h3 style="font-size: 20px; font-weight:800; margin-bottom:16px;">Фильтры поиска</h3>
+
+      <div style="margin-bottom:16px;">
+        <label style="font-size:13px; font-weight:700; color:var(--text-muted); display:block; margin-bottom:8px;">Количество комнат</label>
+        <div style="display:flex; gap:6px;">
+          <button class="filter-chip clickable" onclick="this.classList.toggle('active')">Студия</button>
+          <button class="filter-chip clickable" onclick="this.classList.toggle('active')">1-комн</button>
+          <button class="filter-chip clickable active" onclick="this.classList.toggle('active')">2-комн</button>
+          <button class="filter-chip clickable" onclick="this.classList.toggle('active')">3-комн</button>
+          <button class="filter-chip clickable" onclick="this.classList.toggle('active')">4+</button>
+        </div>
+      </div>
+
+      <div style="margin-bottom:16px;">
+        <label style="font-size:13px; font-weight:700; color:var(--text-muted); display:block; margin-bottom:8px;">Цена, ₽ / мес</label>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+          <input type="number" placeholder="От 20 000" class="search-input" style="height:38px; padding-left:14px;">
+          <input type="number" placeholder="До 250 000" class="search-input" style="height:38px; padding-left:14px;">
+        </div>
+      </div>
+
+      <div style="margin-bottom:20px;">
+        <label style="font-size:13px; font-weight:700; color:var(--text-muted); display:block; margin-bottom:8px;">Дополнительно</label>
+        <div style="display:flex; flex-direction:column; gap:8px;">
+          <label style="display:flex; align-items:center; gap:8px; font-size:13.5px; font-weight:600; cursor:pointer;">
+            <input type="checkbox" checked style="accent-color:var(--brand-yellow); width:18px; height:18px;">
+            <span>Только от собственников (без риелторов)</span>
+          </label>
+          <label style="display:flex; align-items:center; gap:8px; font-size:13.5px; font-weight:600; cursor:pointer;">
+            <input type="checkbox" checked style="accent-color:var(--brand-yellow); width:18px; height:18px;">
+            <span>Без залога или залог 50%</span>
+          </label>
+          <label style="display:flex; align-items:center; gap:8px; font-size:13.5px; font-weight:600; cursor:pointer;">
+            <input type="checkbox" style="accent-color:var(--brand-yellow); width:18px; height:18px;">
+            <span>Можно с детьми и животными</span>
+          </label>
+        </div>
+      </div>
+
+      <button class="btn-create-ad clickable" style="width:100%; justify-content:center;" onclick="closeFilterModal(); showToast('Фильтры успешно применены!');">
+        Показать результаты
+      </button>
+    </div>
+  </div>
+
+  <!-- MOBILE FIXED BOTTOM TAB BAR -->
+  <nav class="mobile-bottom-bar">
+    <a href="#" class="mobile-tab-item active clickable" onclick="setDealType('all'); return false;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+      <span>Главная</span>
+    </a>
+    <a href="#" class="mobile-tab-item clickable" onclick="document.getElementById('searchInput').focus(); return false;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+      <span>Поиск</span>
+    </a>
+    <a href="#" class="mobile-tab-item clickable" onclick="openNewAdModal(); return false;">
+      <div class="mobile-tab-center-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 12h14M12 5v14"/></svg>
+      </div>
+      <span>Подать</span>
+    </a>
+    <a href="#" class="mobile-tab-item clickable" onclick="toggleFavFilter(); return false;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+      <span>Избранное</span>
+    </a>
+    <a href="#" class="mobile-tab-item clickable" onclick="showToast('Профиль пользователя'); return false;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      <span>Профиль</span>
+    </a>
+  </nav>
+
+  <!-- FOOTER -->
+  <footer class="site-footer">
+    <div class="footer-container">
+      <div>
+        <strong>© 2026 KABIRJANOV IT GROUP, MCHJ</strong> — Платформа недвижимости Joymee Sniper
+      </div>
+      <div class="footer-links">
+        <a href="#" onclick="showToast('Реклама и партнерство: contact@joymee.uz'); return false;">Реклама и сотрудничество</a>
+        <a href="#" onclick="showToast('Публичная оферта сервиса'); return false;">Публичная оферта</a>
+        <a href="#" onclick="showToast('Служба поддержки: @joymee_support'); return false;">Поддержка</a>
+      </div>
+      <div class="footer-socials">
+        <a href="https://t.me" target="_blank" class="social-circle clickable" title="Telegram">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 0 0-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.74-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .38z"/></svg>
+        </a>
+        <a href="https://instagram.com" target="_blank" class="social-circle clickable" title="Instagram">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>
+        </a>
+        <a href="https://youtube.com" target="_blank" class="social-circle clickable" title="YouTube">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2.5 17a24.12 24.12 0 0 1 0-10 2 2 0 0 1 1.4-1.4 49.56 49.56 0 0 1 16.2 0A2 2 0 0 1 21.5 7a24.12 24.12 0 0 1 0 10 2 2 0 0 1-1.4 1.4 49.55 49.55 0 0 1-16.2 0A2 2 0 0 1 2.5 17"/><polygon points="10 15 15 12 10 9 10 15"/></svg>
+        </a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- DATA & SCRIPTS -->
+  <script>
+    const VIP_ITEMS = [{"id": "vip-1", "title": "Samarqand darvoza. 650y.e. 2-xona yangi ta'mir", "price": "650 y.e", "price_sub": "≈ 8 450 000 so'm / oy", "type": "Аренда", "district": "Shayxontohur tumani", "metro": "Samarqand Darvoza", "owner": "Dilshod (Собственник)", "phone": "+998 90 123 45 67", "saving": "650 y.e (0% комиссия)", "photo": "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800&auto=format&fit=crop&q=80", "photos": ["https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800&auto=format&fit=crop&q=80", "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800&auto=format&fit=crop&q=80"]}, {"id": "vip-2", "title": "Yunusobod 13 kvartal 6 dom 24 xonadon", "price": "65 000 y.e", "price_sub": "3 xona, 84 m², Novostroyka", "type": "Продажа", "district": "Yunusobod tumani", "metro": "Shahriston", "owner": "Alisher (Собственник)", "phone": "+998 97 765 43 21", "saving": "1 950 y.e (0% риелтору)", "photo": "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&auto=format&fit=crop&q=80", "photos": ["https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&auto=format&fit=crop&q=80", "https://images.unsplash.com/photo-1600566753376-12c8ab7fb75b?w=800&auto=format&fit=crop&q=80"]}, {"id": "vip-3", "title": "Продаётся 3-х комнатная квартира в ЖК Mirabad Avenue", "price": "186 000 y.e", "price_sub": "115 m², Дизайнерский ремонт", "type": "Продажа", "district": "Mirobod tumani", "metro": "Oybek / Toshkent", "owner": "Nodirbek (Собственник)", "phone": "+998 99 888 12 34", "saving": "5 580 y.e (0% комиссия)", "photo": "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800&auto=format&fit=crop&q=80", "photos": ["https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800&auto=format&fit=crop&q=80", "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800&auto=format&fit=crop&q=80"]}, {"id": "vip-4", "title": "Продается 3-комнатная квартира в Элегантном ЖК Infinity", "price": "320 000 y.e", "price_sub": "160 m², Видовая терраса", "type": "Продажа", "district": "Yashnobod tumani", "metro": "Mashinasozlar", "owner": "Aziz (Собственник)", "phone": "+998 93 500 20 30", "saving": "9 600 y.e (0% риелтору)", "photo": "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=800&auto=format&fit=crop&q=80", "photos": ["https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=800&auto=format&fit=crop&q=80"]}, {"id": "vip-5", "title": "Shinam qulay hamyonbop narxlarda IJARA Chilonzor", "price": "25 000 so'm", "price_sub": "Kunlik / Sutkaga, Barcha sharoitlar", "type": "Посуточная", "district": "Chilonzor tumani", "metro": "Mirzo Ulug'bek", "owner": "Farrux (Собственник)", "phone": "+998 94 400 11 22", "saving": "100% без посредников", "photo": "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800&auto=format&fit=crop&q=80", "photos": ["https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800&auto=format&fit=crop&q=80"]}, {"id": "vip-6", "title": "2-xona kvartira Oybek metrosi yonida, Yevro remont", "price": "800 y.e", "price_sub": "≈ 10 400 000 so'm / oy", "type": "Аренда", "district": "Mirobod tumani", "metro": "Oybek", "owner": "Malika (Собственник)", "phone": "+998 90 999 77 66", "saving": "800 y.e (0% комиссия)", "photo": "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=800&auto=format&fit=crop&q=80", "photos": ["https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=800&auto=format&fit=crop&q=80"]}];
+    const OFFERS = [{"id": "offer-326270526", "title": "Видовая 4 комнатная квартира", "price": "21 700 000 ₽", "price_val": 310000, "deal_type": "Продажа", "deposit": "Залог: 330 000 ₽", "address": "Россия, Москва, улица Исаковского, 39", "lat": 55.806186, "lng": 37.424902, "photos": ["https://images.cdn-cian.ru/images/kvartira-moskva-ulica-isakovskogo-2786817160-1.jpg", "https://images.cdn-cian.ru/images/kvartira-moskva-ulica-isakovskogo-2786750407-1.jpg", "https://images.cdn-cian.ru/images/kvartira-moskva-ulica-isakovskogo-2786700462-1.jpg", "https://images.cdn-cian.ru/images/kvartira-moskva-ulica-isakovskogo-2786700463-1.jpg", "https://images.cdn-cian.ru/images/kvartira-moskva-ulica-isakovskogo-2786750135-1.jpg"], "phone": "+7 (985) 802-49-25", "saving": "651 000 ₽", "is_owner": true, "is_vip": true, "is_new": true, "is_top": true, "description": "4-кoмнатнaя квартиpа с шикapным видом в эколoгичecки чиcтoм районе Мocквы. Из oкон вcex кoмнaт пaнорaмный вид.\nЖК бизнeс-классa Oлимпия рaсполoжeн в Cтpогино, пpямо у паpкa и на бepегу Москвы-pеки.\nTеpритоpия кoмплeкca зaкpытая, под круглосуточной охраной и видеонаблюдением. Во дворе — современная д"}, {"id": "offer-334072203", "title": "Видовая.Без комиссии.Собственник", "price": "75 000 ₽ / мес", "price_val": 75000, "deal_type": "Аренда", "deposit": "Залог: 75 000 ₽", "address": "Россия, Москва, проспект Лихачёва, 16к4", "lat": 55.689238, "lng": 37.653676, "photos": ["https://images.cdn-cian.ru/images/kvartira-moskva-lihacheva-prospekt-2968030084-1.jpg", "https://images.cdn-cian.ru/images/2968050318-1.jpg", "https://images.cdn-cian.ru/images/kvartira-moskva-lihacheva-prospekt-2968030987-1.jpg", "https://images.cdn-cian.ru/images/kvartira-moskva-lihacheva-prospekt-2968034916-1.jpg", "https://images.cdn-cian.ru/images/kvartira-moskva-lihacheva-prospekt-2968036224-1.jpg"], "phone": "+7 (985) 703-76-88", "saving": "75 000 ₽ (100% экономия)", "is_owner": true, "is_vip": true, "is_new": false, "is_top": false, "description": "Сдается двухуровневая студия с видом на реку Москву. ЖК бизнес класса , круглосуточная охрана, двор без машин. Красивая прогулочная набережная. Залог можно разбить на 2-3 части.  Без комиссии. Все коммунальные платежи включены в стоимость аренды."}, {"id": "offer-332810474", "title": "2-комн. квартира, 50.0 м²", "price": "62 000 ₽ / мес", "price_val": 62000, "deal_type": "Аренда", "deposit": "Без залога", "address": "Россия, Москва, улица Цюрупы, 11к1", "lat": 55.666924, "lng": 37.571408, "photos": ["https://images.cdn-cian.ru/images/kvartira-moskva-ulica-cyurupy-2941236396-1.jpg", "https://images.cdn-cian.ru/images/kvartira-moskva-ulica-cyurupy-2941236385-1.jpg", "https://images.cdn-cian.ru/images/kvartira-moskva-ulica-cyurupy-2941236387-1.jpg", "https://images.cdn-cian.ru/images/kvartira-moskva-ulica-cyurupy-2941236379-1.jpg", "https://images.cdn-cian.ru/images/kvartira-moskva-ulica-cyurupy-2941236386-1.jpg"], "phone": "+7 (985) 476-00-59", "saving": "62 000 ₽ (100% экономия)", "is_owner": true, "is_vip": true, "is_new": false, "is_top": true, "description": "Сдаётся 2-комнатная квартира на первом этаже 9-этажного панельного дома. Площадь квартиры — 50 кв. м. Высота потолков — 2,64 метра, окна выходят как на улицу, так и во двор.\n\nВ квартире сделан косметический ремонт, но приветствуется дополнительный ремонт под себя в счёт квартплаты. Комнаты обставлен"}, {"id": "offer-334616007", "title": "2-х комн. квартира в ЖК Дыхание", "price": "110 000 ₽ / мес", "price_val": 110000, "deal_type": "Аренда", "deposit": "Залог: 120 000 ₽", "address": "Россия, Москва, Дмитровское шоссе, 13", "lat": 55.817355, "lng": 37.573115, "photos": ["https://images.cdn-cian.ru/images/kvartira-moskva-dmitrovskoe-shosse-2979578337-1.jpg", "https://images.cdn-cian.ru/images/kvartira-moskva-dmitrovskoe-shosse-2979578307-1.jpg", "https://images.cdn-cian.ru/images/kvartira-moskva-dmitrovskoe-shosse-2979577519-1.jpg", "https://images.cdn-cian.ru/images/kvartira-moskva-dmitrovskoe-shosse-2979577443-1.jpg", "https://images.cdn-cian.ru/images/kvartira-moskva-dmitrovskoe-shosse-2979577465-1.jpg"], "phone": "+7 (985) 632-93-36", "saving": "110 000 ₽ (100% экономия)", "is_owner": true, "is_vip": false, "is_new": true, "is_top": false, "description": "СОБСТВЕННИК. Без комиссии. ЖК Дыхание. Сдаётся прекрасная двухкомнатная квартира. Современный качественный ремонт в классическом стиле. Мебель и бытовая техника, включая холодильник, стиральную и посудомоечную машины. Большая гостиная и одна изолированная комната. Подключен интернет и тв. Кондиционе"}, {"id": "offer-321845221", "title": "Впервые после ремонта без комисси", "price": "8 400 000 ₽", "price_val": 120000, "deal_type": "Продажа", "deposit": "Залог: 120 000 ₽", "address": "Россия, Москва, улица Ивана Франко, 6", "lat": 55.727841, "lng": 37.450872, "photos": ["https://images.cdn-cian.ru/images/kvartira-moskva-ulica-ivana-franko-2630198138-1.jpg", "https://images.cdn-cian.ru/images/kvartira-moskva-ulica-ivana-franko-2630434285-1.jpg", "https://images.cdn-cian.ru/images/kvartira-moskva-ulica-ivana-franko-2630215143-1.jpg", "https://images.cdn-cian.ru/images/kvartira-moskva-ulica-ivana-franko-2630215142-1.jpg", "https://images.cdn-cian.ru/images/kvartira-moskva-ulica-ivana-franko-2630215139-1.jpg"], "phone": "+7 (985) 043-98-69", "saving": "252 000 ₽", "is_owner": true, "is_vip": false, "is_new": false, "is_top": true, "description": "Сдаю в аренду c 1 октября стильные апартаменты в современном доме после ремонта по адресу: Москва, улица Ивана Франко, 6. Просторные 3-комнатные апартаменты площадью 60 кв.м расположены на 12 этаже 19-этажного монолитного здания, построенного в 2022 году. Комнаты с общей жилой площадью 40 кв.м идеал"}, {"id": "offer-314484952", "title": "1-комн. квартира, 33.0 м²", "price": "40 000 ₽ / мес", "price_val": 40000, "deal_type": "Аренда", "deposit": "Залог: 40 000 ₽", "address": "Россия, Москва, Петрозаводская улица, 22", "lat": 55.866768, "lng": 37.496623, "photos": ["https://images.cdn-cian.ru/images/kvartira-moskva-petrozavodskaya-ulica-2418802128-1.jpg", "https://images.cdn-cian.ru/images/2418896756-1.jpg", "https://images.cdn-cian.ru/images/kvartira-moskva-petrozavodskaya-ulica-2418958562-1.jpg", "https://images.cdn-cian.ru/images/kvartira-moskva-petrozavodskaya-ulica-2418802644-1.jpg", "https://images.cdn-cian.ru/images/kvartira-moskva-petrozavodskaya-ulica-2418802763-1.jpg"], "phone": "+7 (985) 476-00-59", "saving": "40 000 ₽ (100% экономия)", "is_owner": true, "is_vip": false, "is_new": false, "is_top": false, "description": "Сдаётся однокомнатная квартира общей площадью 33 кв. м на 4 этаже 9-этажного дома. Квартира расположена в пешей доступности от метро \"Беломорская\" — всего 15 минут спокойным шагом.\n\nВ квартире есть всё необходимое для проживания: холодильник и стиральная машина, мебель в комнате и на кухне. Санузел "}, {"id": "offer-335093709", "title": "1-комн. квартира, 40.0 м²", "price": "50 000 ₽ / мес", "price_val": 50000, "deal_type": "Аренда", "deposit": "Залог: 50 000 ₽", "address": "Россия, Москва, Чечёрский проезд, 122к2", "lat": 55.525863, "lng": 37.513233, "photos": ["https://images.cdn-cian.ru/images/kvartira-moskva-checherskiy-proezd-2988643240-1.jpg", "https://images.cdn-cian.ru/images/kvartira-moskva-checherskiy-proezd-2988643279-1.jpg", "https://images.cdn-cian.ru/images/kvartira-moskva-checherskiy-proezd-2988643254-1.jpg", "https://images.cdn-cian.ru/images/kvartira-moskva-checherskiy-proezd-2988757148-1.jpg", "https://images.cdn-cian.ru/images/kvartira-moskva-checherskiy-proezd-2989847225-1.jpg"], "phone": "+7 (985) 807-69-72", "saving": "50 000 ₽ (100% экономия)", "is_owner": true, "is_vip": false, "is_new": true, "is_top": true, "description": "Сдаётся в аренду уютная однокомнатная квартира общей площадью 40 кв. м. Квартира расположена на 8 этаже 18-этажного монолитного дома, построенного в 2016 году. Высота потолков составляет 2.7 метра, из окон открывается вид во двор. До метро \"Бунинская аллея\" можно дойти за 21 минуту.\n\nВ квартире есть"}, {"id": "offer-334154301", "title": "Квартира в элитном high garden", "price": "2 300 000 ₽ / мес", "price_val": 2300000, "deal_type": "Аренда", "deposit": "Залог: 2 300 000 ₽", "address": "Россия, Москва, 2-й Неопалимовский переулок, 3", "lat": 55.73925, "lng": 37.582493, "photos": ["https://images.cdn-cian.ru/images/kvartira-moskva-2y-neopalimovskiy-pereulok-2970155686-1.jpg", "https://images.cdn-cian.ru/images/kvartira-moskva-2y-neopalimovskiy-pereulok-2970155683-1.jpg", "https://images.cdn-cian.ru/images/kvartira-moskva-2y-neopalimovskiy-pereulok-2970155684-1.jpg", "https://images.cdn-cian.ru/images/kvartira-moskva-2y-neopalimovskiy-pereulok-2970155678-1.jpg", "https://images.cdn-cian.ru/images/kvartira-moskva-2y-neopalimovskiy-pereulok-2970155688-1.jpg"], "phone": "+7 (985) 673-91-67", "saving": "2 300 000 ₽ (100% экономия)", "is_owner": true, "is_vip": false, "is_new": false, "is_top": false, "description": "Квартира в элитном комплексе high garden! Новый комплекс, в квартире только закончили ремонт! есть пятая комната, которая трансформируется под нужды (комната помощницы, кабинет, еще одна гардеробная). входит 2 места на паркинге"}, {"id": "offer-284492333", "title": "1-комн. квартира, 19.0 м²", "price": "3 780 000 ₽", "price_val": 54000, "deal_type": "Продажа", "deposit": "Залог: 50 000 ₽", "address": "Россия, Москва, Автозаводская улица, 19к1", "lat": 55.703885, "lng": 37.652768, "photos": ["https://images.cdn-cian.ru/images/86/332/551/kvartira-moskva-avtozavodskaya-ulica-1552336838-1.jpg", "https://images.cdn-cian.ru/images/08/686/551/kvartira-moskva-avtozavodskaya-ulica-1556868083-1.jpg", "https://images.cdn-cian.ru/images/86/332/551/kvartira-moskva-avtozavodskaya-ulica-1552336849-1.jpg", "https://images.cdn-cian.ru/images/18/686/551/kvartira-moskva-avtozavodskaya-ulica-1556868111-1.jpg", "https://images.cdn-cian.ru/images/48/742/551/kvartira-moskva-avtozavodskaya-ulica-1552478464-1.jpg"], "phone": "+7 (985) 274-17-79", "saving": "113 400 ₽", "is_owner": true, "is_vip": false, "is_new": false, "is_top": true, "description": "Апартаменты в модном и динамично развивающемся районе. Всё необходимое для комфортной жизни уже есть.\nВидео с обзором  пришлю по запросу. Дом легко найти   в Яндекс Картах.\nСтрого для одного жильца. Формат проживания: спокойный режим без вечеринок и без частых гостей. Подойдёт студенту или работающе"}, {"id": "offer-334884590", "title": "От собственника- квартира- студия", "price": "78 000 ₽ / мес", "price_val": 78000, "deal_type": "Аренда", "deposit": "Залог: 80 000 ₽", "address": "Россия, Москва, Новоостаповская улица, 20", "lat": 55.723881, "lng": 37.686231, "photos": ["https://images.cdn-cian.ru/images/kvartira-moskva-novoostapovskaya-ulica-2984777440-1.jpg", "https://images.cdn-cian.ru/images/kvartira-moskva-novoostapovskaya-ulica-2984777442-1.jpg", "https://images.cdn-cian.ru/images/kvartira-moskva-novoostapovskaya-ulica-2984777439-1.jpg", "https://images.cdn-cian.ru/images/kvartira-moskva-novoostapovskaya-ulica-2984777441-1.jpg", "https://images.cdn-cian.ru/images/kvartira-moskva-novoostapovskaya-ulica-2984777444-1.jpg"], "phone": "+7 (985) 600-48-42", "saving": "78 000 ₽ (100% экономия)", "is_owner": true, "is_vip": false, "is_new": true, "is_top": false, "description": "Уютная, светлая студия в ЖК Хай-Вэй с шикарным видом на центр Москвы. Тихая улица.  100 метров от Метро. Всё новое-квартира , ремонт, техника."}, {"id": "offer-334989625", "title": "2-комн. квартира, 33.4 м²", "price": "100 000 ₽ / мес", "price_val": 100000, "deal_type": "Аренда", "deposit": "Без залога", "address": "Россия, Москва, проспект Лихачёва, 12к3", "lat": 55.69039, "lng": 37.655634, "photos": ["https://images.cdn-cian.ru/images/kvartira-moskva-lihacheva-prospekt-2986438773-1.jpg", "https://images.cdn-cian.ru/images/kvartira-moskva-lihacheva-prospekt-2986438814-1.jpg", "https://images.cdn-cian.ru/images/kvartira-moskva-lihacheva-prospekt-2986438843-1.jpg", "https://images.cdn-cian.ru/images/kvartira-moskva-lihacheva-prospekt-2988494604-1.jpg", "https://images.cdn-cian.ru/images/kvartira-moskva-lihacheva-prospekt-2986438787-1.jpg"], "phone": "+7 (985) 336-68-50", "saving": "100 000 ₽ (100% экономия)", "is_owner": true, "is_vip": false, "is_new": false, "is_top": true, "description": "Сдаётся в аренду современная двухкомнатная квартира с дизайнерским ремонтом. Общая площадь составляет 33,4 кв. м, расположена на 8 этаже 10-этажного монолитного дома, построенного в 2022 году. Высота потолков — 3 метра, окна выходят во двор, что обеспечивает тишину и уют.\n\nКвартира полностью меблиро"}, {"id": "offer-331265954", "title": "2-комн. квартира, 47.0 м²", "price": "74 000 ₽ / мес", "price_val": 74000, "deal_type": "Аренда", "deposit": "Без залога", "address": "Россия, Москва, Загородное шоссе, 10к6", "lat": 55.69314, "lng": 37.600936, "photos": ["https://images.cdn-cian.ru/images/kvartira-moskva-zagorodnoe-shosse-2906080127-1.jpg", "https://images.cdn-cian.ru/images/kvartira-moskva-zagorodnoe-shosse-2906080124-1.jpg", "https://images.cdn-cian.ru/images/kvartira-moskva-zagorodnoe-shosse-2906080130-1.jpg", "https://images.cdn-cian.ru/images/kvartira-moskva-zagorodnoe-shosse-2906080126-1.jpg", "https://images.cdn-cian.ru/images/kvartira-moskva-zagorodnoe-shosse-2906080129-1.jpg"], "phone": "+7 (985) 476-00-59", "saving": "74 000 ₽ (100% экономия)", "is_owner": true, "is_vip": false, "is_new": false, "is_top": false, "description": "Уютная, очень светлая двухкомнатная квартира в спальном районе.  За окном на кухне - красивый цветущий каштан. Рядом школа и детский сад ( во дворах -  3 минуты) . Удобное транспортное сообщение, сетевые магазины, банки,  развитая  инфраструктура.  Рядом  есть  парк с прудом и спортивными оборудован"}, {"id": "offer-335057909", "title": "3-комн. апартаменты, 55м²", "price": "15 400 000 ₽", "price_val": 220000, "deal_type": "Продажа", "deposit": "Залог: 220 000 ₽", "address": "Россия, Москва, улица Новый Арбат, 15", "lat": 55.752141, "lng": 37.59242, "photos": ["https://images.cdn-cian.ru/images/kvartira-moskva-ulica-novyy-arbat-2987738735-1.jpg", "https://images.cdn-cian.ru/images/kvartira-moskva-ulica-novyy-arbat-2987738731-1.jpg", "https://images.cdn-cian.ru/images/kvartira-moskva-ulica-novyy-arbat-2987738732-1.jpg", "https://images.cdn-cian.ru/images/kvartira-moskva-ulica-novyy-arbat-2987738749-1.jpg", "https://images.cdn-cian.ru/images/kvartira-moskva-ulica-novyy-arbat-2987738751-1.jpg"], "phone": "+7 (985) 462-92-34", "saving": "462 000 ₽", "is_owner": true, "is_vip": false, "is_new": true, "is_top": true, "description": "Тихие 3-комнатные апартаменты в комплексе the Book с видом на Старый Арбат. Собственник, без комиссии.\nПросмотры и заезд с 21 октября. \n\nАренда от 11 месяцев, без комиссии для арендатора,  апарты сдаются от собственника (другие объявления от риелторов и агентств - несогласованные дубли)\nЗалог — 1 ме"}, {"id": "offer-335051694", "title": "1-комн. квартира, 47.0 м²", "price": "170 000 ₽ / мес", "price_val": 170000, "deal_type": "Аренда", "deposit": "Залог: 170 000 ₽", "address": "Россия, Москва, Басманный переулок, 5", "lat": 55.771206, "lng": 37.658212, "photos": ["https://images.cdn-cian.ru/images/kvartira-moskva-basmannyy-pereulok-2987634933-1.jpg", "https://images.cdn-cian.ru/images/kvartira-moskva-basmannyy-pereulok-2987635078-1.jpg", "https://images.cdn-cian.ru/images/kvartira-moskva-basmannyy-pereulok-2987635122-1.jpg", "https://images.cdn-cian.ru/images/kvartira-moskva-basmannyy-pereulok-2987635213-1.jpg", "https://images.cdn-cian.ru/images/kvartira-moskva-basmannyy-pereulok-2987634929-1.jpg"], "phone": "+7 (985) 743-16-68", "saving": "170 000 ₽ (100% экономия)", "is_owner": true, "is_vip": false, "is_new": false, "is_top": false, "description": "Впервые сдаётся уютная однокомнатная квартира с видом на старую Москву от собственника. Проект бюро  @mt.a_interiordesign\n\nДом бизнес класса Басманный 5 от застройщика MR Group с круглосуточной охраной и консьержами, красивая входная группа и подъезд, скоростные лифты, подземная парковка.\n\nПрекрасны"}, {"id": "offer-329980911", "title": "None-комн. квартира, 19.1 м²", "price": "30 000 ₽ / мес", "price_val": 30000, "deal_type": "Аренда", "deposit": "Залог: 30 000 ₽", "address": "Россия, Москва, ЖК Левел Южнопортовая, 13", "lat": 55.70461, "lng": 37.698187, "photos": ["https://images.cdn-cian.ru/images/kvartira-level-yuzhnoportovaya-2878531717-1.jpg", "https://images.cdn-cian.ru/images/kvartira-level-yuzhnoportovaya-2878542432-1.jpg", "https://images.cdn-cian.ru/images/kvartira-level-yuzhnoportovaya-2878548105-1.jpg", "https://images.cdn-cian.ru/images/kvartira-level-yuzhnoportovaya-2878531766-1.jpg", "https://images.cdn-cian.ru/images/kvartira-level-yuzhnoportovaya-2878532543-1.jpg"], "phone": "+7 (985) 595-73-92", "saving": "30 000 ₽ (100% экономия)", "is_owner": true, "is_vip": false, "is_new": false, "is_top": true, "description": "ЖК Левел Южнопортовая, корпус 13. \n\nСдается студия без ремонта: \n- 19.1 квм \n- без комиссии\n- залог за 1 месяц\n\nМожно использовать под склад. С учетом ситуации с топливом, особенно актуально для планирующих крупный ремонт, чтобы аккумулировать всё в одном месте, закупиться стройматериалами и оборудо"}, {"id": "offer-335128156", "title": "Дизайнерская квартира у реки", "price": "225 000 ₽ / мес", "price_val": 225000, "deal_type": "Аренда", "deposit": "Залог: 225 000 ₽", "address": "Россия, Москва, Берников переулок, 2", "lat": 55.748848, "lng": 37.649723, "photos": ["https://images.cdn-cian.ru/images/kvartira-moskva-pereulok-bernikov-2989678091-1.jpg", "https://images.cdn-cian.ru/images/kvartira-moskva-pereulok-bernikov-2989080206-1.jpg", "https://images.cdn-cian.ru/images/kvartira-moskva-pereulok-bernikov-2989080207-1.jpg", "https://images.cdn-cian.ru/images/kvartira-moskva-pereulok-bernikov-2989080205-1.jpg", "https://images.cdn-cian.ru/images/kvartira-moskva-pereulok-bernikov-2989080209-1.jpg"], "phone": "+7 (985) 936-37-04", "saving": "225 000 ₽ (100% экономия)", "is_owner": true, "is_vip": false, "is_new": true, "is_top": false, "description": "Уютная трехкомнатная квартира с дизайнерским ремонтом в двух километрах от Кремля с видом на Яузу. \n\nБерников переулок  уникальное сочетание тихого центра (в радиусе 500м два одно-подъездных дома) и транспортной доступности (в 15 минутах пешком 5 станций метро, выезд на Садовое кольцо и две набережн"}, {"id": "offer-315213420", "title": "Апартаменты с дизайнерским ремонт", "price": "11 900 000 ₽", "price_val": 170000, "deal_type": "Продажа", "deposit": "Без залога", "address": "Россия, Москва, Шереметьевская улица, 26", "lat": 55.805422, "lng": 37.617186, "photos": ["https://images.cdn-cian.ru/images/kvartira-moskva-sheremetevskaya-ulica-2433522345-1.jpg", "https://images.cdn-cian.ru/images/kvartira-moskva-sheremetevskaya-ulica-2433527587-1.jpg", "https://images.cdn-cian.ru/images/kvartira-moskva-sheremetevskaya-ulica-2433527610-1.jpg", "https://images.cdn-cian.ru/images/kvartira-moskva-sheremetevskaya-ulica-2433522841-1.jpg", "https://images.cdn-cian.ru/images/kvartira-moskva-sheremetevskaya-ulica-2433527612-1.jpg"], "phone": "+7 (985) 476-00-59", "saving": "357 000 ₽", "is_owner": true, "is_vip": false, "is_new": false, "is_top": true, "description": "Новые просторные дизайнерские апартаменты с видом на останкинскую башню. Жилой комплекс элит класса. Одна спальня, гостиная совмещенная с кухней и санузел. Большие окна, практически в пол, с великолепным видом на останкинскую башню и церковь. Квартира сразу после ремонта. Ремонт делался по индивидуа"}, {"id": "offer-333400815", "title": "1-комн. квартира, 40.0 м²", "price": "65 000 ₽ / мес", "price_val": 65000, "deal_type": "Аренда", "deposit": "Залог: 65 000 ₽", "address": "Россия, Москва, Чертановская улица, 5к2", "lat": 55.630223, "lng": 37.606487, "photos": ["https://images.cdn-cian.ru/images/kvartira-moskva-chertanovskaya-ulica-2953680563-1.jpg", "https://images.cdn-cian.ru/images/kvartira-moskva-chertanovskaya-ulica-2953691013-1.jpg", "https://images.cdn-cian.ru/images/kvartira-moskva-chertanovskaya-ulica-2953690985-1.jpg", "https://images.cdn-cian.ru/images/kvartira-moskva-chertanovskaya-ulica-2953691010-1.jpg", "https://images.cdn-cian.ru/images/kvartira-moskva-chertanovskaya-ulica-2953681389-1.jpg"], "phone": "+7 (985) 476-00-59", "saving": "65 000 ₽ (100% экономия)", "is_owner": true, "is_vip": false, "is_new": false, "is_top": false, "description": "Уютная квартира в спальном районе с отличной транспортной доступностью\n\nКвартира делалась для собственного проживания, поэтому планировка и наполнение продуманы прежде всего для комфортной жизни. Ремонту около 5 лет, квартира полностью оборудована необходимой техникой и системами хранения.\n\nПростран"}, {"id": "offer-308467041", "title": "2-комн. квартира, 53.0 м²", "price": "88 000 ₽ / мес", "price_val": 88000, "deal_type": "Аренда", "deposit": "Залог: 88 000 ₽", "address": "Россия, Москва, район Капотня, 5-й квартал, 15", "lat": 55.632972, "lng": 37.798637, "photos": ["https://images.cdn-cian.ru/images/kvartira-5y-2293236597-1.jpg", "https://images.cdn-cian.ru/images/kvartira-5y-2293236623-1.jpg", "https://images.cdn-cian.ru/images/kvartira-5y-2293302738-1.jpg", "https://images.cdn-cian.ru/images/kvartira-5y-2293302796-1.jpg", "https://images.cdn-cian.ru/images/kvartira-5y-2293236692-1.jpg"], "phone": "+7 (985) 038-44-94", "saving": "88 000 ₽ (100% экономия)", "is_owner": true, "is_vip": false, "is_new": true, "is_top": true, "description": "Kвартирa пoсле капитального pемoнта, вce гoтовo для жизни, в квapтиpe имeется техникa(новая) мeбель, пoсуда, 2 телевизора, xoлодильник, cтирaльнaя машина, дуxовoй шкaф, плитa,микроволновкa, чaйник, утюг, пылеcoс. Оплата за мecяц+ cчётчики, зaлoг за кваpтиру в размеpе 1 мecячного проживания +оплата з"}, {"id": "offer-334967609", "title": "Уютная студия", "price": "95 000 ₽ / мес", "price_val": 95000, "deal_type": "Аренда", "deposit": "Залог: 95 000 ₽", "address": "Россия, Москва, Автозаводская улица, 26/1", "lat": 55.705853, "lng": 37.631874, "photos": ["https://images.cdn-cian.ru/images/kvartira-moskva-avtozavodskaya-ulica-2986074797-1.jpg", "https://images.cdn-cian.ru/images/kvartira-moskva-avtozavodskaya-ulica-2986074780-1.jpg", "https://images.cdn-cian.ru/images/kvartira-moskva-avtozavodskaya-ulica-2986074788-1.jpg", "https://images.cdn-cian.ru/images/kvartira-moskva-avtozavodskaya-ulica-2986074777-1.jpg", "https://images.cdn-cian.ru/images/kvartira-moskva-avtozavodskaya-ulica-2986074749-1.jpg"], "phone": "+7 (985) 429-45-20", "saving": "95 000 ₽ (100% экономия)", "is_owner": true, "is_vip": false, "is_new": false, "is_top": false, "description": "Дизайнерская студия 27 м² в ЖК бизнес-класса Forst.  \n\nСдаётся стильная студия площадью 27 м² с дизайнерским ремонтом в жилом комплексе бизнес-класса. \n\nЭто пространство, в котором продумана каждая деталь: от нескольких сценариев освещения и вместительных систем хранения до качественной техники и са"}, {"id": "offer-333630310", "title": "1-комн. квартира, 39.8 м²", "price": "2 520 000 ₽", "price_val": 36000, "deal_type": "Продажа", "deposit": "Залог: 36 000 ₽", "address": "Россия, Москва, Троицк, Нагорная улица, 5", "lat": 55.492926, "lng": 37.300386, "photos": ["https://images.cdn-cian.ru/images/kvartira-troick-nagornaya-ulica-2958610804-1.jpg", "https://images.cdn-cian.ru/images/kvartira-troick-nagornaya-ulica-2958608590-1.jpg", "https://images.cdn-cian.ru/images/kvartira-troick-nagornaya-ulica-2958608650-1.jpg", "https://images.cdn-cian.ru/images/kvartira-troick-nagornaya-ulica-2958610807-1.jpg", "https://images.cdn-cian.ru/images/kvartira-troick-nagornaya-ulica-2958608702-1.jpg"], "phone": "+7 (985) 070-79-86", "saving": "75 600 ₽", "is_owner": true, "is_vip": false, "is_new": false, "is_top": true, "description": "Сдаетcя прoстopная 1-комнатнaя кваpтиpa,\nУдoбнaя плaнировка.\nЭкoлoгичeски чистый pайoн c pазвитoй инфрaстpуктурoй.\nПредложение для одного человека (женщины) или семейной пары, возраст 40+! Без детей и без животных.\nПримечание: у собственника могут быть дополнительные пожелания к жильцам - обсудите и"}, {"id": "offer-317055411", "title": "4-комн. квартира, 95.0 м²", "price": "95 000 ₽ / мес", "price_val": 95000, "deal_type": "Аренда", "deposit": "Залог: 95 000 ₽", "address": "Россия, Москва, Зеленоград, к455", "lat": 55.996787, "lng": 37.209162, "photos": ["https://images.cdn-cian.ru/images/kvartira-zelenograd-2475328072-1.jpg", "https://images.cdn-cian.ru/images/kvartira-zelenograd-2475328054-1.jpg", "https://images.cdn-cian.ru/images/kvartira-zelenograd-2475328055-1.jpg", "https://images.cdn-cian.ru/images/kvartira-zelenograd-2475328129-1.jpg", "https://images.cdn-cian.ru/images/kvartira-zelenograd-2475328060-1.jpg"], "phone": "+7 (985) 497-29-84", "saving": "95 000 ₽ (100% экономия)", "is_owner": true, "is_vip": false, "is_new": true, "is_top": false, "description": "Четырехкомнатная квартира сдается в аренду. Кирпичный дом в центре Зеленограда, тихий двор, консьерж. Квартира с отличным ремонтом, четыре изолированные комнаты, два санузла,  две застекленные лоджии. Кухня оборудована встроенной техникой: холодильник с морозильной камерой, варочная панель, духовой "}, {"id": "offer-309674171", "title": "агентам не беспокоить", "price": "145 000 ₽ / мес", "price_val": 145000, "deal_type": "Аренда", "deposit": "Залог: 145 000 ₽", "address": "Россия, Москва, Береговой проезд, 3", "lat": 55.757379, "lng": 37.508867, "photos": ["https://images.cdn-cian.ru/images/kvartira-moskva-beregovoy-proezd-2318677883-1.jpg", "https://images.cdn-cian.ru/images/kvartira-moskva-beregovoy-proezd-2318677870-1.jpg", "https://images.cdn-cian.ru/images/kvartira-moskva-beregovoy-proezd-2318677858-1.jpg", "https://images.cdn-cian.ru/images/kvartira-moskva-beregovoy-proezd-2318677929-1.jpg", "https://images.cdn-cian.ru/images/kvartira-moskva-beregovoy-proezd-2318677973-1.jpg"], "phone": "+7 (985) 314-26-12", "saving": "145 000 ₽ (100% экономия)", "is_owner": true, "is_vip": false, "is_new": false, "is_top": true, "description": "Без комиссии\nСобственник"}, {"id": "offer-305419815", "title": "2-комн. квартира, 45.0 м²", "price": "75 000 ₽ / мес", "price_val": 75000, "deal_type": "Аренда", "deposit": "Залог: 100 000 ₽", "address": "Россия, Москва, улица Паршина, 21к2", "lat": 55.787806, "lng": 37.459738, "photos": ["https://images.cdn-cian.ru/images/kvartira-moskva-ulica-parshina-2232448047-1.jpg", "https://images.cdn-cian.ru/images/2232700205-1.jpg", "https://images.cdn-cian.ru/images/kvartira-moskva-ulica-parshina-2232695870-1.jpg", "https://images.cdn-cian.ru/images/kvartira-moskva-ulica-parshina-2232695970-1.jpg", "https://images.cdn-cian.ru/images/kvartira-moskva-ulica-parshina-2232448191-1.jpg"], "phone": "+7 (985) 444-57-91", "saving": "75 000 ₽ (100% экономия)", "is_owner": true, "is_vip": false, "is_new": false, "is_top": false, "description": "Сдается в аренду уютная двухкомнатная квартира, площадью 45 кв.м. В квартире хороший ремонт, очень уютно, делали для себя, с душой. Квартира оснащена всем необходимым для проживания от мебели до техники. Пространство в большой комнате разделено на 2 зоны (спальная, гостиная) перегородкой ручной рабо"}, {"id": "offer-331711836", "title": "2-комн. квартира, 61.0 м²", "price": "5 950 000 ₽", "price_val": 85000, "deal_type": "Продажа", "deposit": "Залог: 100 000 ₽", "address": "Россия, Москва, Даниловская набережная, 2к1", "lat": 55.708288, "lng": 37.643228, "photos": ["https://images.cdn-cian.ru/images/kvartira-moskva-danilovskaya-naberezhnaya-2981144371-1.jpg", "https://images.cdn-cian.ru/images/kvartira-moskva-danilovskaya-naberezhnaya-2916265621-1.jpg", "https://images.cdn-cian.ru/images/kvartira-moskva-danilovskaya-naberezhnaya-2980798541-1.jpg", "https://images.cdn-cian.ru/images/kvartira-moskva-danilovskaya-naberezhnaya-2980798530-1.jpg", "https://images.cdn-cian.ru/images/kvartira-moskva-danilovskaya-naberezhnaya-2980826137-1.jpg"], "phone": "+7 (985) 819-28-61", "saving": "178 500 ₽", "is_owner": true, "is_vip": false, "is_new": true, "is_top": true, "description": "Просторная 2-комнатная квартира 61 м² в сталинском доме — от собственника, без комиссии\n\nСдается на длительный срок квартира с хорошим ремонтом. Ранее в аренду не сдавалась.\n\nО квартире:\n• Общая площадь — 61 м²\n• две изолированные комнаты — 18 и 16 м²\n• высокие потолки — 3 м\n• окна выходят в тихий д"}, {"id": "offer-209553936", "title": "1-комн. квартира, 46.5 м²", "price": "76 000 ₽ / мес", "price_val": 76000, "deal_type": "Аренда", "deposit": "Залог: 76 000 ₽", "address": "Россия, Москва, Боровское шоссе, 2к5", "lat": 55.661359, "lng": 37.418515, "photos": ["https://images.cdn-cian.ru/images/kvartira-moskva-borovskoe-shosse-2932222314-1.jpg", "https://images.cdn-cian.ru/images/kvartira-moskva-borovskoe-shosse-2925707295-1.jpg", "https://images.cdn-cian.ru/images/kvartira-moskva-borovskoe-shosse-2914710011-1.jpg", "https://images.cdn-cian.ru/images/kvartira-moskva-borovskoe-shosse-2925707294-1.jpg", "https://images.cdn-cian.ru/images/kvartira-moskva-borovskoe-shosse-2925701272-1.jpg"], "phone": "+7 (985) 417-08-60", "saving": "76 000 ₽ (100% экономия)", "is_owner": true, "is_vip": false, "is_new": false, "is_top": false, "description": "Сдаётся уютная просторная 1-комнатная квартира от собственника. Без комиссии. С заключением договора. \n\nЗдравствуйте! \nЯ собственник этой светлой и ухоженной квартиры. Ищу порядочных и платежеспособных арендаторов на длительный срок. Готов обсудить все детали и познакомиться с вами лично.\n\nПочему ва"}, {"id": "offer-328041580", "title": "1-комн. квартира, 37.7 м²", "price": "40 000 ₽ / мес", "price_val": 40000, "deal_type": "Аренда", "deposit": "Залог: 20 000 ₽", "address": "Россия, Москва, Новокосинская улица, 23", "lat": 55.741298, "lng": 37.860809, "photos": ["https://images.cdn-cian.ru/images/kvartira-moskva-novokosinskaya-ulica-2834363368-1.jpg", "https://images.cdn-cian.ru/images/2834403884-1.jpg", "https://images.cdn-cian.ru/images/kvartira-moskva-novokosinskaya-ulica-2834363367-1.jpg", "https://images.cdn-cian.ru/images/kvartira-moskva-novokosinskaya-ulica-2834363372-1.jpg", "https://images.cdn-cian.ru/images/kvartira-moskva-novokosinskaya-ulica-2834363380-1.jpg"], "phone": "+7 (985) 476-00-59", "saving": "40 000 ₽ (100% экономия)", "is_owner": true, "is_vip": false, "is_new": false, "is_top": true, "description": "Рассматриваю жильцов, которые смогут сделать качественный ремонт. Условия обсуждаемые\n\nИз безусловных плюсов - до метро 2 минуты пешком, рядом есть разные магазины."}, {"id": "offer-332981327", "title": "Собственник. Сдаётся 1-к квартира", "price": "50 000 ₽ / мес", "price_val": 50000, "deal_type": "Аренда", "deposit": "Залог: 50 000 ₽", "address": "Россия, Москва, Реутовская улица, 16", "lat": 55.735961, "lng": 37.837534, "photos": ["https://images.cdn-cian.ru/images/kvartira-moskva-reutovskaya-ulica-2944566081-1.jpg", "https://images.cdn-cian.ru/images/kvartira-moskva-reutovskaya-ulica-2944566084-1.jpg", "https://images.cdn-cian.ru/images/kvartira-moskva-reutovskaya-ulica-2944566029-1.jpg", "https://images.cdn-cian.ru/images/kvartira-moskva-reutovskaya-ulica-2944566044-1.jpg", "https://images.cdn-cian.ru/images/kvartira-moskva-reutovskaya-ulica-2944566032-1.jpg"], "phone": "+7 (985) 264-10-16", "saving": "50 000 ₽ (100% экономия)", "is_owner": true, "is_vip": false, "is_new": true, "is_top": false, "description": "Светлая, уютная квартира с новым современным ремонтом, готова к комфортному проживанию.\nРядом парк, в пешей доступности сетевые магазины, отличная транспортная доступность. \n Расположение: Москва, Реутовская ул.д16\nПросмотр вечером будни или выходные.\nСтрого без животных!!! \nВ услугах агентов не нуж"}];
+
+    let currentDealType = 'all';
+    let onlyOwners = true;
+    let favorites = new Set();
+    let currentSearch = '';
+    let mapInstance = null;
+    let markersLayer = null;
+    let isMapOpen = false;
+
+    // INITIALIZATION
+    document.addEventListener('DOMContentLoaded', () => {
+      renderVipCarousel();
+      renderOffers();
+      setupSearch();
+      setupVipScrollListener();
+      initTheme();
+    });
+
+    // THEME HANDLING
+    function initTheme() {
+      const saved = localStorage.getItem('joymee_theme') || 'light';
+      document.documentElement.setAttribute('data-theme', saved);
+      updateThemeIcons(saved);
+    }
+    function toggleTheme() {
+      const curr = document.documentElement.getAttribute('data-theme') || 'light';
+      const next = curr === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('joymee_theme', next);
+      updateThemeIcons(next);
+      showToast(next === 'dark' ? 'Включена тёмная тема' : 'Включена светлая тема');
+    }
+    function updateThemeIcons(theme) {
+      document.getElementById('themeIconMoon').style.display = theme === 'dark' ? 'none' : 'block';
+      document.getElementById('themeIconSun').style.display = theme === 'dark' ? 'block' : 'none';
+    }
+
+    // LANGUAGE SWITCHER
+    let currentLang = 'RU';
+    function toggleLang() {
+      currentLang = currentLang === 'RU' ? 'UZ' : (currentLang === 'UZ' ? 'EN' : 'RU');
+      document.getElementById('langLabel').textContent = currentLang;
+      showToast('Язык изменен на: ' + currentLang);
+    }
+
+    // VIP CAROUSEL
+    function renderVipCarousel() {
+      const container = document.getElementById('vipCarousel');
+      container.innerHTML = VIP_ITEMS.map(item => `
+        <div class="vip-card clickable" onclick="openContactModal('${item.id}', '${item.title.replace(/'/g, "\'")}', '${item.district}', '${item.phone}', '${item.saving}')">
+          <img src="${item.photo}" alt="${item.title}" loading="lazy">
+          <div class="vip-gradient-overlay"></div>
+          <div class="vip-badge">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M2 4l3 12h14l3-12-6 7-4-7-4 7-6-7z"/></svg>
+            <span>VIP</span>
+          </div>
+          <div class="vip-content">
+            <div class="vip-price">${item.price}</div>
+            <div class="vip-card-title">${item.title}</div>
+            <div class="vip-saving-tag">✓ ${item.saving}</div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function scrollVip(direction) {
+      const container = document.getElementById('vipCarousel');
+      const cardWidth = container.querySelector('.vip-card').offsetWidth + 16;
+      container.scrollBy({ left: direction * cardWidth * 2, behavior: 'smooth' });
+    }
+
+    function setupVipScrollListener() {
+      const container = document.getElementById('vipCarousel');
+      const dots = document.querySelectorAll('.vip-dot');
+      container.addEventListener('scroll', () => {
+        const progress = container.scrollLeft / (container.scrollWidth - container.clientWidth);
+        const activeIdx = Math.min(dots.length - 1, Math.floor(progress * dots.length + 0.3));
+        dots.forEach((d, i) => d.classList.toggle('active', i === activeIdx));
+      });
+    }
+
+    // RENDER OFFERS
+    function renderOffers() {
+      const container = document.getElementById('cardsGrid');
+      
+      let filtered = OFFERS.filter(item => {
+        if (currentDealType !== 'all' && item.deal_type !== currentDealType) return false;
+        if (onlyOwners && !item.is_owner) return false;
+        if (currentSearch) {
+          const q = currentSearch.toLowerCase();
+          const match = (item.title && item.title.toLowerCase().includes(q)) ||
+                        (item.address && item.address.toLowerCase().includes(q)) ||
+                        (item.price && item.price.toLowerCase().includes(q));
+          if (!match) return false;
+        }
+        return true;
+      });
+
+      document.getElementById('foundCount').textContent = `Найдено: ${filtered.length.toLocaleString('ru-RU')}`;
+
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div style="grid-column: 1/-1; text-align: center; padding: 60px 20px;">
+            <div style="font-size: 48px; margin-bottom: 12px;">🔍</div>
+            <h3 style="font-size: 20px; font-weight: 800;">Объявлений не найдено</h3>
+            <p style="color: var(--text-muted); margin-top: 6px;">Попробуйте смягчить фильтры или сбросить поисковый запрос</p>
+            <button class="btn-create-ad clickable" style="margin: 20px auto 0;" onclick="clearSearch(); setDealType('all');">
+              Сбросить все фильтры
+            </button>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = filtered.map(item => {
+        const isFav = favorites.has(item.id);
+        const cleanTitle = (item.title || 'Квартира от собственника').replace(/'/g, "\'");
+        const cleanAddr = (item.address || '').replace(/'/g, "\'");
+        return `
+          <div class="offer-card" id="card-${item.id}" onclick="openContactModal('${item.id}', '${cleanTitle}', '${cleanAddr}', '${item.phone}', '${item.saving}')">
+            <div class="card-thumb-box">
+              <img src="${item.photos[0]}" alt="${item.title}" loading="lazy">
+              <div class="card-badges-top">
+                ${item.is_new ? '<span class="badge-tag badge-new">Новое</span>' : ''}
+                ${item.is_top ? '<span class="badge-tag badge-top">^ TOP</span>' : ''}
+                <span class="badge-tag badge-owner-verified">Собственник</span>
+              </div>
+              <button class="card-fav-btn clickable ${isFav ? 'active' : ''}" onclick="event.stopPropagation(); toggleFavorite('${item.id}', this)">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="${isFav ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2">
+                  <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
+                </svg>
+              </button>
+            </div>
+
+            <div class="card-info-box">
+              <div>
+                <div class="card-price-row">
+                  <div class="card-price">${item.price}</div>
+                  <span class="card-deal-type">${item.deal_type}</span>
+                </div>
+                <div class="card-title">${item.title}</div>
+                <div class="card-address">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+                  <span>${item.address}</span>
+                </div>
+              </div>
+
+              <div>
+                <div class="card-terms">
+                  <div class="term-item">${item.deposit}</div>
+                  <div class="term-item term-zero-fee">0% комиссии</div>
+                </div>
+
+                <div class="card-savings-banner">
+                  <span>🛡 Без риелтора</span>
+                  <span>${item.saving}</span>
+                </div>
+
+                <button class="card-btn-contact clickable">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                  <span>Показать телефон</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      updateMapMarkers(filtered);
+    }
+
+    // MAP INITIALIZATION & SPLIT
+    function toggleMapSplit() {
+      const layout = document.getElementById('contentLayout');
+      const btn = document.getElementById('mapToggleBtn');
+      isMapOpen = !isMapOpen;
+
+      if (isMapOpen) {
+        layout.classList.add('split-map-active');
+        btn.classList.add('active');
+        btn.querySelector('span').textContent = 'Скрыть карту';
+        initLeaflet();
+      } else {
+        layout.classList.remove('split-map-active');
+        btn.classList.remove('active');
+        btn.querySelector('span').textContent = 'Смотреть на карте';
+      }
+    }
+
+    function initLeaflet() {
+      if (mapInstance) {
+        mapInstance.invalidateSize();
+        return;
+      }
+      
+      mapInstance = L.map('leafletMap').setView([55.751244, 37.618423], 11);
+      
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; OpenStreetMap contributors'
+      }).addTo(mapInstance);
+
+      markersLayer = L.layerGroup().addTo(mapInstance);
+      updateMapMarkers(OFFERS);
+    }
+
+    function updateMapMarkers(offersList) {
+      if (!mapInstance || !markersLayer) return;
+      markersLayer.clearLayers();
+
+      offersList.forEach(item => {
+        if (!item.lat || !item.lng) return;
+        const icon = L.divIcon({
+          className: 'custom-map-pin',
+          html: `<div class="map-price-pill">${item.price.split(' ')[0]} ₽</div>`,
+          iconSize: [60, 24],
+          iconAnchor: [30, 12]
+        });
+
+        const marker = L.marker([item.lat, item.lng], { icon }).addTo(markersLayer);
+        marker.on('click', () => {
+          const card = document.getElementById(`card-${item.id}`);
+          if (card) {
+            card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            card.style.borderColor = 'var(--brand-yellow)';
+            card.style.boxShadow = '0 0 0 3px rgba(250, 204, 21, 0.4)';
+            setTimeout(() => {
+              card.style.borderColor = '';
+              card.style.boxShadow = '';
+            }, 2000);
+          }
+        });
+      });
+    }
+
+    // VIEW MODE
+    function setViewMode(mode) {
+      const grid = document.getElementById('cardsGrid');
+      const gridBtn = document.getElementById('viewGridBtn');
+      const listBtn = document.getElementById('viewListBtn');
+
+      if (mode === 'list') {
+        grid.classList.add('mode-list');
+        listBtn.classList.add('active');
+        gridBtn.classList.remove('active');
+      } else {
+        grid.classList.remove('mode-list');
+        gridBtn.classList.add('active');
+        listBtn.classList.remove('active');
+      }
+    }
+
+    // DEAL TABS
+    function setDealType(type, btn) {
+      currentDealType = type;
+      if (btn) {
+        document.querySelectorAll('.deal-tab').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+      }
+      renderOffers();
+    }
+
+    // OWNER FILTER CHIP
+    function toggleOwnerFilter() {
+      onlyOwners = !onlyOwners;
+      const btn = document.getElementById('chipOwnerBtn');
+      btn.classList.toggle('active', onlyOwners);
+      showToast(onlyOwners ? 'Показаны только собственники (0% комиссии)' : 'Показаны все предложения');
+      renderOffers();
+    }
+
+    // SEARCH
+    function setupSearch() {
+      const input = document.getElementById('searchInput');
+      const clearBtn = document.getElementById('searchClearBtn');
+
+      input.addEventListener('input', (e) => {
+        currentSearch = e.target.value.trim();
+        clearBtn.classList.toggle('active', currentSearch.length > 0);
+        renderOffers();
+      });
+    }
+
+    function clearSearch() {
+      const input = document.getElementById('searchInput');
+      input.value = '';
+      currentSearch = '';
+      document.getElementById('searchClearBtn').classList.remove('active');
+      renderOffers();
+    }
+
+    // FAVORITES
+    function toggleFavorite(id, btn) {
+      if (favorites.has(id)) {
+        favorites.delete(id);
+        btn.classList.remove('active');
+        btn.querySelector('svg').setAttribute('fill', 'none');
+        showToast('Удалено из избранного');
+      } else {
+        favorites.add(id);
+        btn.classList.add('active');
+        btn.querySelector('svg').setAttribute('fill', 'currentColor');
+        showToast('Добавлено в избранное ❤️');
+      }
+      updateFavBadge();
+    }
+
+    function updateFavBadge() {
+      const badge = document.getElementById('favCountBadge');
+      if (favorites.size > 0) {
+        badge.style.display = 'flex';
+        badge.textContent = favorites.size;
+      } else {
+        badge.style.display = 'none';
+      }
+    }
+
+    function toggleFavFilter() {
+      if (favorites.size === 0) {
+        showToast('У вас пока нет сохраненных объектов');
+        return;
+      }
+      showToast(`Показано ${favorites.size} избранных объектов`);
+    }
+
+    // CONTACT MODAL
+    let currentModalPhone = '';
+    function openContactModal(id, title, address, phone, saving) {
+      currentModalPhone = phone;
+      document.getElementById('modalTitle').textContent = title;
+      document.getElementById('modalAddress').textContent = address;
+      document.getElementById('modalPhone').textContent = phone;
+      document.getElementById('modalSavingsTag').textContent = `✓ Экономия: ${saving}`;
+      document.getElementById('modalTgLink').href = `https://t.me/+${phone.replace(/[^0-9]/g, '')}`;
+      document.getElementById('contactModal').classList.add('active');
+    }
+    function closeContactModal() {
+      document.getElementById('contactModal').classList.remove('active');
+    }
+    function copyModalPhone() {
+      navigator.clipboard.writeText(currentModalPhone).then(() => {
+        showToast('✓ Телефон скопирован в буфер!');
+      }).catch(() => {
+        showToast('Телефон: ' + currentModalPhone);
+      });
+    }
+
+    // FILTER MODAL
+    function openFilterModal() {
+      document.getElementById('filterModal').classList.add('active');
+    }
+    function closeFilterModal() {
+      document.getElementById('filterModal').classList.remove('active');
+    }
+
+    function openNewAdModal() {
+      showToast('Форма бесплатного размещения для собственников');
+    }
+
+    function filterByPeriod(period) {
+      showToast(`Фильтр по свежести: ${period === 'week' ? 'за последнюю неделю' : 'за месяц'}`);
+    }
+
+    function handleSort(val) {
+      if (val === 'price_asc') {
+        OFFERS.sort((a,b) => (a.price_val || 0) - (b.price_val || 0));
+      } else if (val === 'price_desc') {
+        OFFERS.sort((a,b) => (b.price_val || 0) - (a.price_val || 0));
+      } else {
+        OFFERS.sort((a,b) => (b.is_top ? 1 : 0) - (a.is_top ? 1 : 0));
+      }
+      renderOffers();
+    }
+
+    // TOAST NOTIFICATIONS
+    let toastTimer;
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => {
+        t.classList.remove('show');
+      }, 2600);
+    }
+  </script>
+</body>
+</html>
