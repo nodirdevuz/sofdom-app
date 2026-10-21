@@ -37,6 +37,12 @@
       --shadow-lg: 0 10px 25px rgba(15, 23, 42, 0.1);
       --shadow-card: 0 2px 8px rgba(15, 23, 42, 0.04);
 
+      /* Emil Kowalski / Apple-grade Motion Curves */
+      --ease-out-apple: cubic-bezier(0.23, 1, 0.32, 1);
+      --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+      --ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
+      --ease-touch: cubic-bezier(0.2, 0.8, 0.2, 1);
+
       --max-width: 1280px;
       --header-height: 68px;
     }
@@ -948,12 +954,37 @@
     /* =======================================================
        EXACT JOYMEE PRODUCT DETAIL PAGE (PIXEL-PERFECT CLONE)
        ======================================================= */
+    #feedView {
+      animation: feedFadeIn 0.2s var(--ease-out-apple) both;
+      will-change: opacity;
+    }
+    @keyframes feedFadeIn {
+      from {
+        opacity: 0.9;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+
     #detailSection {
-      display: none;
+      display: block;
       max-width: 1220px;
       margin: 16px auto 48px;
       padding: 0 24px;
       width: 100%;
+      animation: detailPageEnter 0.24s var(--ease-out-apple) both;
+      will-change: transform, opacity;
+    }
+    @keyframes detailPageEnter {
+      from {
+        opacity: 0;
+        transform: translateY(12px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
     /* Top Navigation Row */
@@ -2697,7 +2728,10 @@
   pointer-events: auto;
   z-index: 52;
   overflow: hidden;
-  animation: slideUpHalfSheet 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: slideUpHalfSheet 0.28s var(--ease-drawer) forwards;
+  will-change: transform;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 }
 
 @keyframes slideUpHalfSheet {
@@ -2953,6 +2987,18 @@
   right: 0;
   z-index: 45;
   background: var(--bg-surface, #ffffff);
+  animation: mapPageFade 0.24s var(--ease-out-apple) both;
+  will-change: opacity, transform;
+}
+@keyframes mapPageFade {
+  from {
+    opacity: 0;
+    transform: scale(0.99);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 .mobile-fullscreen-map-page .joymee-yandex-map-wrapper {
   border-radius: 0;
