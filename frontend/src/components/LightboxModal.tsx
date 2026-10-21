@@ -32,11 +32,36 @@ export const LightboxModal: React.FC<LightboxModalProps> = ({
     };
 
     window.addEventListener('keydown', handleKeyDown);
+
+    // Save initial style to restore on unmount
+    const prevBodyOverflow = document.body.style.overflow;
+    const prevHtmlOverflow = document.documentElement.style.overflow;
+    const prevBodyTouchAction = document.body.style.touchAction;
+
     document.body.style.overflow = 'hidden';
+    document.documentElement.style.overflow = 'hidden';
+    document.body.style.touchAction = 'none';
+
+    // Prevent background scrolling/rubberbanding on touch devices
+    const preventBackgroundTouch = (e: TouchEvent) => {
+      const target = e.target as HTMLElement | null;
+      // Allow scrolling inside thumbnail strip horizontally
+      if (target?.closest('.lightbox-bottom-strip')) {
+        return;
+      }
+      if (e.cancelable) {
+        e.preventDefault();
+      }
+    };
+
+    window.addEventListener('touchmove', preventBackgroundTouch, { passive: false });
 
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
-      document.body.style.overflow = '';
+      window.removeEventListener('touchmove', preventBackgroundTouch);
+      document.body.style.overflow = prevBodyOverflow;
+      document.documentElement.style.overflow = prevHtmlOverflow;
+      document.body.style.touchAction = prevBodyTouchAction;
     };
   }, [isOpen, onPrev, onNext, onClose]);
 
@@ -46,12 +71,19 @@ export const LightboxModal: React.FC<LightboxModalProps> = ({
     }
   };
 
+  const handleTouchMove = (e: React.TouchEvent) => {
+    // Isolate touch movement to modal
+    e.stopPropagation();
+  };
+
   const handleTouchEnd = (e: React.TouchEvent) => {
     if (!touchStartRef.current || e.changedTouches.length === 0) return;
     const deltaX = e.changedTouches[0].clientX - touchStartRef.current.x;
-    const deltaY = Math.abs(e.changedTouches[0].clientY - touchStartRef.current.y);
+    const deltaY = e.changedTouches[0].clientY - touchStartRef.current.y;
     touchStartRef.current = null;
-    if (Math.abs(deltaX) > 40 && deltaY < 60) {
+
+    // Horizontal swipe for photo navigation
+    if (Math.abs(deltaX) > 40 && Math.abs(deltaY) < 70) {
       if (deltaX < 0) {
         onNext();
       } else {
@@ -63,7 +95,10 @@ export const LightboxModal: React.FC<LightboxModalProps> = ({
   if (!isOpen || photos.length === 0) return null;
 
   return (
-    <div className="lightbox-overlay">
+    <div
+      className="lightbox-overlay"
+      onTouchMove={handleTouchMove}
+    >
       <div className="lightbox-topbar">
         <div className="lightbox-counter">
           {currentIdx + 1} / {photos.length}
@@ -79,6 +114,7 @@ export const LightboxModal: React.FC<LightboxModalProps> = ({
       <div
         className="lightbox-center-stage"
         onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
         onClick={(e) => {
           if (e.target === e.currentTarget) onClose();
