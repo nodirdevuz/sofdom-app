@@ -70,16 +70,22 @@ export const YandexMap: React.FC<Props> = ({
       const apt = apartmentsRef.current.find((a) => String(a.id) === String(id));
       if (apt) {
         setSelectedApartment(apt);
-        renderPlacemarks(apartmentsRef.current, apt.id);
+        // Highlight active pin via DOM without destroying and rebuilding clusterer
+        document.querySelectorAll('.price-pin-bubble.active-pin').forEach((el) => {
+          el.classList.remove('active-pin');
+        });
+        const activeEl = document.querySelector(`.price-pin-bubble[data-id="${id}"]`);
+        if (activeEl) {
+          activeEl.classList.add('active-pin');
+        }
         if (mapInstanceRef.current) {
           mapInstanceRef.current.panTo([apt.lat, apt.lng], {
             flying: true,
-            duration: 350,
+            duration: 300,
           });
         }
       }
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     []
   );
 
@@ -87,12 +93,35 @@ export const YandexMap: React.FC<Props> = ({
     selectAptRef.current = handleSelectApartmentById;
   }, [handleSelectApartmentById]);
 
-  // Capture phase click listener on map container to guarantee 100% pin tap responsiveness
+  // Capture phase click/touch listener on map container to guarantee 100% pin tap responsiveness
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
 
-    const onContainerClick = (e: MouseEvent | TouchEvent) => {
+    let touchStartX = 0;
+    let touchStartY = 0;
+    let isTouchDrag = false;
+
+    const onTouchStart = (e: TouchEvent) => {
+      if (e.touches.length === 1) {
+        touchStartX = e.touches[0].clientX;
+        touchStartY = e.touches[0].clientY;
+        isTouchDrag = false;
+      }
+    };
+
+    const onTouchMove = (e: TouchEvent) => {
+      if (e.touches.length > 0) {
+        const dx = Math.abs(e.touches[0].clientX - touchStartX);
+        const dy = Math.abs(e.touches[0].clientY - touchStartY);
+        if (dx > 8 || dy > 8) {
+          isTouchDrag = true;
+        }
+      }
+    };
+
+    const onPinTrigger = (e: MouseEvent | TouchEvent) => {
+      if (isTouchDrag && e.type === 'touchend') return;
       const target = (e.target as HTMLElement).closest('.price-pin-bubble');
       if (target) {
         const aptId = target.getAttribute('data-id');
@@ -104,11 +133,16 @@ export const YandexMap: React.FC<Props> = ({
       }
     };
 
-    container.addEventListener('click', onContainerClick, true);
-    container.addEventListener('touchend', onContainerClick, true);
+    container.addEventListener('touchstart', onTouchStart, { passive: true });
+    container.addEventListener('touchmove', onTouchMove, { passive: true });
+    container.addEventListener('touchend', onPinTrigger, true);
+    container.addEventListener('click', onPinTrigger, true);
+
     return () => {
-      container.removeEventListener('click', onContainerClick, true);
-      container.removeEventListener('touchend', onContainerClick, true);
+      container.removeEventListener('touchstart', onTouchStart);
+      container.removeEventListener('touchmove', onTouchMove);
+      container.removeEventListener('touchend', onPinTrigger, true);
+      container.removeEventListener('click', onPinTrigger, true);
     };
   }, []);
 
@@ -165,12 +199,12 @@ export const YandexMap: React.FC<Props> = ({
           },
           {
             iconLayout: priceLayout,
-            iconOffset: [-36, -34],
+            iconOffset: [-38, -34],
             iconShape: {
               type: 'Rectangle',
               coordinates: [
-                [-36, -34],
-                [36, 0],
+                [-48, -40],
+                [48, 10],
               ],
             },
             hasBalloon: false,
@@ -263,24 +297,14 @@ export const YandexMap: React.FC<Props> = ({
         clustererRef.current = clusterer;
         map.geoObjects.add(clusterer);
 
-        // Viewport debouncing: 400ms after user pan/zoom
-        map.events.add('boundschange', () => {
-          if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
-          debounceTimerRef.current = setTimeout(() => {
-            const bounds = map.getBounds();
-            if (bounds && bounds[0] && bounds[1]) {
-              const bbox = `${bounds[0][0]},${bounds[0][1]},${bounds[1][0]},${bounds[1][1]}`;
-              loadData({ bbox });
-            }
-          }, 400);
-        });
-
         // Click outside any marker (on map background) closes preview sheet
         map.events.add('click', (e: any) => {
           const target = e.get('target');
-          if (!target || target === map) {
-            setSelectedApartment(null);
-          }
+          if (target && target !== map) return;
+          setSelectedApartment(null);
+          document.querySelectorAll('.price-pin-bubble.active-pin').forEach((el) => {
+            el.classList.remove('active-pin');
+          });
         });
 
         setLoading(false);
@@ -440,13 +464,6 @@ export const YandexMap: React.FC<Props> = ({
           −
         </button>
       </div>
-
-      {/* Counter Tag */}
-      {foundCount > 0 && (
-        <div className="map-count-badge">
-          {t.map.variants(foundCount)}
-        </div>
-      )}
 
       {/* Loading Overlay */}
       {loading && (

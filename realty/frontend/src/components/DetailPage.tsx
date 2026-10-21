@@ -45,33 +45,49 @@ export const DetailPage: React.FC<DetailPageProps> = ({
   const [isFav, setIsFav] = useState(false);
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstance = useRef<any>(null);
-  const photoTouchStart = useRef<{ x: number; y: number } | null>(null);
+  const mainSliderRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setActivePhotoIdx(0);
     setIsPhoneRevealed(true);
     setRevealedPhone(getFormattedPhone(offer.phone, offer.id));
+    if (mainSliderRef.current) {
+      mainSliderRef.current.scrollLeft = 0;
+    }
     window.scrollTo({ top: 0, behavior: 'instant' });
   }, [offer.id, offer.phone]);
 
-  const handlePhotoTouchStart = (e: React.TouchEvent) => {
-    if (e.touches.length === 1) {
-      photoTouchStart.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+  const p = offer.photos;
+
+  const scrollToPhoto = (idx: number) => {
+    const nextIdx = (idx + p.length) % p.length;
+    setActivePhotoIdx(nextIdx);
+    if (mainSliderRef.current) {
+      const width = mainSliderRef.current.clientWidth;
+      mainSliderRef.current.scrollTo({ left: nextIdx * width, behavior: 'smooth' });
     }
   };
 
-  const handlePhotoTouchEnd = (e: React.TouchEvent) => {
-    if (!photoTouchStart.current || e.changedTouches.length === 0) return;
-    const deltaX = e.changedTouches[0].clientX - photoTouchStart.current.x;
-    const deltaY = Math.abs(e.changedTouches[0].clientY - photoTouchStart.current.y);
-    photoTouchStart.current = null;
-    if (Math.abs(deltaX) > 40 && deltaY < 60) {
-      if (deltaX < 0) {
-        nextPhoto();
-      } else {
-        prevPhoto();
+  const handleMainSliderScroll = () => {
+    if (mainSliderRef.current) {
+      const { scrollLeft, clientWidth } = mainSliderRef.current;
+      if (clientWidth > 0) {
+        const newIdx = Math.round(scrollLeft / clientWidth);
+        if (newIdx !== activePhotoIdx && newIdx >= 0 && newIdx < p.length) {
+          setActivePhotoIdx(newIdx);
+        }
       }
     }
+  };
+
+  const prevPhoto = (e?: React.SyntheticEvent) => {
+    if (e) e.stopPropagation();
+    scrollToPhoto(activePhotoIdx - 1);
+  };
+
+  const nextPhoto = (e?: React.SyntheticEvent) => {
+    if (e) e.stopPropagation();
+    scrollToPhoto(activePhotoIdx + 1);
   };
 
   const handleTogglePhone = async () => {
@@ -162,18 +178,6 @@ export const DetailPage: React.FC<DetailPageProps> = ({
     };
   }, [offer.lat, offer.lng, offer.price_display]);
 
-  const p = offer.photos;
-
-  const prevPhoto = (e?: React.SyntheticEvent) => {
-    if (e) e.stopPropagation();
-    setActivePhotoIdx((prev) => (prev - 1 + p.length) % p.length);
-  };
-
-  const nextPhoto = (e?: React.SyntheticEvent) => {
-    if (e) e.stopPropagation();
-    setActivePhotoIdx((prev) => (prev + 1) % p.length);
-  };
-
   const copyPhone = () => {
     navigator.clipboard.writeText(revealedPhone);
     alert('Номер скопирован: ' + revealedPhone);
@@ -238,24 +242,34 @@ export const DetailPage: React.FC<DetailPageProps> = ({
       <div className="joymee-detail-grid">
         {/* LEFT COLUMN: Main Photo Carousel + Thumbs + Desktop Seller Card */}
         <div className="joymee-left-col">
-          {/* Main Photo Box with touch swipe, counter and compact arrows */}
-          <div
-            className="joymee-main-photo-card"
-            onTouchStart={handlePhotoTouchStart}
-            onTouchEnd={handlePhotoTouchEnd}
-            onClick={() => onOpenLightbox(activePhotoIdx)}
-          >
-            <img
-              src={p[activePhotoIdx]}
-              alt={offer.title}
-              onError={(e) => {
-                const target = e.currentTarget;
-                if (!target.dataset.fallback) {
-                  target.dataset.fallback = '1';
-                  target.src = 'https://tsk.s.bsps.ru/images/sobipro/galleries/ec/196162/3dbeb0.jpg';
-                }
-              }}
-            />
+          {/* Main Photo Box with native touch swipe, snap momentum, counter and compact arrows */}
+          <div className="joymee-main-photo-card">
+            <div
+              className="joymee-main-photo-slider"
+              ref={mainSliderRef}
+              onScroll={handleMainSliderScroll}
+            >
+              {p.map((imgUrl, i) => (
+                <div
+                  key={i}
+                  className="joymee-main-photo-slide"
+                  onClick={() => onOpenLightbox(i)}
+                >
+                  <img
+                    src={imgUrl}
+                    alt={`${offer.title} ${i + 1}`}
+                    loading={i === 0 ? 'eager' : 'lazy'}
+                    onError={(e) => {
+                      const target = e.currentTarget;
+                      if (!target.dataset.fallback) {
+                        target.dataset.fallback = '1';
+                        target.src = 'https://tsk.s.bsps.ru/images/sobipro/galleries/ec/196162/3dbeb0.jpg';
+                      }
+                    }}
+                  />
+                </div>
+              ))}
+            </div>
 
             {/* Photo Counter Badge */}
             <div className="joymee-photo-counter-pill">
@@ -294,7 +308,7 @@ export const DetailPage: React.FC<DetailPageProps> = ({
                   className={`joymee-dash-bar ${i === activePhotoIdx ? 'active' : ''}`}
                   onClick={(e) => {
                     e.stopPropagation();
-                    setActivePhotoIdx(i);
+                    scrollToPhoto(i);
                   }}
                 />
               ))}
@@ -309,7 +323,7 @@ export const DetailPage: React.FC<DetailPageProps> = ({
                 className={`joymee-thumb-item ${i === activePhotoIdx ? 'active' : ''}`}
                 onClick={(e) => {
                   e.stopPropagation();
-                  setActivePhotoIdx(i);
+                  scrollToPhoto(i);
                 }}
               >
                 <img

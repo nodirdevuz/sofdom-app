@@ -1014,6 +1014,36 @@
       user-select: none;
       -webkit-user-select: none;
     }
+    .joymee-main-photo-slider {
+      display: flex;
+      width: 100%;
+      height: 100%;
+      overflow-x: auto;
+      overflow-y: hidden;
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+    .joymee-main-photo-slider::-webkit-scrollbar {
+      display: none;
+    }
+    .joymee-main-photo-slide {
+      flex: 0 0 100%;
+      width: 100%;
+      height: 100%;
+      scroll-snap-align: start;
+      scroll-snap-stop: always;
+      position: relative;
+    }
+    .joymee-main-photo-slide img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center center;
+      display: block;
+      image-rendering: -webkit-optimize-contrast;
+      pointer-events: none;
+    }
     .joymee-main-photo-card img {
       width: 100%;
       height: 100%;

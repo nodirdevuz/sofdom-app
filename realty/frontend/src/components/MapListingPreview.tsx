@@ -68,7 +68,6 @@ export const MapListingPreview: React.FC<Props> = ({
               {apartment.is_secret && (
                 <span className="sheet-badge-secret">{t.map.earlyAccess}</span>
               )}
-              <span className="sheet-badge-owner">{t.map.ownerDirect}</span>
             </div>
           </div>
 

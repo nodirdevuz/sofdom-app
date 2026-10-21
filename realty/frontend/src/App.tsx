@@ -305,7 +305,10 @@ export const App: React.FC = () => {
     return () => observer.disconnect();
   }, [filteredOffers.length]);
 
+  const savedFeedScrollY = useRef(0);
+
   const openDetail = (id: string) => {
+    savedFeedScrollY.current = window.scrollY;
     setSelectedOfferId(id);
     window.location.hash = 'offer-' + id;
   };
@@ -315,6 +318,9 @@ export const App: React.FC = () => {
     if (window.location.hash) {
       history.pushState('', document.title, window.location.pathname + window.location.search);
     }
+    requestAnimationFrame(() => {
+      window.scrollTo({ top: savedFeedScrollY.current, behavior: 'instant' });
+    });
   };
 
   const openLightbox = (startIdx: number, photos?: string[]) => {
@@ -354,7 +360,7 @@ export const App: React.FC = () => {
       />
 
       {/* MOBILE FULLSCREEN MAP VIEW */}
-      {mobileTab === 'map' && !selectedOfferId ? (
+      {mobileTab === 'map' && !selectedOfferId && (
         <div className="mobile-fullscreen-map-page">
           <YandexMap
             onSelectApartment={openDetail}
@@ -363,8 +369,10 @@ export const App: React.FC = () => {
             lang={lang}
           />
         </div>
-      ) : selectedOffer ? (
-        /* DETAIL PAGE VIEW */
+      )}
+
+      {/* DETAIL PAGE VIEW */}
+      {selectedOffer && (
         <DetailPage
           offer={selectedOffer}
           onBackToFeed={backToFeed}
@@ -372,9 +380,10 @@ export const App: React.FC = () => {
           similarOffers={similarOffers}
           onSelectOffer={openDetail}
         />
-      ) : (
-        /* FEED VIEW */
-        <div id="feedView">
+      )}
+
+      {/* FEED VIEW (Always preserved to prevent white flashes and preserve scroll position) */}
+      <div id="feedView" style={{ display: selectedOffer || (mobileTab === 'map' && !selectedOfferId) ? 'none' : 'block' }}>
           <TabsAndChips
             filter={filter}
             onChangeFilter={(newFilter) => setFilter((prev) => ({ ...prev, ...newFilter }))}
@@ -452,7 +461,6 @@ export const App: React.FC = () => {
             </div>
           </main>
         </div>
-      )}
 
       {/* FULLSCREEN LIGHTBOX */}
       <LightboxModal
