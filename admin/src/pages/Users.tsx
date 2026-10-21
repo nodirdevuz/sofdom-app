@@ -51,71 +51,91 @@ export default function Users() {
   ]);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <PageHeader
-          title="Пользователи и Подписки"
+          title="Пользователи и подписки"
           subtitle="Учет клиентов, суточных лимитов открытия телефонов и тарифов"
         />
         <button
-          onClick={() => alert('Форма добавления пользователя готова к подключению SMS шлюза.')}
-          className="px-4 py-2 bg-[#10b981] hover:bg-[#059669] text-white font-semibold text-sm rounded-xl shadow-sm transition-colors"
+          onClick={() => alert('Форма добавления пользователя')}
+          className="flex items-center gap-2 px-[15px] py-2 bg-[#1f2937] hover:bg-[#111827] text-white rounded-[9px] text-[13.5px] font-semibold transition-colors shrink-0"
         >
-          + Создать пользователя
+          <span>+</span> Добавить пользователя
         </button>
       </div>
 
-      <div className="bg-white border border-[#e2e8f0] rounded-2xl overflow-hidden shadow-sm">
+      <div className="border border-[#ecedf0] rounded-[14px] overflow-hidden bg-white">
+        <div className="flex items-center justify-between gap-2.5 px-5 py-4 border-b border-[#f1f2f4]">
+          <div className="text-[15px] font-semibold text-[#111418]">Зарегистрированные клиенты</div>
+          <div className="text-[12.5px] text-[#8a94a0] font-medium bg-[#f3f4f6] px-2.5 py-[3px] rounded-full">
+            {users.length}
+          </div>
+        </div>
+
         <div className="overflow-x-auto">
-          <table className="w-full border-collapse text-left text-sm">
+          <table className="w-full border-collapse min-w-[700px]">
             <thead>
-              <tr className="bg-[#fafbfc] border-b border-[#e2e8f0] text-[11px] uppercase tracking-wider text-[#64748b] font-bold">
-                <th className="px-5 py-3.5">Телефон</th>
-                <th className="px-5 py-3.5">Имя</th>
-                <th className="px-5 py-3.5">Роль</th>
-                <th className="px-5 py-3.5">Тарифный план</th>
-                <th className="px-5 py-3.5">Суточный лимит</th>
-                <th className="px-5 py-3.5">Открыто сегодня</th>
-                <th className="px-5 py-3.5">Статус</th>
-                <th className="px-5 py-3.5">Регистрация</th>
+              <tr>
+                <th className="px-5 py-[11px] bg-[#fafbfc] border-b border-[#eceef0] text-[11.5px] uppercase tracking-[0.04em] text-[#94a0ac] font-semibold text-left">
+                  Телефон
+                </th>
+                <th className="px-5 py-[11px] bg-[#fafbfc] border-b border-[#eceef0] text-[11.5px] uppercase tracking-[0.04em] text-[#94a0ac] font-semibold text-left">
+                  Имя
+                </th>
+                <th className="px-5 py-[11px] bg-[#fafbfc] border-b border-[#eceef0] text-[11.5px] uppercase tracking-[0.04em] text-[#94a0ac] font-semibold text-left">
+                  Роль
+                </th>
+                <th className="px-5 py-[11px] bg-[#fafbfc] border-b border-[#eceef0] text-[11.5px] uppercase tracking-[0.04em] text-[#94a0ac] font-semibold text-left">
+                  Тариф
+                </th>
+                <th className="px-5 py-[11px] bg-[#fafbfc] border-b border-[#eceef0] text-[11.5px] uppercase tracking-[0.04em] text-[#94a0ac] font-semibold text-left">
+                  Лимит
+                </th>
+                <th className="px-5 py-[11px] bg-[#fafbfc] border-b border-[#eceef0] text-[11.5px] uppercase tracking-[0.04em] text-[#94a0ac] font-semibold text-left">
+                  Открыто
+                </th>
+                <th className="px-5 py-[11px] bg-[#fafbfc] border-b border-[#eceef0] text-[11.5px] uppercase tracking-[0.04em] text-[#94a0ac] font-semibold text-left">
+                  Статус
+                </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#f1f5f9]">
+            <tbody>
               {users.map((u) => (
-                <tr key={u.id} className="hover:bg-[#f8fafc] transition-colors">
-                  <td className="px-5 py-3.5 font-bold text-[#0f172a] whitespace-nowrap">
+                <tr
+                  key={u.id}
+                  className="border-b border-[#f1f2f4] hover:bg-[#fafbfc] transition-colors"
+                >
+                  <td className="px-5 py-[13px] font-semibold text-[#111418] text-[13.5px] tabular-nums whitespace-nowrap">
                     {u.phone}
                   </td>
-                  <td className="px-5 py-3.5 text-[#334155]">{u.name}</td>
-                  <td className="px-5 py-3.5">
-                    <span className="px-2.5 py-1 rounded-md text-xs font-semibold bg-[#f1f5f9] text-[#475569]">
-                      {u.role}
-                    </span>
+                  <td className="px-5 py-[13px] text-[#1a1f25] text-[13.5px]">
+                    {u.name}
                   </td>
-                  <td className="px-5 py-3.5 font-bold text-[#059669] whitespace-nowrap">
+                  <td className="px-5 py-[13px] text-[#5b6b7a] text-[13.5px]">
+                    {u.role}
+                  </td>
+                  <td className="px-5 py-[13px] text-[#111418] font-medium text-[13.5px]">
                     {u.plan}
                   </td>
-                  <td className="px-5 py-3.5 font-medium text-[#334155]">
-                    {u.dailyLimit} тел/день
+                  <td className="px-5 py-[13px] text-[#5b6b7a] text-[13.5px] tabular-nums">
+                    {u.dailyLimit === 9999 ? 'Безлимит' : `${u.dailyLimit} контактов`}
                   </td>
-                  <td className="px-5 py-3.5 font-bold text-[#3b82f6]">
-                    {u.unlockedToday} шт.
+                  <td className="px-5 py-[13px] text-[#111418] font-semibold text-[13.5px] tabular-nums">
+                    {u.unlockedToday}
                   </td>
-                  <td className="px-5 py-3.5 whitespace-nowrap">
+                  <td className="px-5 py-[13px] whitespace-nowrap">
                     <span
-                      className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-bold ${
+                      className={`inline-block px-2.5 py-0.5 rounded-full text-[12px] font-semibold ${
                         u.status === 'active'
-                          ? 'bg-[#dcfce7] text-[#166534]'
+                          ? 'bg-[#1f2937] text-white'
                           : u.status === 'trial'
-                          ? 'bg-[#f1f5f9] text-[#475569]'
-                          : 'bg-[#fee2e2] text-[#991b1b]'
+                          ? 'bg-[#eef0f2] text-[#5a6675]'
+                          : 'bg-[#f3f4f6] text-[#8a94a0]'
                       }`}
                     >
                       {u.status === 'active' ? 'Активен' : u.status === 'trial' ? 'Пробный' : 'Истек'}
                     </span>
-                  </td>
-                  <td className="px-5 py-3.5 text-xs text-[#94a3b8] whitespace-nowrap">
-                    {u.registeredAt}
                   </td>
                 </tr>
               ))}

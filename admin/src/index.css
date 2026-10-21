@@ -4,7 +4,10 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Базовые правила из исходного дизайна */
+:root {
+  color-scheme: light;
+}
+
 * {
   box-sizing: border-box;
 }
@@ -17,8 +20,13 @@ body,
 
 body {
   margin: 0;
+  font-family: '"Hanken Grotesk"', system-ui, -apple-system, sans-serif;
+  background-color: #ffffff;
+  color: #1a1f25;
+  -webkit-font-smoothing: antialiased;
 }
 
+/* Тонкий светлый скроллбар (минимализм Komfort Go) */
 ::-webkit-scrollbar {
   width: 10px;
   height: 10px;

@@ -1,3 +1,5 @@
+import { Download } from 'lucide-react';
+
 interface PageHeaderProps {
   title: string;
   subtitle: string;
@@ -6,22 +8,27 @@ interface PageHeaderProps {
 
 export function PageHeader({ title, subtitle, onExport }: PageHeaderProps) {
   return (
-    <header className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-5 mb-2">
+    <header className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-5 mb-5">
       <div className="min-w-0">
-        <h1 className="m-0 text-[22px] sm:text-[25px] font-extrabold tracking-tight text-[#0f172a]">{title}</h1>
-        <p className="mt-1 mb-0 text-sm text-[#64748b]">{subtitle}</p>
+        <h1 className="m-0 text-[22px] sm:text-[25px] font-bold tracking-[-0.02em] text-[#111418]">
+          {title}
+        </h1>
+        <p className="mt-[5px] mb-0 text-sm text-[#8a94a0]">{subtitle}</p>
       </div>
+
       <div className="flex items-center flex-wrap gap-2.5 shrink-0">
-        <div className="flex items-center gap-2 px-3.5 py-2 border border-[#e2e8f0] rounded-xl text-xs text-[#64748b] font-semibold bg-white shadow-sm">
-          <span>📅</span> Томск, 2026
+        <div className="flex items-center gap-2 px-[13px] py-2 border border-[#e6e8eb] rounded-[9px] text-[13px] text-[#56616e] font-medium whitespace-nowrap bg-white">
+          <span className="w-1.5 h-1.5 rounded-full bg-[#1f2937]" />
+          Томск • Live
         </div>
         {onExport && (
           <button
             type="button"
             onClick={onExport}
-            className="flex items-center gap-2 px-4 py-2 bg-[#0f172a] hover:bg-[#1e293b] text-white rounded-xl text-xs font-bold transition-colors shadow-sm"
+            className="flex items-center gap-[7px] px-[15px] py-2 bg-[#1f2937] text-white rounded-[9px] text-[13.5px] font-semibold whitespace-nowrap transition-colors hover:bg-[#111827]"
           >
-            <span>📥</span> Экспорт
+            <Download size={14} />
+            <span>Экспорт</span>
           </button>
         )}
       </div>

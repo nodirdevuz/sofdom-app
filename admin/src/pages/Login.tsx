@@ -12,53 +12,53 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#f8fafc] px-4">
-      <div className="w-full max-w-md bg-white border border-[#e2e8f0] rounded-3xl p-8 shadow-xl shadow-slate-200/50">
+    <div className="min-h-screen flex items-center justify-center bg-[#fbfbfc] px-4 font-sans text-[#1a1f25]">
+      <div className="w-full max-w-[380px] bg-white border border-[#ecedf0] rounded-[14px] p-7 shadow-sm">
         <div className="flex items-center gap-3 mb-6">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#10b981] to-[#059669] text-white flex items-center justify-center font-extrabold text-xl shadow-sm shadow-emerald-500/20">
+          <div className="w-[40px] h-[40px] rounded-[10px] bg-[#1f2937] text-white flex items-center justify-center font-bold text-[19px] shrink-0">
             S
           </div>
           <div>
-            <div className="font-extrabold text-lg text-[#0f172a]">SofDom Admin</div>
-            <div className="text-xs text-[#94a3b8]">Вход в панель управления базой</div>
+            <div className="font-bold text-[15px] text-[#111418]">SofDom Admin</div>
+            <div className="text-[12.5px] text-[#8a94a0]">Вход в систему управления</div>
           </div>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-xs font-bold uppercase tracking-wider text-[#64748b] mb-1.5">
-              Номер телефона администратора
+            <label className="block text-[11.5px] font-semibold text-[#7a8593] uppercase tracking-[0.04em] mb-1.5">
+              Телефон администратора
             </label>
             <input
               type="text"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
-              className="w-full px-4 py-2.5 bg-[#f8fafc] border border-[#cbd5e1] rounded-xl text-sm font-medium outline-none focus:border-[#10b981]"
+              className="w-full px-3.5 py-2 border border-[#e6e8eb] rounded-[9px] text-[13.5px] bg-white text-[#1a1f25] outline-none focus:border-[#1f2937] transition-colors"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-bold uppercase tracking-wider text-[#64748b] mb-1.5">
-              Пароль доступа
+            <label className="block text-[11.5px] font-semibold text-[#7a8593] uppercase tracking-[0.04em] mb-1.5">
+              Пароль
             </label>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-2.5 bg-[#f8fafc] border border-[#cbd5e1] rounded-xl text-sm font-medium outline-none focus:border-[#10b981]"
+              className="w-full px-3.5 py-2 border border-[#e6e8eb] rounded-[9px] text-[13.5px] bg-white text-[#1a1f25] outline-none focus:border-[#1f2937] transition-colors"
             />
           </div>
 
           <button
             type="submit"
-            className="w-full py-3 bg-[#10b981] hover:bg-[#059669] text-white font-bold text-sm rounded-xl shadow-lg shadow-emerald-500/25 transition-all mt-2"
+            className="w-full py-2.5 bg-[#1f2937] hover:bg-[#111827] text-white font-semibold text-[13.5px] rounded-[9px] transition-colors mt-2"
           >
-            Войти в панель управления
+            Войти в систему
           </button>
         </form>
 
-        <div className="mt-6 text-center text-xs text-[#94a3b8]">
-          SofDom Недвижимость Томск • Защищенный доступ
+        <div className="mt-6 text-center text-[12px] text-[#8a94a0]">
+          SofDom • Недвижимость Томск
         </div>
       </div>
     </div>

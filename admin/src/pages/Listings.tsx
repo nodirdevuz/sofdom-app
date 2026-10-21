@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { Search } from 'lucide-react';
 import { OFFERS } from '../data/offers';
 import { Offer } from '../data/types';
 import { PageHeader } from '../components/PageHeader';
@@ -33,41 +34,73 @@ export default function Listings() {
     });
   }, [offers, sourceFilter, districtFilter, search]);
 
+  const chipClass = (active: boolean) =>
+    `px-[13px] py-[6px] rounded-[9px] text-[13px] font-semibold whitespace-nowrap transition-colors border ${
+      active
+        ? 'bg-[#1f2937] text-white border-[#1f2937]'
+        : 'bg-white text-[#56616e] border-[#e6e8eb] hover:bg-[#f7f8f9]'
+    }`;
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <PageHeader
-        title="Каталог объявлений Томска"
-        subtitle={`База аренды квартир от прямых собственников (${filtered.length} из ${offers.length})`}
+        title="Объявления Томска"
+        subtitle={`База предложений от собственников (${filtered.length} из ${offers.length})`}
       />
 
-      {/* Filter and Search Bar */}
-      <div className="bg-white border border-[#e2e8f0] rounded-2xl p-4 shadow-sm flex flex-col sm:flex-row gap-3 items-center justify-between">
-        <input
-          type="text"
-          placeholder="Поиск по адресу, названию или номеру телефона..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="w-full sm:w-96 px-4 py-2 border border-[#cbd5e1] rounded-xl text-sm outline-none focus:border-[#10b981] bg-[#f8fafc]"
-        />
-
-        <div className="flex flex-wrap gap-2 w-full sm:w-auto">
-          <select
-            value={sourceFilter}
-            onChange={(e: any) => setSourceFilter(e.target.value)}
-            className="px-3 py-2 border border-[#cbd5e1] rounded-xl text-xs font-semibold bg-white text-[#334155]"
+      {/* Панель фильтров: кнопки источников (чипы) + поиск + выбор района */}
+      <div className="flex flex-col md:flex-row gap-3 items-stretch md:items-center justify-between">
+        <div className="flex flex-wrap gap-2 items-center">
+          <button
+            type="button"
+            onClick={() => setSourceFilter('all')}
+            className={chipClass(sourceFilter === 'all')}
           >
-            <option value="all">Все источники</option>
-            <option value="avito">Авито</option>
-            <option value="cian">ЦИАН</option>
-            <option value="bezposr">БезПосредников</option>
-          </select>
+            Все
+          </button>
+          <button
+            type="button"
+            onClick={() => setSourceFilter('avito')}
+            className={chipClass(sourceFilter === 'avito')}
+          >
+            Авито
+          </button>
+          <button
+            type="button"
+            onClick={() => setSourceFilter('cian')}
+            className={chipClass(sourceFilter === 'cian')}
+          >
+            ЦИАН
+          </button>
+          <button
+            type="button"
+            onClick={() => setSourceFilter('bezposr')}
+            className={chipClass(sourceFilter === 'bezposr')}
+          >
+            БезПосредников
+          </button>
+        </div>
+
+        <div className="flex flex-wrap sm:flex-nowrap gap-2 items-center">
+          <div className="relative flex-1 sm:w-64">
+            <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-[#9aa4b0]">
+              <Search size={14} />
+            </span>
+            <input
+              type="text"
+              placeholder="Поиск по адресу, тел..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full pl-8 pr-3 py-[7px] border border-[#e6e8eb] rounded-[9px] text-[13px] bg-white outline-none text-[#1a1f25] placeholder-[#9aa4b0] focus:border-[#1f2937] transition-colors"
+            />
+          </div>
 
           <select
             value={districtFilter}
             onChange={(e) => setDistrictFilter(e.target.value)}
-            className="px-3 py-2 border border-[#cbd5e1] rounded-xl text-xs font-semibold bg-white text-[#334155]"
+            className="px-[11px] py-[7px] border border-[#e6e8eb] rounded-[9px] text-[13px] bg-white text-[#1a1f25] font-medium outline-none focus:border-[#1f2937]"
           >
-            <option value="all">Все районы Томска</option>
+            <option value="all">Все районы</option>
             <option value="Советский">Советский</option>
             <option value="Кировский">Кировский</option>
             <option value="Ленинский">Ленинский</option>
@@ -76,67 +109,88 @@ export default function Listings() {
         </div>
       </div>
 
-      {/* Table */}
-      <div className="bg-white border border-[#e2e8f0] rounded-2xl overflow-hidden shadow-sm">
+      {/* Таблица данных — эталонная вёрстка DataTable из KomfortAdmin */}
+      <div className="border border-[#ecedf0] rounded-[14px] overflow-hidden bg-white">
+        <div className="flex items-center justify-between gap-2.5 px-5 py-4 border-b border-[#f1f2f4]">
+          <div className="text-[15px] font-semibold text-[#111418]">Список предложений</div>
+          <div className="text-[12.5px] text-[#8a94a0] font-medium bg-[#f3f4f6] px-2.5 py-[3px] rounded-full">
+            {filtered.length}
+          </div>
+        </div>
+
         <div className="overflow-x-auto">
-          <table className="w-full border-collapse text-left text-sm">
+          <table className="w-full border-collapse min-w-[720px]">
             <thead>
-              <tr className="bg-[#fafbfc] border-b border-[#e2e8f0] text-[11px] uppercase tracking-wider text-[#64748b] font-bold">
-                <th className="px-5 py-3.5">Источник</th>
-                <th className="px-5 py-3.5">Квартира</th>
-                <th className="px-5 py-3.5">Район / Адрес</th>
-                <th className="px-5 py-3.5 text-right">Цена</th>
-                <th className="px-5 py-3.5">Телефон собственника</th>
-                <th className="px-5 py-3.5 text-center">Фото</th>
+              <tr>
+                <th className="px-5 py-[11px] bg-[#fafbfc] border-b border-[#eceef0] text-[11.5px] uppercase tracking-[0.04em] text-[#94a0ac] font-semibold text-left whitespace-nowrap">
+                  Источник
+                </th>
+                <th className="px-5 py-[11px] bg-[#fafbfc] border-b border-[#eceef0] text-[11.5px] uppercase tracking-[0.04em] text-[#94a0ac] font-semibold text-left whitespace-nowrap">
+                  Объект
+                </th>
+                <th className="px-5 py-[11px] bg-[#fafbfc] border-b border-[#eceef0] text-[11.5px] uppercase tracking-[0.04em] text-[#94a0ac] font-semibold text-left whitespace-nowrap">
+                  Район / Адрес
+                </th>
+                <th className="px-5 py-[11px] bg-[#fafbfc] border-b border-[#eceef0] text-[11.5px] uppercase tracking-[0.04em] text-[#94a0ac] font-semibold text-right whitespace-nowrap">
+                  Цена
+                </th>
+                <th className="px-5 py-[11px] bg-[#fafbfc] border-b border-[#eceef0] text-[11.5px] uppercase tracking-[0.04em] text-[#94a0ac] font-semibold text-left whitespace-nowrap">
+                  Телефон
+                </th>
+                <th className="px-5 py-[11px] bg-[#fafbfc] border-b border-[#eceef0] text-[11.5px] uppercase tracking-[0.04em] text-[#94a0ac] font-semibold text-center whitespace-nowrap">
+                  Фото
+                </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#f1f5f9]">
-              {filtered.slice(0, 100).map((o: Offer) => {
+            <tbody>
+              {filtered.slice(0, 60).map((o: Offer) => {
                 const src = (o.source || o.id || '').toLowerCase();
                 const isAvito = src.includes('avito');
                 const isCian = src.includes('cian');
 
                 return (
-                  <tr key={o.id} className="hover:bg-[#f8fafc] transition-colors">
-                    <td className="px-5 py-3.5 whitespace-nowrap">
+                  <tr
+                    key={o.id}
+                    className="border-b border-[#f1f2f4] hover:bg-[#fafbfc] transition-colors"
+                  >
+                    <td className="px-5 py-[13px] whitespace-nowrap">
                       <span
-                        className={`inline-block px-2.5 py-1 rounded-md text-[11px] font-bold ${
+                        className={`inline-flex items-center px-2 py-0.5 rounded-[6px] text-[12px] font-semibold ${
                           isAvito
-                            ? 'bg-[#dcfce7] text-[#166534]'
+                            ? 'bg-[#1f2937] text-white'
                             : isCian
-                            ? 'bg-[#dbeafe] text-[#1e40af]'
-                            : 'bg-[#fef3c7] text-[#92400e]'
+                            ? 'bg-[#e8ebef] text-[#3a4654]'
+                            : 'bg-[#eef0f2] text-[#5a6675]'
                         }`}
                       >
                         {isAvito ? 'Авито' : isCian ? 'ЦИАН' : 'БезПосредников'}
                       </span>
                     </td>
-                    <td className="px-5 py-3.5">
-                      <div className="font-bold text-[#0f172a]">{o.title}</div>
-                      <div className="text-xs text-[#94a3b8]">ID: {o.id}</div>
+                    <td className="px-5 py-[13px]">
+                      <div className="font-semibold text-[#111418] text-[13.5px]">{o.title}</div>
+                      <div className="text-[12px] text-[#8a94a0] tabular-nums">ID: {o.id}</div>
                     </td>
-                    <td className="px-5 py-3.5">
-                      <div className="text-[#334155]">{o.address}</div>
-                      <div className="text-xs font-semibold text-[#64748b]">
+                    <td className="px-5 py-[13px]">
+                      <div className="text-[#1a1f25] text-[13.5px]">{o.address}</div>
+                      <div className="text-[12px] text-[#8a94a0]">
                         {o.metro_name || 'Советский р-н'}
                       </div>
                     </td>
-                    <td className="px-5 py-3.5 text-right whitespace-nowrap">
-                      <span className="font-extrabold text-[#0f172a]">
+                    <td className="px-5 py-[13px] text-right whitespace-nowrap">
+                      <span className="font-bold text-[#111418] text-[14px] tabular-nums">
                         {(o.price_val || 0).toLocaleString('ru-RU')} ₽
                       </span>
-                      <span className="text-xs text-[#94a3b8]">/мес</span>
                     </td>
-                    <td className="px-5 py-3.5 whitespace-nowrap">
+                    <td className="px-5 py-[13px] whitespace-nowrap">
                       <a
                         href={`tel:${o.phone}`}
-                        className="inline-flex items-center gap-1.5 font-bold text-[#059669] hover:underline"
+                        className="font-semibold text-[#111418] text-[13.5px] hover:underline"
                       >
-                        <span>📞</span> {o.phone || 'Нет номера'}
+                        {o.phone || '—'}
                       </a>
                     </td>
-                    <td className="px-5 py-3.5 text-center text-xs font-semibold text-[#64748b] whitespace-nowrap">
-                      📷 {o.photos?.length || 1} шт.
+                    <td className="px-5 py-[13px] text-center text-[12.5px] text-[#7a8593] whitespace-nowrap tabular-nums">
+                      {o.photos?.length || 1} шт.
                     </td>
                   </tr>
                 );
