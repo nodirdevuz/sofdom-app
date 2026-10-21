@@ -443,9 +443,9 @@ def list_apartments(
         params.append(city)
         
     if rooms:
-        # e.g. "студия" or "1-комн"
-        query += " AND LOWER(rooms) LIKE ?"
-        params.append(f"%{rooms.lower()}%")
+        r_clean = rooms.strip()
+        query += " AND (rooms LIKE ? OR rooms LIKE ? OR rooms LIKE ?)"
+        params.extend([f"%{r_clean}%", f"%{r_clean.capitalize()}%", f"%{r_clean.lower()}%"])
         
     if price_min is not None:
         query += " AND price >= ?"
@@ -563,8 +563,199 @@ def get_system_stats(db_path=DB_PATH) -> dict:
             "timestamp": datetime.now().isoformat()
         }
 
+import math
+
+def haversine_distance(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
+    """Calculates distance between two coordinates in kilometers."""
+    R = 6371.0
+    dlat = math.radians(lat2 - lat1)
+    dlon = math.radians(lon2 - lon1)
+    a = math.sin(dlat / 2)**2 + math.cos(math.radians(lat1)) * math.cos(math.radians(lat2)) * math.sin(dlon / 2)**2
+    return round(2 * R * math.asin(math.sqrt(a)), 2)
+
+TOMSK_DISTRICT_RULES = [
+    ("Кировский район", 56.460, 84.970, [
+        "усов", "киров", "красноармейск", "мокрушин", "елизаров", "нахимов", "котовск",
+        "учебн", "вершинин", "дзержинск", "студенческ", "южн", "буревестник", "тимаков",
+        "тгу", "тпу", "сибгму", "лагерный", "южная", "кировский"
+    ]),
+    ("Советский район", 56.478, 84.985, [
+        "фрунзе", "комсомольск", "сибирск", "алтайск", "нечевск", "никитин", "шевченко",
+        "герцен", "кулагин", "тверск", "гогол", "крылов", "чкалов", "советский"
+    ]),
+    ("Ленинский район", 56.515, 84.960, [
+        "мир", "79 гвардейск", "каштак", "войков", "говоров", "смирнов", "березов",
+        "пролетарск", "большая подгорн", "черемошник", "интернационалист", "карла маркс",
+        "5-й арми", "ленинский"
+    ]),
+    ("Октябрьский район", 56.508, 85.030, [
+        "иркутск", "лазо", "герасименко", "солнечн", "зеленые горк", "зелёные горк",
+        "беринг", "клюев", "архитектор", "пушкин", "мичурин", "энтузиаст", "бауман",
+        "черноморск", "октябрьский"
+    ]),
+    ("Пригород", 56.425, 85.015, [
+        "зональн", "южные ворот", "кисловк", "левобережн", "тимирязев", "северск"
+    ])
+]
+
+def enrich_tomsk_geo(db_path=DB_PATH):
+    """Enriches apartments with exact Tomsk districts and spread coordinates."""
+    with get_connection(db_path) as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT id, address, title, district, lat, lng FROM apartments")
+        rows = cursor.fetchall()
+        
+        updated = 0
+        for r in rows:
+            apt_id = r["id"]
+            addr_lower = (r["address"] or "").lower() + " " + (r["title"] or "").lower()
+            current_dist = r["district"]
+            current_lat = r["lat"]
+            current_lng = r["lng"]
+            
+            # Detect district
+            matched_dist = current_dist
+            base_lat, base_lng = None, None
+            for d_name, d_lat, d_lng, keywords in TOMSK_DISTRICT_RULES:
+                if any(kw in addr_lower for kw in keywords):
+                    matched_dist = d_name
+                    base_lat, base_lng = d_lat, d_lng
+                    break
+                    
+            if not matched_dist:
+                matched_dist = "Советский район"
+                base_lat, base_lng = 56.478, 84.985
+                
+            needs_coord_update = (
+                not current_lat or not current_lng or
+                (abs(current_lat - 56.4977) < 0.001 and abs(current_lng - 84.9744) < 0.001)
+            )
+            
+            if needs_coord_update and base_lat and base_lng:
+                h = abs(hash(apt_id))
+                jitter_lat = ((h % 1000) / 1000.0 - 0.5) * 0.015
+                jitter_lng = (((h // 1000) % 1000) / 1000.0 - 0.5) * 0.025
+                new_lat = round(base_lat + jitter_lat, 6)
+                new_lng = round(base_lng + jitter_lng, 6)
+                cursor.execute("""
+                UPDATE apartments SET district = ?, lat = ?, lng = ? WHERE id = ?
+                """, (matched_dist, new_lat, new_lng, apt_id))
+                updated += 1
+            elif matched_dist != current_dist:
+                cursor.execute("UPDATE apartments SET district = ? WHERE id = ?", (matched_dist, apt_id))
+                updated += 1
+                
+        conn.commit()
+        return updated
+
+def list_apartments_geo(
+    bbox: str = None,
+    center_lat: float = None,
+    center_lng: float = None,
+    radius_km: float = None,
+    district: str = None,
+    rooms: str = None,
+    price_min: int = None,
+    price_max: int = None,
+    is_secret_only: bool = False,
+    limit: int = 250,
+    db_path=DB_PATH
+) -> dict:
+    with get_connection(db_path) as conn:
+        cursor = conn.cursor()
+        query = "SELECT id, title, price, deposit, commission, address, district, rooms, area, floor, total_floors, lat, lng, photos_json, is_secret_early_access FROM apartments WHERE lat IS NOT NULL AND lng IS NOT NULL"
+        params = []
+        
+        if district:
+            d_clean = district.strip()
+            query += " AND (district LIKE ? OR district LIKE ? OR district LIKE ?)"
+            params.extend([f"%{d_clean}%", f"%{d_clean.capitalize()}%", f"%{d_clean.lower()}%"])
+            
+        if rooms:
+            r_clean = rooms.strip()
+            query += " AND (rooms LIKE ? OR rooms LIKE ? OR rooms LIKE ?)"
+            params.extend([f"%{r_clean}%", f"%{r_clean.capitalize()}%", f"%{r_clean.lower()}%"])
+            
+        if price_min is not None:
+            query += " AND price >= ?"
+            params.append(price_min)
+            
+        if price_max is not None:
+            query += " AND price <= ?"
+            params.append(price_max)
+            
+        if is_secret_only:
+            query += " AND is_secret_early_access = 1"
+            
+        if bbox:
+            try:
+                parts = [float(p.strip()) for p in bbox.split(",")]
+                if len(parts) == 4:
+                    min_lat, min_lng, max_lat, max_lng = parts
+                    query += " AND lat >= ? AND lat <= ? AND lng >= ? AND lng <= ?"
+                    params.extend([min_lat, max_lat, min_lng, max_lng])
+            except Exception:
+                pass
+                
+        query += " ORDER BY is_secret_early_access DESC, price ASC LIMIT ?"
+        params.append(limit)
+        
+        cursor.execute(query, params)
+        rows = cursor.fetchall()
+        
+        cursor.execute("SELECT district, count(*) as count FROM apartments WHERE district IS NOT NULL AND district != '' GROUP BY district")
+        district_counts = [dict(r) for r in cursor.fetchall()]
+        
+        points = []
+        for r in rows:
+            apt = dict(r)
+            a_lat, a_lng = apt["lat"], apt["lng"]
+            dist_km = None
+            if center_lat is not None and center_lng is not None:
+                dist_km = haversine_distance(center_lat, center_lng, a_lat, a_lng)
+                if radius_km is not None and dist_km > radius_km:
+                    continue
+                    
+            try:
+                photos = json.loads(apt.get("photos_json") or "[]")
+                first_photo = photos[0] if photos else ""
+                photos_count = len(photos)
+            except Exception:
+                first_photo = ""
+                photos_count = 0
+                
+            points.append({
+                "id": apt["id"],
+                "lat": a_lat,
+                "lng": a_lng,
+                "title": apt["title"],
+                "price": apt["price"],
+                "price_badge": f"{apt['price']:,}".replace(",", " ") + " ₽",
+                "deposit": apt["deposit"],
+                "rooms": apt["rooms"],
+                "area": apt["area"],
+                "floor_str": f"{apt['floor']}/{apt['total_floors']} эт.",
+                "address": apt["address"],
+                "district": apt["district"] or "Томск",
+                "photo": first_photo,
+                "photos_count": photos_count,
+                "is_secret": bool(apt["is_secret_early_access"]),
+                "distance_km": dist_km
+            })
+            
+        if center_lat is not None and center_lng is not None:
+            points.sort(key=lambda p: (p["distance_km"] or 999999))
+            
+        return {
+            "count": len(points),
+            "center": {"lat": center_lat or 56.4977, "lng": center_lng or 84.9744},
+            "districts": district_counts,
+            "apartments": points
+        }
+
 if __name__ == "__main__":
     init_db()
-    print("Database initialized successfully at:", DB_PATH)
+    enrich_tomsk_geo()
+    print("Database initialized & enriched with geo successfully at:", DB_PATH)
     stats = get_system_stats()
     print("Current Stats:", stats)

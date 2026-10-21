@@ -124,5 +124,17 @@ class TestRealtyBackend(unittest.TestCase):
         self.assertGreater(st["total_apartments"], 50)
         print(f"[✓] System stats verified: Total={st['total_apartments']}, Secret={st['secret_early_access_count']}, Users={st['total_users']}")
 
+        print("\n--- 10. Testing /api/apartments/map (Geo & Radius) ---")
+        map_res = self.client.get("/api/apartments/map?lat=56.470&lng=84.960&radius_km=3.0")
+        self.assertEqual(map_res.status_code, 200)
+        map_data = map_res.json()
+        self.assertGreater(map_data["count"], 0)
+        self.assertIn("apartments", map_data)
+        self.assertIn("districts", map_data)
+        first_pin = map_data["apartments"][0]
+        self.assertIn("price_badge", first_pin)
+        self.assertIsNotNone(first_pin["distance_km"])
+        print(f"[✓] Map API verified: {map_data['count']} pins found within 3km of user. Nearest: {first_pin['price_badge']} at {first_pin['distance_km']} km")
+
 if __name__ == "__main__":
     unittest.main()
