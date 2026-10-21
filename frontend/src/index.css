@@ -907,6 +907,7 @@
       margin-top: auto;
       padding-top: 10px;
     }
+    .btn-card-details,
     .btn-show-phone {
       width: 100%;
       height: 40px;
@@ -922,28 +923,45 @@
       gap: 6px;
       margin-top: 10px;
       box-shadow: 0 2px 8px rgba(245, 158, 11, 0.22);
+      cursor: pointer;
       transition: opacity 0.15s ease, transform 0.15s ease;
     }
+    .btn-card-details:hover,
     .btn-show-phone:hover {
       opacity: 0.94;
     }
+    .btn-card-details:active,
     .btn-show-phone:active {
       transform: scale(0.97);
     }
 
-    /* GRID CARD */
+    /* GRID CARD (Desktop & Tablet) */
     .offer-card.card-grid-layout {
       display: flex;
       flex-direction: column;
+      height: 310px;
+      min-height: 310px;
+      max-height: 310px;
+      box-sizing: border-box;
     }
     .offer-card.card-grid-layout .card-gallery-wrap {
-      height: 200px;
+      height: 180px;
+      min-height: 180px;
+      max-height: 180px;
+      flex-shrink: 0;
     }
-    .offer-card.card-grid-layout .card-grid-body {
-      padding: 14px;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
+    .offer-card.card-grid-layout .desktop-only-content {
+      display: none !important;
+    }
+    .offer-card.card-grid-layout .card-mobile-body {
+      display: flex !important;
+      flex-direction: column !important;
+      justify-content: space-between !important;
+      height: 130px !important;
+      min-height: 130px !important;
+      max-height: 130px !important;
+      box-sizing: border-box !important;
+      padding: 12px 14px 14px !important;
     }
 
     .card-mobile-body {
@@ -2524,7 +2542,7 @@
         box-sizing: border-box !important;
       }
 
-      /* 2-Tile Grid on mobile without jumps/animations */
+      /* 2-Tile Grid on mobile with identical uniform height across ALL tiles */
       .offer-card {
         display: flex !important;
         flex-direction: column !important;
@@ -2537,6 +2555,10 @@
         -webkit-user-select: none !important;
         border: 1px solid var(--border-light) !important;
         background: var(--bg-card) !important;
+        height: 236px !important;
+        min-height: 236px !important;
+        max-height: 236px !important;
+        box-sizing: border-box !important;
       }
       .offer-card:hover,
       .offer-card:active,
@@ -2547,7 +2569,10 @@
 
       .offer-card .card-gallery-wrap {
         height: 135px !important;
+        min-height: 135px !important;
+        max-height: 135px !important;
         width: 100% !important;
+        flex-shrink: 0 !important;
         border-radius: 0 !important;
         transform: none !important;
         background: #0b0f19 !important;
@@ -2582,14 +2607,19 @@
       .card-mobile-body {
         display: flex !important;
         flex-direction: column !important;
-        padding: 10px 10px 12px !important;
-        gap: 3px !important;
+        justify-content: space-between !important;
+        height: 101px !important;
+        min-height: 101px !important;
+        max-height: 101px !important;
+        box-sizing: border-box !important;
+        padding: 9px 10px 10px !important;
         background: var(--bg-card) !important;
       }
       .card-mobile-body .card-price-main {
         font-size: 15px !important;
         font-weight: 800 !important;
-        line-height: 1.2 !important;
+        line-height: 18px !important;
+        height: 18px !important;
         letter-spacing: -0.3px !important;
         color: var(--text-main) !important;
       }
@@ -2601,25 +2631,31 @@
       .card-mobile-title {
         font-size: 12.5px !important;
         font-weight: 700 !important;
-        line-height: 1.3 !important;
+        line-height: 17px !important;
+        height: 34px !important; /* Fixed exact 2 lines height across all cards */
+        min-height: 34px !important;
+        max-height: 34px !important;
         color: var(--text-main) !important;
         display: -webkit-box !important;
         -webkit-line-clamp: 2 !important;
         -webkit-box-orient: vertical !important;
         overflow: hidden !important;
-        margin: 1px 0 0 !important;
+        text-overflow: ellipsis !important;
+        margin: 0 !important;
       }
       .card-mobile-location {
         display: flex !important;
         align-items: center !important;
         gap: 5px !important;
         font-size: 11px !important;
+        line-height: 16px !important;
+        height: 16px !important;
         color: var(--text-muted) !important;
         font-weight: 500 !important;
         white-space: nowrap !important;
         overflow: hidden !important;
         text-overflow: ellipsis !important;
-        margin-top: 2px !important;
+        margin-top: auto !important;
       }
       .card-mobile-location .card-location-dot {
         width: 6px !important;
