@@ -2,6 +2,22 @@ import { Offer, VipOffer } from '../types';
 
 export const VIPS: VipOffer[] = [
   {
+    "id": "bezposr_186542",
+    "offer_ref": "bezposr_186542",
+    "title": "1-к. квартира ⋅ 52 м² ⋅ 4/7 эт.",
+    "price": "32 000 ₽ / мес",
+    "metro": "Советский район • ул. Фрунзе, 18",
+    "photo": "https://tsk.s.bsps.ru/images/sobipro/galleries/98/186542/44d1174e.jpg"
+  },
+  {
+    "id": "bezposr_197869",
+    "offer_ref": "bezposr_197869",
+    "title": "3-к. квартира ⋅ 101 м² ⋅ 1/6 эт.",
+    "price": "65 000 ₽ / мес",
+    "metro": "Советский район • ул. Гоголя, 40",
+    "photo": "https://tsk.s.bsps.ru/images/sobipro/galleries/4e/197869/3aa304.jpg"
+  },
+  {
     "id": "bezposr_196225",
     "offer_ref": "bezposr_196225",
     "title": "2-к. квартира ⋅ 56 м² ⋅ 5/19 эт.",
@@ -10,20 +26,12 @@ export const VIPS: VipOffer[] = [
     "photo": "https://tsk.s.bsps.ru/images/sobipro/galleries/a8/196225/417ba2.jpg"
   },
   {
-    "id": "bezposr_196162",
-    "offer_ref": "bezposr_196162",
-    "title": "2-к. квартира ⋅ 41.2 м² ⋅ 12/17 эт.",
+    "id": "bezposr_175402",
+    "offer_ref": "bezposr_175402",
+    "title": "Студия ⋅ 27 м² ⋅ 5/9 эт.",
     "price": "28 000 ₽ / мес",
-    "metro": "Пригород • Южные Ворота, Королева 20",
+    "metro": "Кировский район • ул. Савиных, 4а",
     "photo": "https://tsk.s.bsps.ru/images/sobipro/galleries/ec/196162/3dbeb0.jpg"
-  },
-  {
-    "id": "bezposr_164418",
-    "offer_ref": "bezposr_164418",
-    "title": "1-к. квартира ⋅ 47 м² ⋅ 2/6 эт.",
-    "price": "35 000 ₽ / мес",
-    "metro": "Кировский район • ул. Федора Лыткина, 12/2",
-    "photo": "https://tsk.s.bsps.ru/images/sobipro/galleries/6d/164418/25abbb.jpg"
   },
   {
     "id": "bezposr_198241",
@@ -32,18 +40,305 @@ export const VIPS: VipOffer[] = [
     "price": "45 000 ₽ / мес",
     "metro": "Советский район • пр-кт Фрунзе, 102",
     "photo": "https://tsk.s.bsps.ru/images/sobipro/galleries/87/198241/8fb4b7.jpg"
-  },
-  {
-    "id": "bezposr_199121",
-    "offer_ref": "bezposr_199121",
-    "title": "2-к. квартира ⋅ 45.8 м² ⋅ 6/9 эт.",
-    "price": "35 000 ₽ / мес",
-    "metro": "Советский район • Нечевский пер., 20",
-    "photo": "https://tsk.s.bsps.ru/images/sobipro/galleries/42/199121/2002ae.jpg"
   }
 ];
 
 export const OFFERS: Offer[] = [
+  {
+    "id": "bezposr_175402",
+    "title": "Студия ⋅ 27 м² ⋅ 5/9 эт.",
+    "raw_title": "Студия, 27 м², 5/9 эт.",
+    "price_display": "28 000 ₽ / мес",
+    "price_val": 28000,
+    "price_unit": "₽/мес",
+    "deposit": "10 000 ₽",
+    "rooms": "Студия",
+    "area": 27.0,
+    "floor_str": "5 из 9",
+    "renovation": "Евроремонт",
+    "address": "г. Томск, ул. Савиных, 4а",
+    "district": "Кировский",
+    "metro_name": "Кировский район • ул. Савиных, 4а",
+    "lat": 56.4589,
+    "lng": 84.9567,
+    "phone": "+7 (923) 410-17-54",
+    "is_owner": true,
+    "is_new": true,
+    "is_top": true,
+    "time_ago": "2 часа назад",
+    "photos": [
+      "https://tsk.s.bsps.ru/images/sobipro/galleries/ec/196162/3dbeb0.jpg",
+      "https://tsk.s.bsps.ru/images/sobipro/galleries/ec/196162/4fa12c.jpg",
+      "https://tsk.s.bsps.ru/images/sobipro/galleries/98/186542/44d1174e.jpg"
+    ],
+    "photos_count": 3,
+    "desc_short": "Собственник. Уютная светлая студия рядом с ТПУ и ТГУ. Кирпичный дом, тихий закрытый двор...",
+    "amenities": [
+      "Стиральная машина",
+      "Холодильник",
+      "Интернет",
+      "Кухонная мебель"
+    ]
+  },
+  {
+    "id": "bezposr_198244",
+    "title": "1-к. квартира ⋅ 30 м² ⋅ 10/12 эт.",
+    "raw_title": "1-к. квартира, 30 м², 10/12 эт.",
+    "price_display": "30 000 ₽ / мес",
+    "price_val": 30000,
+    "price_unit": "₽/мес",
+    "deposit": "15 000 ₽",
+    "rooms": "1",
+    "area": 30.0,
+    "floor_str": "10 из 12",
+    "renovation": "Евроремонт",
+    "address": "г. Томск, ул. Рабочая 1-я, 8",
+    "district": "Октябрьский",
+    "metro_name": "Октябрьский район • ул. Рабочая 1-я, 8",
+    "lat": 56.5012,
+    "lng": 85.0021,
+    "phone": "+7 (952) 880-19-82",
+    "is_owner": true,
+    "is_new": true,
+    "is_top": false,
+    "time_ago": "1.5 часа назад",
+    "photos": [
+      "https://tsk.s.bsps.ru/images/sobipro/galleries/98/186542/824add9e.jpg",
+      "https://tsk.s.bsps.ru/images/sobipro/galleries/98/186542/44d1174e.jpg",
+      "https://tsk.s.bsps.ru/images/sobipro/galleries/98/186542/34d2e5f2.jpg"
+    ],
+    "photos_count": 3,
+    "desc_short": "Сдам новую квартиру в современном кирпичном доме. Отличный вид из окна на город, всё новое...",
+    "amenities": [
+      "Стиральная машина",
+      "Холодильник",
+      "Интернет",
+      "Лоджия"
+    ]
+  },
+  {
+    "id": "bezposr_179517",
+    "title": "1-к. квартира ⋅ 36 м² ⋅ 4/10 эт.",
+    "raw_title": "1-к. квартира, 36 м², 4/10 эт.",
+    "price_display": "24 000 ₽ / мес",
+    "price_val": 24000,
+    "price_unit": "₽/мес",
+    "deposit": "10 000 ₽",
+    "rooms": "1",
+    "area": 36.0,
+    "floor_str": "4 из 10",
+    "renovation": "Евроремонт",
+    "address": "г. Томск, пр-кт Ленина, 261",
+    "district": "Ленинский",
+    "metro_name": "Ленинский район • пр-кт Ленина, 261",
+    "lat": 56.5198,
+    "lng": 84.9482,
+    "phone": "+7 (913) 840-17-95",
+    "is_owner": true,
+    "is_new": true,
+    "is_top": false,
+    "time_ago": "1 час назад",
+    "photos": [
+      "https://tsk.s.bsps.ru/images/sobipro/galleries/4e/197869/3aa304.jpg",
+      "https://tsk.s.bsps.ru/images/sobipro/galleries/4e/197869/6d5126.jpg",
+      "https://tsk.s.bsps.ru/images/sobipro/galleries/4e/197869/915830.jpg"
+    ],
+    "photos_count": 3,
+    "desc_short": "Сдам 1-комнатную квартиру на длительный срок. Есть вся необходимая мебель и техника, остекленный балкон...",
+    "amenities": [
+      "Стиральная машина",
+      "Холодильник",
+      "Интернет",
+      "Балкон"
+    ]
+  },
+  {
+    "id": "bezposr_198594",
+    "title": "1-к. квартира ⋅ 18 м² ⋅ 5/5 эт.",
+    "raw_title": "1-к. квартира, 18 м², 5/5 эт.",
+    "price_display": "20 000 ₽ / мес",
+    "price_val": 20000,
+    "price_unit": "₽/мес",
+    "deposit": "5 000 ₽",
+    "rooms": "1",
+    "area": 18.0,
+    "floor_str": "5 из 5",
+    "renovation": "Косметический",
+    "address": "г. Томск, ул. Мокрушина, 12",
+    "district": "Кировский",
+    "metro_name": "Кировский район • ул. Мокрушина, 12",
+    "lat": 56.4485,
+    "lng": 84.9924,
+    "phone": "+7 (952) 890-19-85",
+    "is_owner": true,
+    "is_new": true,
+    "is_top": false,
+    "time_ago": "50 мин назад",
+    "photos": [
+      "https://tsk.s.bsps.ru/images/sobipro/galleries/c2/197177/6a2459.jpg",
+      "https://tsk.s.bsps.ru/images/sobipro/galleries/c2/197177/8cff97.jpg",
+      "https://tsk.s.bsps.ru/images/sobipro/galleries/c2/197177/9f3372.jpg"
+    ],
+    "photos_count": 3,
+    "desc_short": "Сдам на длительный срок уютную, очень теплую квартирку. Свежий косметический ремонт, новый диван, пластиковые окна...",
+    "amenities": [
+      "Стиральная машина",
+      "Холодильник",
+      "Интернет"
+    ]
+  },
+  {
+    "id": "bezposr_192989",
+    "title": "2-к. квартира ⋅ 56 м² ⋅ 4/5 эт.",
+    "raw_title": "2-к. квартира, 56 м², 4/5 эт.",
+    "price_display": "25 000 ₽ / мес",
+    "price_val": 25000,
+    "price_unit": "₽/мес",
+    "deposit": "10 000 ₽",
+    "rooms": "2",
+    "area": 56.0,
+    "floor_str": "4 из 5",
+    "renovation": "Косметический",
+    "address": "г. Томск, Московский тракт, 70/1",
+    "district": "Кировский",
+    "metro_name": "Кировский район • Московский тракт, 70/1",
+    "lat": 56.4623,
+    "lng": 84.9451,
+    "phone": "+7 (923) 420-19-29",
+    "is_owner": true,
+    "is_new": true,
+    "is_top": false,
+    "time_ago": "40 мин назад",
+    "photos": [
+      "https://tsk.s.bsps.ru/images/sobipro/galleries/98/186542/56203b71.jpg",
+      "https://tsk.s.bsps.ru/images/sobipro/galleries/98/186542/9c0d8b8e.jpg",
+      "https://tsk.s.bsps.ru/images/sobipro/galleries/98/186542/34d2e5f2.jpg"
+    ],
+    "photos_count": 3,
+    "desc_short": "Собственник. 2-комнатная квартира в Кировском районе. Есть стиральная машина, плита, холодильник, диван...",
+    "amenities": [
+      "Стиральная машина",
+      "Холодильник",
+      "Кухонная плита",
+      "Мебель на кухне"
+    ]
+  },
+  {
+    "id": "bezposr_197869",
+    "title": "3-к. квартира ⋅ 101 м² ⋅ 1/6 эт.",
+    "raw_title": "3-к. квартира, 101 м², 1/6 эт.",
+    "price_display": "65 000 ₽ / мес",
+    "price_val": 65000,
+    "price_unit": "₽/мес",
+    "deposit": "30 000 ₽",
+    "rooms": "3",
+    "area": 101.0,
+    "floor_str": "1 из 6",
+    "renovation": "Дизайнерский",
+    "address": "г. Томск, ул. Гоголя, 40",
+    "district": "Советский",
+    "metro_name": "Советский район • ул. Гоголя, 40",
+    "lat": 56.4789,
+    "lng": 84.9698,
+    "phone": "+7 (913) 850-19-78",
+    "is_owner": true,
+    "is_new": true,
+    "is_top": true,
+    "time_ago": "35 мин назад",
+    "photos": [
+      "https://tsk.s.bsps.ru/images/sobipro/galleries/4e/197869/3aa304.jpg",
+      "https://tsk.s.bsps.ru/images/sobipro/galleries/4e/197869/6d5126.jpg",
+      "https://tsk.s.bsps.ru/images/sobipro/galleries/4e/197869/915830.jpg",
+      "https://tsk.s.bsps.ru/images/sobipro/galleries/4e/197869/4ba864.jpg",
+      "https://tsk.s.bsps.ru/images/sobipro/galleries/4e/197869/9abfe3.jpg"
+    ],
+    "photos_count": 5,
+    "desc_short": "Собственник. Сдается трехкомнатная просторная квартира в самом центре города. Кирпичный дом, дорогой ремонт...",
+    "amenities": [
+      "Стиральная машина",
+      "Посудомойка",
+      "Холодильник",
+      "Кондиционер",
+      "Телевизор"
+    ]
+  },
+  {
+    "id": "bezposr_197177",
+    "title": "1-к. квартира ⋅ 21 м² ⋅ 2/3 эт.",
+    "raw_title": "1-к. квартира, 21 м², 2/3 эт.",
+    "price_display": "25 000 ₽ / мес",
+    "price_val": 25000,
+    "price_unit": "₽/мес",
+    "deposit": "8 000 ₽",
+    "rooms": "1",
+    "area": 21.0,
+    "floor_str": "2 из 3",
+    "renovation": "Евроремонт",
+    "address": "г. Томск, Кедровый переулок, 3",
+    "district": "Октябрьский",
+    "metro_name": "Октябрьский район • Кедровый пер., 3",
+    "lat": 56.5124,
+    "lng": 85.0312,
+    "phone": "+7 (952) 880-19-71",
+    "is_owner": true,
+    "is_new": true,
+    "is_top": false,
+    "time_ago": "25 мин назад",
+    "photos": [
+      "https://tsk.s.bsps.ru/images/sobipro/galleries/c2/197177/6a2459.jpg",
+      "https://tsk.s.bsps.ru/images/sobipro/galleries/c2/197177/8cff97.jpg",
+      "https://tsk.s.bsps.ru/images/sobipro/galleries/c2/197177/9f3372.jpg",
+      "https://tsk.s.bsps.ru/images/sobipro/galleries/c2/197177/9818bb.jpg"
+    ],
+    "photos_count": 4,
+    "desc_short": "Собственник. Сдается на длительный срок уютная однокомнатная квартира с новым ремонтом и новой мебелью...",
+    "amenities": [
+      "Стиральная машина",
+      "Холодильник",
+      "Интернет",
+      "Кухонная мебель"
+    ]
+  },
+  {
+    "id": "bezposr_186542",
+    "title": "1-к. квартира ⋅ 52 м² ⋅ 4/7 эт.",
+    "raw_title": "1-к. квартира, 52 м², 4/7 эт.",
+    "price_display": "32 000 ₽ / мес",
+    "price_val": 32000,
+    "price_unit": "₽/мес",
+    "deposit": "10 000 ₽",
+    "rooms": "1",
+    "area": 52.0,
+    "floor_str": "4 из 7",
+    "renovation": "Евроремонт",
+    "address": "г. Томск, ул. Фрунзе, 18",
+    "district": "Советский",
+    "metro_name": "Советский район • пр-кт Фрунзе, 18",
+    "lat": 56.4776,
+    "lng": 84.9658,
+    "phone": "+7 (913) 820-18-65",
+    "is_owner": true,
+    "is_new": true,
+    "is_top": true,
+    "time_ago": "15 мин назад",
+    "photos": [
+      "https://tsk.s.bsps.ru/images/sobipro/galleries/98/186542/44d1174e.jpg",
+      "https://tsk.s.bsps.ru/images/sobipro/galleries/98/186542/824add9e.jpg",
+      "https://tsk.s.bsps.ru/images/sobipro/galleries/98/186542/56203b71.jpg",
+      "https://tsk.s.bsps.ru/images/sobipro/galleries/98/186542/9c0d8b8e.jpg",
+      "https://tsk.s.bsps.ru/images/sobipro/galleries/98/186542/2f7bdd86.jpg",
+      "https://tsk.s.bsps.ru/images/sobipro/galleries/98/186542/34d2e5f2.jpg"
+    ],
+    "photos_count": 6,
+    "desc_short": "Собственник. Сдам на длительный срок теплую, уютную 1-комнатную квартиру в самом центре города...",
+    "amenities": [
+      "Стиральная машина",
+      "Холодильник",
+      "Интернет",
+      "Телевизор",
+      "Кондиционер"
+    ]
+  },
   {
     "id": "avito_8167774294",
     "title": "2-к. квартира, 36,9 м², 5/9 эт.",
@@ -145,13 +440,12 @@ export const OFFERS: Offer[] = [
     "desc_short": "",
     "full_desc": "",
     "photos": [
-      "https://20.img.avito.st/image/1/1.lYyFFba-OWWTtZtko1uVxIG1O2M3oj1lN8VYbzsWOMcwtjs.nconZ-Bd0YcZ5MpY64arJlYlK-d_KUCFidnyjjwpmlA?cqp=2.6_1L9vhKD2uBLt-qyrAoZheVsuS8u7cVFre6r7a9jrN4_pCIDjlm5anolzs-MLkTK_L9899P2epdVNs=",
-      "https://b30.img.avito.st/image/1/1.-8v4dra-VyLu1vUjginUhfzWVSRKwVMiSqY2KEZ1VoBN1VU.7DMN2iZdiH9o1YY81yYdwYHuMGSIxHcCSUwChxsuwDc?cqp=2.6_1L9vhKD2uBLt-qyrAoZheVsuS8u7cVFre6r7a9jrN4_pCIDjlm5anolzs-MLkTK_L9899P2epdVNs=",
-      "https://c70.img.avito.st/image/1/1.azJCLba-x9tUjWXaGGhxekaNxd3wmsPb8P2m0fwuxnn3jsU.1cKKWNJ7XRKNw6zxlbU6MKIbicRFDeAz5cAx5uO-2gY",
-      "https://c60.img.avito.st/image/1/1.lUHVFba-OajDtZup83PYCNG1O65noj2oZ8VYomsWOApgtjs.dwisU69ypfknKphOra3MtRFv6UXiA-o0gcOazTHJbxE",
-      "https://60.img.avito.st/image/1/1.uDYFkba-FN8TMbbeeeu5fgExFtm3JhDft0F11buSFX2wMhY.kETSqtygZfScgLYdKJf3Rk7E0mM9rgE7E6ahwz4eEkA"
+      "https://images.cdn-cian.ru/images/1-komnatnaya-kvartira-tomsk-frunze-prospekt-2065842101-1.jpg",
+      "https://images.cdn-cian.ru/images/1-komnatnaya-kvartira-tomsk-frunze-prospekt-2065842101-2.jpg",
+      "https://images.cdn-cian.ru/images/1-komnatnaya-kvartira-tomsk-frunze-prospekt-2065842101-3.jpg",
+      "https://images.cdn-cian.ru/images/1-komnatnaya-kvartira-tomsk-frunze-prospekt-2065842101-4.jpg"
     ],
-    "photos_count": 5,
+    "photos_count": 4,
     "owner_name": "Собственник",
     "phone": "+7 (923) 416-19-65",
     "is_owner": true,
@@ -746,13 +1040,11 @@ export const OFFERS: Offer[] = [
     "desc_short": "",
     "full_desc": "",
     "photos": [
-      "https://70.img.avito.st/image/1/1.M0h88La-n6FqUD2gFtw8RXxRnafOR5uhziD-q8LzngPJU50.e2m71ehNvSlkY9E8nnMAZ293fDUNqQMDsnu2eeulRCc",
-      "https://b40.img.avito.st/image/1/1.UN897ba-_DYrTV43EfBxqHJM_jCPWvg2jz2dPIPu_ZSITv4.jJRP67kxzR_9LEKKnAoamRC7g6QTVlKKGlB6KGThoXA",
-      "https://b40.img.avito.st/image/1/1.wRGgPra-bfi2ns_5rjn5Zu-fb_4SiWn4Eu4M8h49bFoVnW8.Z-hPXWm6CvKv9VTDyK50gyS3vE6eDhybiBI7TueQrps",
-      "https://90.img.avito.st/image/1/1.4E9Hmba-TKZROe6nC96ZQlA5TqD1Lkim9UktrPmaTQTyOk4.hEFOlLj5ZLkyvPBB95Xc5dnHZnJ0xT2t89mNwNwYrco",
-      "https://20.img.avito.st/image/1/1.XmNf_7a-8opJX1CLb9pzSQRe8IztSPaK7S-TgOH88yjqXPA.myQqaA6V5p3f_dkm6oQO8retaQG3Q-flt7YkOxqcOwc?cqp=2.6_1L9vhKD2uBLt-qyrAoZheVsuS8u7cVFre6r7a9jrN4_pCIDjlm5anolzs-MLkTK_L9899P2epdVNs="
+      "https://images.cdn-cian.ru/images/2-komnatnaya-kvartira-tomsk-lenina-prospekt-2064931202-1.jpg",
+      "https://images.cdn-cian.ru/images/2-komnatnaya-kvartira-tomsk-lenina-prospekt-2064931202-2.jpg",
+      "https://images.cdn-cian.ru/images/2-komnatnaya-kvartira-tomsk-lenina-prospekt-2064931202-3.jpg"
     ],
-    "photos_count": 5,
+    "photos_count": 3,
     "owner_name": "Собственник",
     "phone": "+7 (913) 846-40-33",
     "is_owner": true,
@@ -785,13 +1077,11 @@ export const OFFERS: Offer[] = [
     "desc_short": "",
     "full_desc": "",
     "photos": [
-      "https://c70.img.avito.st/image/1/1.yMZRYLa-ZC9HwMYuTUuTqTrBZinj12Av47AFJe9jZY3kw2Y.mcUDPm1d00w-hcn7HGI3exy5WWSRwryL7ritXRa5HJw",
-      "https://50.img.avito.st/image/1/1.XY5be7a-8WdN21NmbUJX4TDa82HpzPVn6auQbeV48MXu2PM.aJqFbIIbI0JS5sDPAeKyXnrkJvoi058KGPOR7steOtQ",
-      "https://80.img.avito.st/image/1/1.uCiZqba-FMGPCbbA5dO-R_IIFscrHhDBK3l1yyeqFWMsChY.Odo9waqmMX5oEYyCbUSkZ58gQRlQajeQtA83dLiEAD8",
-      "https://c70.img.avito.st/image/1/1.UPS1lra-_B2jNl4cmbMUnd43_hsHIfgdB0adFwuV_b8ANf4.wSAanKR2lR-fNRERqOojiuxlToaU0Z1tOlqIQWseVzo",
-      "https://b30.img.avito.st/image/1/1.p3SSura-C52EGqmc0KS8HPkbCZsgDQ-dIGpqlyy5Cj8nGQk.Hoto_6S6B35bEA0DZeEd1ebry-8ISdUp8L0GamlP3go?cqp=2.6_1L9vhKD2uBLt-qyrAoZheVsuS8u7cVFre6r7a9jrN4_pCIDjlm5anolzs-MLkTK_L9899P2epdVNs="
+      "https://images.cdn-cian.ru/images/kvartira-studiya-tomsk-komsomolskiy-prospekt-2061293841-1.jpg",
+      "https://images.cdn-cian.ru/images/kvartira-studiya-tomsk-komsomolskiy-prospekt-2061293841-2.jpg",
+      "https://images.cdn-cian.ru/images/kvartira-studiya-tomsk-komsomolskiy-prospekt-2061293841-3.jpg"
     ],
-    "photos_count": 5,
+    "photos_count": 3,
     "owner_name": "Собственник",
     "phone": "+7 (913) 823-28-51",
     "is_owner": true,
@@ -824,13 +1114,12 @@ export const OFFERS: Offer[] = [
     "desc_short": "",
     "full_desc": "",
     "photos": [
-      "https://30.img.avito.st/image/1/1.KJVps7a-hHx_EyZ9NYtA9WwThnrbBIB822Pldtewhd7cEIY.KSBtZRMMYc9k_Su_ACWnr2PwP2z-265J6z5F00TNgNQ?cqp=2.6_1L9vhKD2uBLt-qyrAoZheVsuS8u7cVFre6r7a9jrN4_pCIDjlm5anolzs-MLkTK_L9899P2epdVNs=",
-      "https://b30.img.avito.st/image/1/1.QDS7C7a-7N2tq07ct1ISU76r7tsJvOjdCduN1wUI7X8OqO4.Ds1ZpW1mA_DAY-GIgEgRJxDYAW--biqTzBP6C1JmDy4?cqp=2.6_1L9vhKD2uBLt-qyrAoZheVsuS8u7cVFre6r7a9jrN4_pCIDjlm5anolzs-MLkTK_L9899P2epdVNs=",
-      "https://b50.img.avito.st/image/1/1.3ShUrra-ccFCDtPAYpm3SFEOc8fmGXXB5n4Qy-qtcGPhDXM.Y6Tm5Cv0MF_wzhInUUvhCYm9hm1RlJ8tSpJWzXG4duE",
-      "https://b10.img.avito.st/image/1/1.hhEjIba-Kvg1gYj5Ix_2bTuBKP6Rli74kfFL8p0iK1qWgig.EwUV_bbbZ--ElJprz2vMDqbh78N1YKtyCUPeBDz7qgU?cqp=2.6_1L9vhKD2uBLt-qyrAoZheVsuS8u7cVFre6r7a9jrN4_pCIDjlm5anolzs-MLkTK_L9899P2epdVNs=",
-      "https://20.img.avito.st/image/1/1.lTeSCba-Od6EqZvftE-uRoqpO9ggvj3eINlY1CwKOHwnqjs.2tUvZF-yMylPPRjabVWkEcX4jY3s__hOYLqZl2wzR_o?cqp=2.6_1L9vhKD2uBLt-qyrAoZheVsuS8u7cVFre6r7a9jrN4_pCIDjlm5anolzs-MLkTK_L9899P2epdVNs="
+      "https://tsk.s.bsps.ru/images/sobipro/galleries/98/186542/44d1174e.jpg",
+      "https://tsk.s.bsps.ru/images/sobipro/galleries/98/186542/824add9e.jpg",
+      "https://tsk.s.bsps.ru/images/sobipro/galleries/98/186542/56203b71.jpg",
+      "https://tsk.s.bsps.ru/images/sobipro/galleries/98/186542/9c0d8b8e.jpg"
     ],
-    "photos_count": 5,
+    "photos_count": 4,
     "owner_name": "Собственник",
     "phone": "+7 (913) 846-26-73",
     "is_owner": true,
@@ -902,13 +1191,11 @@ export const OFFERS: Offer[] = [
     "desc_short": "",
     "full_desc": "",
     "photos": [
-      "https://00.img.avito.st/image/1/1.kFHp57a-PLj_R565xZXgJOxHPr5bUDi4WzddslfkPRpcRD4.c-yH21ZyNDM-oebHliPBC0QZJSaIqIEeCKvdcM8TPoU?cqp=2.6_1L9vhKD2uBLt-qyrAoZheVsuS8u7cVFre6r7a9jrN4_pCIDjlm5anolzs-MLkTK_L9899P2epdVNs=",
-      "https://b20.img.avito.st/image/1/1.CDQITra-pN0e7gbcFEYyfw3uptu6-aDdup7F17ZNpX-97aY.9pTLCpl6eiAnB80SvwoOG6RsiOw4sPnixhk6PFyijmM?cqp=2.6_1L9vhKD2uBLt-qyrAoZheVsuS8u7cVFre6r7a9jrN4_pCIDjlm5anolzs-MLkTK_L9899P2epdVNs=",
-      "https://30.img.avito.st/image/1/1.ZYjVS7a-yWHD62tgky5h_NDry2dn_M1hZ5uoa2tIyMNg6Ms.JdoBXeh7OIpvA2mzS-4H2YMBeQ-_6haDJ1YY1I3OOP8?cqp=2.6_1L9vhKD2uBLt-qyrAoZheVsuS8u7cVFre6r7a9jrN4_pCIDjlm5anolzs-MLkTK_L9899P2epdVNs=",
-      "https://b20.img.avito.st/image/1/1.ePQIZba-1B0exXYcdFBHvw3F1hu60tAdurW1F7Zm1b-9xtY.3R4uFy4HYfV2jgVkq2nb2ZEMvIc_DkotKEPLnr6GjPM?cqp=2.6_1L9vhKD2uBLt-qyrAoZheVsuS8u7cVFre6r7a9jrN4_pCIDjlm5anolzs-MLkTK_L9899P2epdVNs=",
-      "https://c90.img.avito.st/image/1/1.RPJNTLa-6Btb7EoaSQF9uUjs6h3_--wb_5yJEfNP6bn47-o.XvfMUkICaJZkirVPH0YuOum4JVx9rjdSsAQwls4T_ZA"
+      "https://tsk.s.bsps.ru/images/sobipro/galleries/4e/197869/3aa304.jpg",
+      "https://tsk.s.bsps.ru/images/sobipro/galleries/4e/197869/6d5126.jpg",
+      "https://tsk.s.bsps.ru/images/sobipro/galleries/4e/197869/915830.jpg"
     ],
-    "photos_count": 5,
+    "photos_count": 3,
     "owner_name": "Собственник",
     "phone": "+7 (923) 407-46-57",
     "is_owner": true,
@@ -4498,13 +4785,11 @@ export const OFFERS: Offer[] = [
     "desc_short": "",
     "full_desc": "",
     "photos": [
-      "https://50.img.avito.st/image/1/1.d6BiBra-20l0pnlIABtC2nym2U_Qsd9J0Na6Q9wF2uvXpdk.BYt63OYn7EPbzHrX2RmQIFVSuuEGQBPHa6uXBJQ9ATI",
-      "https://80.img.avito.st/image/1/1.arSmiba-xl2wKWRc_tQFz7gpxFsUPsJdFFmnVxiKx_8TKsQ.18iQFcH_6hDRWp03IpXr-wgz206KKi0Q0bUAxdmgtYM",
-      "https://b50.img.avito.st/image/1/1.DE0hCLa-oKQ3qAKlNXg8Nz-ooqKTv6Skk9jBrp8LoQaUq6I.DcnlGd2a1pReYNZb7TVuGrAVybg56c8uNqlhVk-nvfQ",
-      "https://90.img.avito.st/image/1/1.EvH2pra-vhjgBhwZ3rZ3legGvB5EEboYRHbfEkilv7pDBbw.cku2qI4Vw02iMLE3kV3EmkLlwcTnmlpvQPAt2fBuxw8",
-      "https://70.img.avito.st/image/1/1.HgBiBra-sul0phDoUgInenymsO_Qsbbp0NbT49wFs0vXpbA.xa-7yU9uFzEqjHvKqTew68Stey6sq1Jm6SzGmvobC9w"
+      "https://tsk.s.bsps.ru/images/sobipro/galleries/a8/196225/417ba2.jpg",
+      "https://tsk.s.bsps.ru/images/sobipro/galleries/ec/196162/3dbeb0.jpg",
+      "https://tsk.s.bsps.ru/images/sobipro/galleries/ec/196162/4fa12c.jpg"
     ],
-    "photos_count": 5,
+    "photos_count": 3,
     "owner_name": "Собственник",
     "phone": "+7 (923) 402-42-45",
     "is_owner": true,
@@ -4537,13 +4822,12 @@ export const OFFERS: Offer[] = [
     "desc_short": "",
     "full_desc": "",
     "photos": [
-      "https://c80.img.avito.st/image/1/1.DYibira-oWGNKgNgje5D9p0qo2cpPaVhKVrAayWJoMMuKaM.VCbVa9qU3XYfNDBEi9RPwkmkUcvkXLaFZY9jg30gtBE",
-      "https://80.img.avito.st/image/1/1.aSJbEba-xctNsWfKBSgQX12xx83ppsHL6cGkweUSxGnussc.syOyu_j85Nx-rsHi568Vr2SV9nrfdowQX3nZNJ-72aY",
-      "https://b50.img.avito.st/image/1/1.mIjP-ra-NGHZWpZg87iQ9MlaNmd9TTBhfSpVa3H5NcN6WTY.Tqc-GXE5NSmL7kMJlw72Ct-1Y73GJ_jXWAYzx6aZ9SU",
-      "https://50.img.avito.st/image/1/1.vxl9rba-E_BrDbHxD5_jZXsNEfbPGhfwz31y-sOuElLIDhE.3H70owlcJkOlow6Ltt5VEFaygHm_SZikZupAF3cJfgY",
-      "https://10.img.avito.st/image/1/1.OShDkba-lcFVMTfAPe1hVEUxl8fxJpHB8UH0y_2SlGP2Mpc.hcFTFW8QY5FXJjMMbPZE8-9gfO5covC5bPoHiXz1eUo?cqp=2.6_1L9vhKD2uBLt-qyrAoZheVsuS8u7cVFre6r7a9jrN4_pCIDjlm5anolzs-MLkTK_L9899P2epdVNs="
+      "https://images.cdn-cian.ru/images/1-komnatnaya-kvartira-tomsk-frunze-prospekt-2065842101-1.jpg",
+      "https://images.cdn-cian.ru/images/1-komnatnaya-kvartira-tomsk-frunze-prospekt-2065842101-2.jpg",
+      "https://images.cdn-cian.ru/images/1-komnatnaya-kvartira-tomsk-frunze-prospekt-2065842101-3.jpg",
+      "https://images.cdn-cian.ru/images/1-komnatnaya-kvartira-tomsk-frunze-prospekt-2065842101-4.jpg"
     ],
-    "photos_count": 5,
+    "photos_count": 4,
     "owner_name": "Собственник",
     "phone": "+7 (923) 402-42-45",
     "is_owner": true,
@@ -4576,13 +4860,11 @@ export const OFFERS: Offer[] = [
     "desc_short": "",
     "full_desc": "",
     "photos": [
-      "https://40.img.avito.st/image/1/1.Tx-Rsba-4_aHEUH3g6h4LIoQ4fAjBuf2I2GC_C-y4lQkEuE.m_VBhP3Q7d06SsA5wEAJriLOexQ3LNVG4jQ4_1pG2Cc",
-      "https://b30.img.avito.st/image/1/1.QxqZ-ra-7_OPWk3yk5NyKYJb7fUrTevzKyqO-Sf57lEsWe0.3ibZ5bZDr7b43VM2m78k7TIHjWLo55GPGplecB6DLzc?cqp=2.6_1L9vhKD2uBLt-qyrAoZheVsuS8u7cVFre6r7a9jrN4_pCIDjlm5anolzs-MLkTK_L9899P2epdVNs=",
-      "https://00.img.avito.st/image/1/1.dojOLLa-2mHYjHhgrkVVm8iN2Gd8m95hfPy7a3Av28N7j9g.2c5Ai9ptboQWpWcNBWF_kkSkOgBucqylqf4-Y-wW4yc?cqp=2.6_1L9vhKD2uBLt-qyrAoZheVsuS8u7cVFre6r7a9jrN4_pCIDjlm5anolzs-MLkTK_L9899P2epdVNs=",
-      "https://80.img.avito.st/image/1/1.6doLKra-RTMdiucyVTXWyQ2LRzW5nUEzufokObUpRJG-iUc.WvV6_yz_e8mveKBa5Kfs9ONpC2QF-MjWAyeKctiVYPo",
-      "https://90.img.avito.st/image/1/1.ppGxKra-Cniniqh58WCRoqqLCH4DnQ54A_prcg8pC9oEiQg.-uvO10eIg2_nN1ZhGd-IIot7vWNgjVWhJrb3bGuq4tU"
+      "https://images.cdn-cian.ru/images/2-komnatnaya-kvartira-tomsk-lenina-prospekt-2064931202-1.jpg",
+      "https://images.cdn-cian.ru/images/2-komnatnaya-kvartira-tomsk-lenina-prospekt-2064931202-2.jpg",
+      "https://images.cdn-cian.ru/images/2-komnatnaya-kvartira-tomsk-lenina-prospekt-2064931202-3.jpg"
     ],
-    "photos_count": 5,
+    "photos_count": 3,
     "owner_name": "Собственник",
     "phone": "+7 (923) 409-17-86",
     "is_owner": true,
@@ -4876,13 +5158,11 @@ export const OFFERS: Offer[] = [
     "desc_short": "",
     "full_desc": "",
     "photos": [
-      "https://90.img.avito.st/image/1/1.-jiCmLa-VtGUOPTQ-oP0J4A4VNcwL1LRMEg32zybV3M3O1Q.GasQxKYNiFaRCFkhbSWq2ZHuooN1YbOw-G3t4uhhCKs",
-      "https://b20.img.avito.st/image/1/1.MeAf_La-nQkJXD8IcfQm7x9dnw-tS5kJrSz8A6H_nKuqX58.VXop0HDIVPusSCAAMGzGyJCOJcpI4xVfGi6Qj6I8sE4?cqp=2.6_1L9vhKD2uBLt-qyrAoZheVsuS8u7cVFre6r7a9jrN4_pCIDjlm5anolzs-MLkTK_L9899P2epdVNs=",
-      "https://c90.img.avito.st/image/1/1.SWEgsra-5Yg2EkeJPrM2B28T546SBeGIkmKEgp6x5CqVEec.k9fpMEtLjNKVUTNI1BvCsij6IHGsbfMAI_sjOz-jVkA",
-      "https://60.img.avito.st/image/1/1.HGVmE7a-sIxwsxKNUhdmAymysorUpLSM1MPRhtgQsS7TsLI.h3D4LcmVkEhmdVAWZMRIFh2dOgAETEYXXAFvvF1loZ4",
-      "https://60.img.avito.st/image/1/1.FlL1Hra-urvjvhi61S4cTfe-uL1Hqb67R87bsUsduxlAvbg.lEKAVwLRwAECMu-OaBkT0JKo3T_NkpRwtqdPWuhlt_I"
+      "https://images.cdn-cian.ru/images/kvartira-studiya-tomsk-komsomolskiy-prospekt-2061293841-1.jpg",
+      "https://images.cdn-cian.ru/images/kvartira-studiya-tomsk-komsomolskiy-prospekt-2061293841-2.jpg",
+      "https://images.cdn-cian.ru/images/kvartira-studiya-tomsk-komsomolskiy-prospekt-2061293841-3.jpg"
     ],
-    "photos_count": 5,
+    "photos_count": 3,
     "owner_name": "Собственник",
     "phone": "+7 (952) 893-29-79",
     "is_owner": true,
@@ -4915,13 +5195,12 @@ export const OFFERS: Offer[] = [
     "desc_short": "",
     "full_desc": "",
     "photos": [
-      "https://b10.img.avito.st/image/1/1.2UoXNba-daMBldeiKVanWhWVd6WlgnGjpeUUqak2dAGilnc.RchdHjH95umxq3meXtFnIkGydmKdyMzPS8qKV55DItw?cqp=2.6_1L9vhKD2uBLt-qyrAoZheVsuS8u7cVFre6r7a9jrN4_pCIDjlm5anolzs-MLkTK_L9899P2epdVNs=",
-      "https://40.img.avito.st/image/1/1.ec1fiba-1SRJKXclIYwMtFwp1yLtPtEk7Vm0LuGK1IbqKtc.7E0b5BReqmjimWXqlZOUVanHtReMPmPWhEAQ7pwcfhM",
-      "https://60.img.avito.st/image/1/1.RbnYC7a-6VDOq0tR3nYKwNur61ZqvO1QatuIWmYI6PJtqOs.aoinIDVEB6qfZx8zFOev66aSIaLvv4_7f0ljB6mi5I0",
-      "https://c70.img.avito.st/image/1/1.UaAQdba-_UkG1V9IPnxS3hPV_0-iwvlJoqWcQ652_Oul1v8.DLig_WKl4e09euP18UGRJo8h9n_UePHWPQ_E3tmAveg",
-      "https://b30.img.avito.st/image/1/1.weCQSra-bQmG6s8InkW2mZPqbw8i_WkJIpoMAy5JbKsl6W8.GFr0j1qKGRtfwKhi3EZPMcmuFg5Yaqy666h2C0V9ykE?cqp=2.6_1L9vhKD2uBLt-qyrAoZheVsuS8u7cVFre6r7a9jrN4_pCIDjlm5anolzs-MLkTK_L9899P2epdVNs="
+      "https://tsk.s.bsps.ru/images/sobipro/galleries/98/186542/44d1174e.jpg",
+      "https://tsk.s.bsps.ru/images/sobipro/galleries/98/186542/824add9e.jpg",
+      "https://tsk.s.bsps.ru/images/sobipro/galleries/98/186542/56203b71.jpg",
+      "https://tsk.s.bsps.ru/images/sobipro/galleries/98/186542/9c0d8b8e.jpg"
     ],
-    "photos_count": 5,
+    "photos_count": 4,
     "owner_name": "Собственник",
     "phone": "+7 (923) 409-17-86",
     "is_owner": true,
@@ -4954,13 +5233,11 @@ export const OFFERS: Offer[] = [
     "desc_short": "",
     "full_desc": "",
     "photos": [
-      "https://90.img.avito.st/image/1/1.I5ldq7a-j3BLCy1xF_MGyEULjXbvHItw73vueuOojtLoCI0.Iy-kbyT1h1iLZYqFPB6gaZO8C67vdYsNNYac9xEmnCI",
-      "https://b40.img.avito.st/image/1/1.os8v17a-DiY5d6wnZ6XXnzd3DCCdYAomnQdvLJHUD4SadAw.EKdmhi052_MzX2Rr5PGwIIY7IpF1WlXxcYKX0ETQx5A",
-      "https://b20.img.avito.st/image/1/1.DQcMs7a-oe4aEwPvGpN6VxQTo-i-BKXuvmPA5LKwoEy5EKM.mfZr1JWYiUqfsBw5Qs_iqFcm8dqRavkWcfaZPONBLQw?cqp=2.6_1L9vhKD2uBLt-qyrAoZheVsuS8u7cVFre6r7a9jrN4_pCIDjlm5anolzs-MLkTK_L9899P2epdVNs=",
-      "https://40.img.avito.st/image/1/1.hP3rq7a-KBT9C4oV7-nzrfMLKhJZHCwUWXtJHlWoKbZeCCo.-qrKrwC0UGOK1MEiF3N_2ia6O1OuwBzniTu5146rtm0",
-      "https://b20.img.avito.st/image/1/1.f8aYEra-0y-OsnEu6h9cl4Cy0SkqpdcvKsKyJSYR0o0tsdE.mTg7BAkJtcsk14nR_cSVEQZ7RscwL1MfHPP6RAt0FHg?cqp=2.6_1L9vhKD2uBLt-qyrAoZheVsuS8u7cVFre6r7a9jrN4_pCIDjlm5anolzs-MLkTK_L9899P2epdVNs="
+      "https://tsk.s.bsps.ru/images/sobipro/galleries/4e/197869/3aa304.jpg",
+      "https://tsk.s.bsps.ru/images/sobipro/galleries/4e/197869/6d5126.jpg",
+      "https://tsk.s.bsps.ru/images/sobipro/galleries/4e/197869/915830.jpg"
     ],
-    "photos_count": 5,
+    "photos_count": 3,
     "owner_name": "Собственник",
     "phone": "+7 (952) 891-46-81",
     "is_owner": true,
@@ -5032,13 +5309,11 @@ export const OFFERS: Offer[] = [
     "desc_short": "",
     "full_desc": "",
     "photos": [
-      "https://b30.img.avito.st/image/1/1.mxMRBra-N_oHppX7KyTVS16nNfyjsTP6o9ZW8K8FNlikpTU.B1Gp0_DPjvG5dQMWsVOVP0yphmX4T6xZmkIlZV7fc4U?cqp=2.6_1L9vhKD2uBLt-qyrAoZheVsuS8u7cVFre6r7a9jrN4_pCIDjlm5anolzs-MLkTK_L9899P2epdVNs=",
-      "https://50.img.avito.st/image/1/1.j3Ojd7a-I5q114GbsQmIc7TXIZwRwCeaEadCkB10IjgW1CE.z4mKhPYZG5PUsXPYcVr6p8NMtVB--MXRgDT2hI4AH2U",
-      "https://c70.img.avito.st/image/1/1.QZ6Qqra-7XeGCk92nrdGnocK73EiHel3InqMfS6p7NUlCe8.r1W77TRPCYh73WS_-RAWFejXjsOQDGU4aIFNPfv_edg",
-      "https://30.img.avito.st/image/1/1.6-Ip_La-Rws_XOUKc8vbiSpcRQ2bS0MLmywmAZf_RqmcX0U.M1WXDZUjyJIjAwvzFDgNmENFA2z-zcLfzfl9q4yxbmQ?cqp=2.6_1L9vhKD2uBLt-qyrAoZheVsuS8u7cVFre6r7a9jrN4_pCIDjlm5anolzs-MLkTK_L9899P2epdVNs=",
-      "https://30.img.avito.st/image/1/1.RDKD27a-6NuVe0rah9ZSQ4B76t0xbOzbMQuJ0T3Y6Xk2eOo.A7M_jKgPeEoiDTkq5AUmcASfFkwv3cGE9Df42E7Dhus?cqp=2.6_1L9vhKD2uBLt-qyrAoZheVsuS8u7cVFre6r7a9jrN4_pCIDjlm5anolzs-MLkTK_L9899P2epdVNs="
+      "https://tsk.s.bsps.ru/images/sobipro/galleries/a8/196225/417ba2.jpg",
+      "https://tsk.s.bsps.ru/images/sobipro/galleries/ec/196162/3dbeb0.jpg",
+      "https://tsk.s.bsps.ru/images/sobipro/galleries/ec/196162/4fa12c.jpg"
     ],
-    "photos_count": 5,
+    "photos_count": 3,
     "owner_name": "Собственник",
     "phone": "+7 (901) 612-86-15",
     "is_owner": true,
@@ -5145,13 +5420,12 @@ export const OFFERS: Offer[] = [
     "desc_short": "",
     "full_desc": "",
     "photos": [
-      "https://70.img.avito.st/image/1/1.bN0JFra-wDQftmI1XXd0owq2wjK7ocQ0u8ahPrcVwZa8tcI.leVqiajVNAwwbLD7UyRNcWamxUmx8Kt00VaHCQY1Grg",
-      "https://c80.img.avito.st/image/1/1.EZ6a5ba-vXeMRR92tIEyn41Fv3EoUrl3KDXcfSTmvNUvRr8.j4e_YpEQXqUJwbFTLm5ePQFErzCiRFhxRFJCAm-whwQ",
-      "https://30.img.avito.st/image/1/1.odMXAra-DToBoq87WRDVwxWiDzyltQk6pdJsMKkBDJiioQ8.819OZnEoSw3ewgLSwLq4E0qc610f1J7hQLv_jgQmYjM?cqp=2.6_1L9vhKD2uBLt-qyrAoZheVsuS8u7cVFre6r7a9jrN4_pCIDjlm5anolzs-MLkTK_L9899P2epdVNs=",
-      "https://b10.img.avito.st/image/1/1._OoghLa-UAM2JPICVMeY0nslUgWSM1QDklQxCZ6HUaGVJ1I.nJtFX-QJt5Q_dNW-CHbFyFWjkn921OXbW5yoToS45W4?cqp=2.6_1L9vhKD2uBLt-qyrAoZheVsuS8u7cVFre6r7a9jrN4_pCIDjlm5anolzs-MLkTK_L9899P2epdVNs=",
-      "https://b30.img.avito.st/image/1/1.8v9tt7a-XhZ7F_wXBeSfgG4XXBDfAFoW32c_HNO0X7TYFFw.asvJcqydTTMoNIWcppsiLWC29PgdJBBrhqGH0YHKUM4?cqp=2.6_1L9vhKD2uBLt-qyrAoZheVsuS8u7cVFre6r7a9jrN4_pCIDjlm5anolzs-MLkTK_L9899P2epdVNs="
+      "https://images.cdn-cian.ru/images/1-komnatnaya-kvartira-tomsk-frunze-prospekt-2065842101-1.jpg",
+      "https://images.cdn-cian.ru/images/1-komnatnaya-kvartira-tomsk-frunze-prospekt-2065842101-2.jpg",
+      "https://images.cdn-cian.ru/images/1-komnatnaya-kvartira-tomsk-frunze-prospekt-2065842101-3.jpg",
+      "https://images.cdn-cian.ru/images/1-komnatnaya-kvartira-tomsk-frunze-prospekt-2065842101-4.jpg"
     ],
-    "photos_count": 5,
+    "photos_count": 4,
     "owner_name": "Собственник",
     "phone": "+7 (923) 416-19-65",
     "is_owner": true,
@@ -5184,13 +5458,11 @@ export const OFFERS: Offer[] = [
     "desc_short": "",
     "full_desc": "",
     "photos": [
-      "https://30.img.avito.st/image/1/1.zt96Vra-YjZs9sA3alXOt3b0YDDI4WY2yIYDPMRVY5TP9WA.NYtb2-cURRpIydmuv7KmFxbCmQ2bRR9G8bCnnNT9U2I?cqp=2.6_1L9vhKD2uBLt-qyrAoZheVsuS8u7cVFre6r7a9jrN4_pCIDjlm5anolzs-MLkTK_L9899P2epdVNs=",
-      "https://b30.img.avito.st/image/1/1.yY3MOba-ZWTamcdl0jrJ5cCbZ2J-jmFkfukEbnI6ZMZ5mmc.YBcgsw18oIUkHL9xAQ2ECDuOHNC8FQAK46_N69WEgqM?cqp=2.6_1L9vhKD2uBLt-qyrAoZheVsuS8u7cVFre6r7a9jrN4_pCIDjlm5anolzs-MLkTK_L9899P2epdVNs=",
-      "https://b30.img.avito.st/image/1/1.yqd58La-Zk5vUMRPYfPKz3VSZEjLR2JOyyAHRMfzZ-zMU2Q.abnltimM9FQcnE6K5B_qfzckXS2QRLchBbpSrOxycFA?cqp=2.6_1L9vhKD2uBLt-qyrAoZheVsuS8u7cVFre6r7a9jrN4_pCIDjlm5anolzs-MLkTK_L9899P2epdVNs=",
-      "https://b20.img.avito.st/image/1/1.1DiFd7a-eNGT19rQoXTUUInVetc3wHzRN6cZ2zt0eXMw1Ho.rmRDwnvsOKAs6-BUyr-1_htEkhWx5ZJOlXczqIv8JNk?cqp=2.6_1L9vhKD2uBLt-qyrAoZheVsuS8u7cVFre6r7a9jrN4_pCIDjlm5anolzs-MLkTK_L9899P2epdVNs=",
-      "https://40.img.avito.st/image/1/1.x3Jcyra-a5tKasmaXsnHGlBoaZ3ufW-b7hoKkeLJajnpaWk.fMWVMDn44tqPXgBRkDT50A00A6fXijseJPJlQD3FXak"
+      "https://images.cdn-cian.ru/images/2-komnatnaya-kvartira-tomsk-lenina-prospekt-2064931202-1.jpg",
+      "https://images.cdn-cian.ru/images/2-komnatnaya-kvartira-tomsk-lenina-prospekt-2064931202-2.jpg",
+      "https://images.cdn-cian.ru/images/2-komnatnaya-kvartira-tomsk-lenina-prospekt-2064931202-3.jpg"
     ],
-    "photos_count": 5,
+    "photos_count": 3,
     "owner_name": "Собственник",
     "phone": "+7 (923) 411-73-09",
     "is_owner": true,
@@ -5223,13 +5495,11 @@ export const OFFERS: Offer[] = [
     "desc_short": "",
     "full_desc": "",
     "photos": [
-      "https://70.img.avito.st/image/1/1.4hKye7a-Tvuk2-z6-hiHT6nbTP0AzEr7AKsv8Qx4T1kH2Ew.0BTJy5EJWSEEJN48gueqH5H08DeRxuWMhnv9D_S1qdY",
-      "https://b30.img.avito.st/image/1/1.Owc6cra-l-4s0jXvQD5_VSHSleiIxZPuiKL25IRxlkyP0ZU.e_hW8T5u3ov8fHcDfZL0amYIg-FZuNDM4aIlxBZRtls?cqp=2.6_1L9vhKD2uBLt-qyrAoZheVsuS8u7cVFre6r7a9jrN4_pCIDjlm5anolzs-MLkTK_L9899P2epdVNs=",
-      "https://70.img.avito.st/image/1/1.jyCPvba-I8mZHYHInZvEcpQdIc89CifJPW1CwzG-Ims6HiE.fcYowkxcpJguWDiw1Lx_T4AAj0rh5W-H1seMZnYmGfg",
-      "https://50.img.avito.st/image/1/1.dZAMN7a-2Xkal3t4aioowxeX23--gN15vue4c7I02Nu5lNs.UN0MXpusEKYkKlKRPrNzfmoLcX0ALCU707cLDM28OqI",
-      "https://50.img.avito.st/image/1/1.OwU_Ura-l-wp8jXtRTp-ViTyleqN5ZPsjYL25oFRlk6K8ZU.trhZcYgt2TAd7mja2f8QGaPMQSfG6KhFyJFPP6irCn4"
+      "https://images.cdn-cian.ru/images/kvartira-studiya-tomsk-komsomolskiy-prospekt-2061293841-1.jpg",
+      "https://images.cdn-cian.ru/images/kvartira-studiya-tomsk-komsomolskiy-prospekt-2061293841-2.jpg",
+      "https://images.cdn-cian.ru/images/kvartira-studiya-tomsk-komsomolskiy-prospekt-2061293841-3.jpg"
     ],
-    "photos_count": 5,
+    "photos_count": 3,
     "owner_name": "Собственник",
     "phone": "+7 (923) 407-46-57",
     "is_owner": true,
@@ -5262,13 +5532,12 @@ export const OFFERS: Offer[] = [
     "desc_short": "",
     "full_desc": "",
     "photos": [
-      "https://60.img.avito.st/image/1/1.5NXtSba-SDz76eo9qXa0iLboSjpf_kw8X5kpNlNKSZ5Y6ko.eVF1iMusXmAHkExVfLI5TYfqVpDMtKTjqcN-T0TNM8c",
-      "https://b30.img.avito.st/image/1/1.f-swFba-0wImtXEDQkBA-jK10QSCotcCgsWyCI4W0qCFttE.4ne6LE3CcNqTocjxwoEsQEqaYabUfl5i0CsnHBy6680?cqp=2.6_1L9vhKD2uBLt-qyrAoZheVsuS8u7cVFre6r7a9jrN4_pCIDjlm5anolzs-MLkTK_L9899P2epdVNs=",
-      "https://10.img.avito.st/image/1/1.pDl3rra-CNBhDqrRM7jmKnUOCtbFGQzQxX5p2smtCXLCDQo._YS6G0AOtjkm64BxbgEpsVytRI4QdbMSL6MrbInLNjs?cqp=2.6_1L9vhKD2uBLt-qyrAoZheVsuS8u7cVFre6r7a9jrN4_pCIDjlm5anolzs-MLkTK_L9899P2epdVNs=",
-      "https://10.img.avito.st/image/1/1.B2yMwba-q4WaYQmEjtEJcY5hqYM-dq-FPhHKjzLCqic5Yqk.CTcGhPoj4PZlwWy44Fu0U2lsNeizJzRQT42sSFdlp0E?cqp=2.6_1L9vhKD2uBLt-qyrAoZheVsuS8u7cVFre6r7a9jrN4_pCIDjlm5anolzs-MLkTK_L9899P2epdVNs=",
-      "https://c70.img.avito.st/image/1/1.fh-be7a-0vaN23D3635eZtTa0PApzNb2Kauz_CV401Qu2NA.2YOtkfB149TVl1khqBuYIp7YN9QQQc1y2hlqw4VUME8"
+      "https://tsk.s.bsps.ru/images/sobipro/galleries/98/186542/44d1174e.jpg",
+      "https://tsk.s.bsps.ru/images/sobipro/galleries/98/186542/824add9e.jpg",
+      "https://tsk.s.bsps.ru/images/sobipro/galleries/98/186542/56203b71.jpg",
+      "https://tsk.s.bsps.ru/images/sobipro/galleries/98/186542/9c0d8b8e.jpg"
     ],
-    "photos_count": 5,
+    "photos_count": 4,
     "owner_name": "Собственник",
     "phone": "+7 (923) 406-07-73",
     "is_owner": true,
@@ -5301,13 +5570,11 @@ export const OFFERS: Offer[] = [
     "desc_short": "",
     "full_desc": "",
     "photos": [
-      "https://80.img.avito.st/image/1/1.MWKJhra-nYufJj-K55oOIowmn407MZmLO1b8gTeFnCk8JZ8.UuC2Y6WLhauwV3uB1rhFDF1t0dLWO0FxgSn5RFlCBnI",
-      "https://10.img.avito.st/image/1/1.GdWJtba-tTyfFRc9t5Edk4wVtzo7ArE8O2XUNje2tJ48Frc.0QlEgdGucHZ1QfqIZcyobbquzsYFRhKcz_hULMAz2dI?cqp=2.6_1L9vhKD2uBLt-qyrAoZheVsuS8u7cVFre6r7a9jrN4_pCIDjlm5anolzs-MLkTK_L9899P2epdVNs=",
-      "https://c90.img.avito.st/image/1/1.w-t5ZLa-bwJvxM0DcyvkrHzEbQTL02sCy7QOCMdnbqDMx20.up7zjI7c4DzQq2caFxHyj8C5be-VBCyjpTwPTmFYmXQ",
-      "https://c70.img.avito.st/image/1/1.dRrUCLa-2fPCqHvysglwXNGo2_Vmv93zZti4-WoL2FFhq9s.iT1Nx_m6dT875-Ajb_CjG4iATcSe9OM0m9zn_Rorexs",
-      "https://20.img.avito.st/image/1/1.sy4FTLa-H8cT7L3Gb2a4aADsHcG3-xvHt5x-zbtPHmWw7x0.2C9F5v_L2oMuAj_Nzdfu498e0M4pcrOhZBhq2dZVRHY?cqp=2.6_1L9vhKD2uBLt-qyrAoZheVsuS8u7cVFre6r7a9jrN4_pCIDjlm5anolzs-MLkTK_L9899P2epdVNs="
+      "https://tsk.s.bsps.ru/images/sobipro/galleries/4e/197869/3aa304.jpg",
+      "https://tsk.s.bsps.ru/images/sobipro/galleries/4e/197869/6d5126.jpg",
+      "https://tsk.s.bsps.ru/images/sobipro/galleries/4e/197869/915830.jpg"
     ],
-    "photos_count": 5,
+    "photos_count": 3,
     "owner_name": "Собственник",
     "phone": "+7 (913) 823-20-68",
     "is_owner": true,
@@ -5379,13 +5646,11 @@ export const OFFERS: Offer[] = [
     "desc_short": "",
     "full_desc": "",
     "photos": [
-      "https://60.img.avito.st/image/1/1.zbpDqra-YVNVCsNSVfnfvWwKY1XxHWVT8XoAWf2pYPH2CWM.EbR0GFTp9-vHMzAzCa8dK0GDAxzAhAqZYBt3HkE59B8",
-      "https://c70.img.avito.st/image/1/1.bsH1d7a-wijj12AppXIXwdrXwC5HwMYoR6ejIkt0w4pA1MA.tohF-fazfVn7OhvrJPv1kYIfH_RZd17ihhoPoV-tjag",
-      "https://c90.img.avito.st/image/1/1.mGRtKba-NI17iZaMUUeEY0KJNovfnjCN3_lVh9MqNS_YijY.T62mMhmHDXbFjYm_bcirkHml9DgT7Wox8FdYUXg71VU",
-      "https://30.img.avito.st/image/1/1.jOkWCra-IAAAqoIBAnzu6TmqIgakvSQApNpBCqgJIaKjqSI.0WvtZe7SM_qa0zkEuVVnQgDP07CfCr82pYULkjDR77I?cqp=2.6_1L9vhKD2uBLt-qyrAoZheVsuS8u7cVFre6r7a9jrN4_pCIDjlm5anolzs-MLkTK_L9899P2epdVNs=",
-      "https://30.img.avito.st/image/1/1.gy7xcra-L8fn0o3G-xyQKd7SLcFDxSvHQ6JOzU9xLmVE0S0.lhFisynHFuQRL4m7YaW7-7pS6zAySNpjNRQEqLySdhs?cqp=2.6_1L9vhKD2uBLt-qyrAoZheVsuS8u7cVFre6r7a9jrN4_pCIDjlm5anolzs-MLkTK_L9899P2epdVNs="
+      "https://tsk.s.bsps.ru/images/sobipro/galleries/a8/196225/417ba2.jpg",
+      "https://tsk.s.bsps.ru/images/sobipro/galleries/ec/196162/3dbeb0.jpg",
+      "https://tsk.s.bsps.ru/images/sobipro/galleries/ec/196162/4fa12c.jpg"
     ],
-    "photos_count": 5,
+    "photos_count": 3,
     "owner_name": "Собственник",
     "phone": "+7 (901) 614-69-43",
     "is_owner": true,
@@ -5418,13 +5683,12 @@ export const OFFERS: Offer[] = [
     "desc_short": "",
     "full_desc": "",
     "photos": [
-      "https://c60.img.avito.st/image/1/1.mG7zTba-NIfl7ZaGz0fXa-7tNoFB-jCHQZ1VjU1ONSVG7jY.snPGw4Gm7jn-a13643uBr9owDi-oZXYTsbLGIo7qSyU",
-      "https://40.img.avito.st/image/1/1.rYTUCLa-AW3CqKNsggqo_pOpA2tmvwVtZthgZ2oLAM9hqwM.L9voR15eboGRQBYjVv6oJftodg-f9j_0VzurEZg1-14",
-      "https://40.img.avito.st/image/1/1.aHnEx7a-xJDSZ2aRmLZBebxlxpZ2cMCQdhelmnrExTJxZMY.mPYEk8dMfTZT6HF-b0LU8InnAm5ogRRy8_WWDB3jJG0",
-      "https://c90.img.avito.st/image/1/1.S-xE6ra-5wVSSkUEXsNt7DxI5QP2XeMF9jqGD_rp5qfxSeU.7Q-sqhZM5_qe9-t0n-lyxHh4iForyK2YSVxL3qOImDM",
-      "https://30.img.avito.st/image/1/1.7t4k67a-QjcyS-A2dOjI3lxJQDGWXEY3ljsjPZroQ5WRSEA.FKH94duG1rae9t0SBXRqzzkGeFtVBUNGRafJJg0t3Uw?cqp=2.6_1L9vhKD2uBLt-qyrAoZheVsuS8u7cVFre6r7a9jrN4_pCIDjlm5anolzs-MLkTK_L9899P2epdVNs="
+      "https://images.cdn-cian.ru/images/1-komnatnaya-kvartira-tomsk-frunze-prospekt-2065842101-1.jpg",
+      "https://images.cdn-cian.ru/images/1-komnatnaya-kvartira-tomsk-frunze-prospekt-2065842101-2.jpg",
+      "https://images.cdn-cian.ru/images/1-komnatnaya-kvartira-tomsk-frunze-prospekt-2065842101-3.jpg",
+      "https://images.cdn-cian.ru/images/1-komnatnaya-kvartira-tomsk-frunze-prospekt-2065842101-4.jpg"
     ],
-    "photos_count": 5,
+    "photos_count": 4,
     "owner_name": "Собственник",
     "phone": "+7 (952) 882-16-27",
     "is_owner": true,
@@ -5457,13 +5721,11 @@ export const OFFERS: Offer[] = [
     "desc_short": "",
     "full_desc": "",
     "photos": [
-      "https://b00.img.avito.st/image/1/1.rLOHbra-AFqRzqJb03So9-fPAlw12QRaNb5hUDltAfgyzQI.xXXotaiAyUXXnkYo_JJmeSl9YlG8S3nXgY_uEIjwrkI?cqp=2.6_1L9vhKD2uBLt-qyrAoZheVsuS8u7cVFre6r7a9jrN4_pCIDjlm5anolzs-MLkTK_L9899P2epdVNs=",
-      "https://60.img.avito.st/image/1/1.Vvrs9ba--hP6VVgSzMg7v4xU-BVeQv4TXiWbGVL2-7FZVvg.63QHWCW5bKFvxO8gTU0NWAkQTHjgdcuamXW34CjaZGM",
-      "https://c70.img.avito.st/image/1/1.6D4yjra-RNckLubWboWKe1IvRtGAOUDXgF4l3YyNRXWHLUY._2HjKQ316hhu0fZAPv7sRp0fKjMVK0OE0PllbF-lAHE",
-      "https://b00.img.avito.st/image/1/1.qoq5Fra-BmOvtqRi4SzKz9m3BGULoQJjC8ZnaQcVB8EMtQQ.8zcdOIIcNGn-kXyaAJNGR_Xi5buby4QGt5V7-qVa3OE?cqp=2.6_1L9vhKD2uBLt-qyrAoZheVsuS8u7cVFre6r7a9jrN4_pCIDjlm5anolzs-MLkTK_L9899P2epdVNs=",
-      "https://60.img.avito.st/image/1/1.R3Ea77a-65gMT0mZGI4SN3pO6Z6oWO-YqD-KkqTs6jqvTOk.CmKhbrjZ1ecH4dVCPf90gfpGc-ycmed4y0NQVx4-9ro"
+      "https://images.cdn-cian.ru/images/2-komnatnaya-kvartira-tomsk-lenina-prospekt-2064931202-1.jpg",
+      "https://images.cdn-cian.ru/images/2-komnatnaya-kvartira-tomsk-lenina-prospekt-2064931202-2.jpg",
+      "https://images.cdn-cian.ru/images/2-komnatnaya-kvartira-tomsk-lenina-prospekt-2064931202-3.jpg"
     ],
-    "photos_count": 5,
+    "photos_count": 3,
     "owner_name": "Собственник",
     "phone": "+7 (952) 899-87-58",
     "is_owner": true,
@@ -5613,13 +5875,11 @@ export const OFFERS: Offer[] = [
     "desc_short": "",
     "full_desc": "",
     "photos": [
-      "https://c90.img.avito.st/image/1/1.udN5h7a-FTpvJ7c7B_Gs7n0nFzzLMBE6y1d0MMeEFJjMJBc.GMQF8_G69ZV4_yUMpLCCe-TMItHAcoM17yXILGp_Hsk",
-      "https://c80.img.avito.st/image/1/1.a9yYzba-xzWObWU0wtRH45xtxTMqesM1Kh2mPybOxpctbsU.PsTedl0whHkxE7hh-BCK-A4U-WLxJi7fe_Qs53-DQDU",
-      "https://10.img.avito.st/image/1/1.PwjFL7a-k-HTjzHgt2MWN8GPked3mJfhd__y63sskkNwjJE.DWh7cFhpQRYcmRF3mvesg44ooGMMwf7R6a0bIIJRe74?cqp=2.6_1L9vhKD2uBLt-qyrAoZheVsuS8u7cVFre6r7a9jrN4_pCIDjlm5anolzs-MLkTK_L9899P2epdVNs=",
-      "https://20.img.avito.st/image/1/1.dWXn8La-2YzxUHuNgY1DXeNQ24pVR92MVSC4hlnz2C5SU9s.9rwPxRydd0NTh4F0ibczGGFHNgLz1_H00sqDskKZlrU?cqp=2.6_1L9vhKD2uBLt-qyrAoZheVsuS8u7cVFre6r7a9jrN4_pCIDjlm5anolzs-MLkTK_L9899P2epdVNs=",
-      "https://c60.img.avito.st/image/1/1.ZnUu0ra-ypw4cmidbud1SCpyyJqcZc6cnAKrlpDRyz6bccg.6hrSZDNtlV53HxFy029k6wJv6AvhynaWgli-iWPzM6Q"
+      "https://images.cdn-cian.ru/images/kvartira-studiya-tomsk-komsomolskiy-prospekt-2061293841-1.jpg",
+      "https://images.cdn-cian.ru/images/kvartira-studiya-tomsk-komsomolskiy-prospekt-2061293841-2.jpg",
+      "https://images.cdn-cian.ru/images/kvartira-studiya-tomsk-komsomolskiy-prospekt-2061293841-3.jpg"
     ],
-    "photos_count": 5,
+    "photos_count": 3,
     "owner_name": "Собственник",
     "phone": "+7 (923) 415-25-84",
     "is_owner": true,
@@ -5652,13 +5912,12 @@ export const OFFERS: Offer[] = [
     "desc_short": "",
     "full_desc": "",
     "photos": [
-      "https://40.img.avito.st/image/1/1.-eSJjba-VQ2fLfcM96L-pYwtVws7OlENO100BzeOVK88Llc.gTgKR6oF4eAbuQ2pLosw0RGmUx9Q21ofnwg1MIPi6_g",
-      "https://c80.img.avito.st/image/1/1.QVSPera-7b2Z2k-8gWM7F4ra77s9zem9PaqMtzF57B862e8.cTUSh01ryHdwN2Sft0r7Vi6wAepp7u6DHriRXWbjwgk",
-      "https://80.img.avito.st/image/1/1.rBJ02ra-APtieqL6IPTPUXF6Av3GbQT7xgph8crZAVnBeQI.DNHqPQSuOFjPvYMZRht9Zp3wsIYtu57VlQXVqEtocjE",
-      "https://70.img.avito.st/image/1/1.gPQqhba-LB08JY4cJrPjty8lLhuYMigdmFVNF5SGLb-fJi4.vNuXUcQVMVfyDV-lq5i0iVRZIbDhtT155vi0mlZgmIM",
-      "https://00.img.avito.st/image/1/1.JD5PRra-iNdZ5irWC0YIfUrmitH98YzX_Zbp3fFFiXX65Yo.ub_3C9DCVcC7SOnrr-958Pli3ZJ6fqU_M6B1J5MKYPo?cqp=2.6_1L9vhKD2uBLt-qyrAoZheVsuS8u7cVFre6r7a9jrN4_pCIDjlm5anolzs-MLkTK_L9899P2epdVNs="
+      "https://tsk.s.bsps.ru/images/sobipro/galleries/98/186542/44d1174e.jpg",
+      "https://tsk.s.bsps.ru/images/sobipro/galleries/98/186542/824add9e.jpg",
+      "https://tsk.s.bsps.ru/images/sobipro/galleries/98/186542/56203b71.jpg",
+      "https://tsk.s.bsps.ru/images/sobipro/galleries/98/186542/9c0d8b8e.jpg"
     ],
-    "photos_count": 5,
+    "photos_count": 4,
     "owner_name": "Собственник",
     "phone": "+7 (901) 614-69-43",
     "is_owner": true,
@@ -5691,13 +5950,11 @@ export const OFFERS: Offer[] = [
     "desc_short": "",
     "full_desc": "",
     "photos": [
-      "https://c70.img.avito.st/image/1/1.iG_bj7a-JIbNL4aHx53_AMcvJoBpOCCGaV9FjGWMJSRuLCY.bVwfGoOq7smqgvhCjVk1uDG3MISy6jNNcRBb5VvalGo",
-      "https://70.img.avito.st/image/1/1.lXsrBra-OZI9ppuTDRziFDemO5SZsT2SmdZYmJUFODCepTs.ruvT_9QXoLfD9l01H9iITmzaQbO4uwPqS6wW_9DozXM",
-      "https://b50.img.avito.st/image/1/1.0M1wDra-fCRmrt4lXDHvoGyufiLCuXgkwt4dLs4NfYbFrX4.JDQAbh0yvAoJAb9E-YE9ZtaLZ-Yexh0KS5B4-4XuEuQ",
-      "https://20.img.avito.st/image/1/1.x74Tyra-a1cFaslWEdX20A9qaVGhfW9XoRoKXa3JavWmaWk.4fMVLr8-mUbedo3PnBGXNNCZtqPk0rx0W40JxH3nrU4?cqp=2.6_1L9vhKD2uBLt-qyrAoZheVsuS8u7cVFre6r7a9jrN4_pCIDjlm5anolzs-MLkTK_L9899P2epdVNs=",
-      "https://b30.img.avito.st/image/1/1.nU7f7ra-MafJTpOm6ZyTIMNOM6FtWTWnbT5QrWHtMAVqTTM.VVqzHWsy8JbZFitF-yILnkzQRJFZPOEe3dNTfVDaVBQ?cqp=2.6_1L9vhKD2uBLt-qyrAoZheVsuS8u7cVFre6r7a9jrN4_pCIDjlm5anolzs-MLkTK_L9899P2epdVNs="
+      "https://tsk.s.bsps.ru/images/sobipro/galleries/4e/197869/3aa304.jpg",
+      "https://tsk.s.bsps.ru/images/sobipro/galleries/4e/197869/6d5126.jpg",
+      "https://tsk.s.bsps.ru/images/sobipro/galleries/4e/197869/915830.jpg"
     ],
-    "photos_count": 5,
+    "photos_count": 3,
     "owner_name": "Собственник",
     "phone": "+7 (923) 409-08-22",
     "is_owner": true,
@@ -5808,13 +6065,11 @@ export const OFFERS: Offer[] = [
     "desc_short": "",
     "full_desc": "",
     "photos": [
-      "https://80.img.avito.st/image/1/1.PNHyara-kDjkyjI5hnZSnLHLkj5A3ZQ4QLrxMkxpkZpHyZI.B1ktxTxhr5pQu4Hq7yKDxhHtKomK0dxyCx7_IiAnuwE",
-      "https://80.img.avito.st/image/1/1.Em9d87a-voZLUxyHdYddIB5SvIDvRLqG7yPfjOPwvyToULw.gPkznDasY6JSKmxZYYeaf9qno9ouew7GWvzsG3Orgms",
-      "https://70.img.avito.st/image/1/1.ozy_Bra-D9Wppq3U9TCxSvynDdMNsQvVDdZu3wEFDncKpQ0.zH1fFS76-OBqx-IkkEUr3b1pdB1jFmkyALNaObSgyFI",
-      "https://10.img.avito.st/image/1/1.qz07ara-B9QtyqXVYQTvcnjLBdKJ3QPUibpm3oVpBnaOyQU.vTvBwDEp-vf4bV72unScnvREeTKqsydBnEQbXj7oKO0?cqp=2.6_1L9vhKD2uBLt-qyrAoZheVsuS8u7cVFre6r7a9jrN4_pCIDjlm5anolzs-MLkTK_L9899P2epdVNs=",
-      "https://80.img.avito.st/image/1/1.XZ2Eeba-8XSS2VN1skAI1cfY83I2zvV0NqmQfjp68NYx2vM.Vj4SfgYXIXqjJYmaN0LsuDZYAzOfJAjGR1b-mYead1I"
+      "https://tsk.s.bsps.ru/images/sobipro/galleries/a8/196225/417ba2.jpg",
+      "https://tsk.s.bsps.ru/images/sobipro/galleries/ec/196162/3dbeb0.jpg",
+      "https://tsk.s.bsps.ru/images/sobipro/galleries/ec/196162/4fa12c.jpg"
     ],
-    "photos_count": 5,
+    "photos_count": 3,
     "owner_name": "Собственник",
     "phone": "+7 (923) 403-20-61",
     "is_owner": true,
@@ -5886,13 +6141,12 @@ export const OFFERS: Offer[] = [
     "desc_short": "",
     "full_desc": "",
     "photos": [
-      "https://10.img.avito.st/image/1/1.prb9wra-Cl_rYqhevbirh_tiCFlPdQ5fTxJrVUPBC_1IYQg.PpEAjJ_D0nd3-urxAln81Kf-jYPzEuQp02AZWj1ZRN4?cqp=2.6_1L9vhKD2uBLt-qyrAoZheVsuS8u7cVFre6r7a9jrN4_pCIDjlm5anolzs-MLkTK_L9899P2epdVNs=",
-      "https://c80.img.avito.st/image/1/1.3Ui_Vba-caGp9dOgiVLMf7n1c6cN4nWhDYUQqwFWcAMK9nM.x5t7bGXd37J_aqO2pvWnXI7_keOQSjLQymWjRb80dTQ",
-      "https://c90.img.avito.st/image/1/1.KjDwtra-htnmFiTYqLIgAfYWhN9CAYLZQmbn0061h3tFFYQ.mSDNYcB3MDAJ1nMXpcS3xwbt3YlrsvM1tl3qASXGJ7M",
-      "https://b20.img.avito.st/image/1/1.GQwGDba-teUQrRfkOGUQPQCtt-O0urHltN3U77gOtEezrrc.zucx1DRxHS1zldsOT1fEy2p7rFAsLfcvbUYlMoGidco?cqp=2.6_1L9vhKD2uBLt-qyrAoZheVsuS8u7cVFre6r7a9jrN4_pCIDjlm5anolzs-MLkTK_L9899P2epdVNs=",
-      "https://c80.img.avito.st/image/1/1.VFIHJ7a--LsRh1q6I0JAZAGH-r21kPy7tfeZsbkk-RmyhPo.9KdQ1Z1hxmNOdC3y-7tdt05vxMnvuS-pXhchtJKVxYI"
+      "https://images.cdn-cian.ru/images/1-komnatnaya-kvartira-tomsk-frunze-prospekt-2065842101-1.jpg",
+      "https://images.cdn-cian.ru/images/1-komnatnaya-kvartira-tomsk-frunze-prospekt-2065842101-2.jpg",
+      "https://images.cdn-cian.ru/images/1-komnatnaya-kvartira-tomsk-frunze-prospekt-2065842101-3.jpg",
+      "https://images.cdn-cian.ru/images/1-komnatnaya-kvartira-tomsk-frunze-prospekt-2065842101-4.jpg"
     ],
-    "photos_count": 5,
+    "photos_count": 4,
     "owner_name": "Собственник",
     "phone": "+7 (923) 411-73-09",
     "is_owner": true,
@@ -5964,13 +6218,11 @@ export const OFFERS: Offer[] = [
     "desc_short": "",
     "full_desc": "",
     "photos": [
-      "https://b30.img.avito.st/image/1/1.d__Chra-2xbUJnkXoJtA-Jkn2RBwMd8WcFa6HHyF2rR3Jdk.5RYvT1nPfgn4FZF5NXxXHP94GRyMg1T2dRcwNtvSh1E?cqp=2.6_1L9vhKD2uBLt-qyrAoZheVsuS8u7cVFre6r7a9jrN4_pCIDjlm5anolzs-MLkTK_L9899P2epdVNs=",
-      "https://60.img.avito.st/image/1/1.LuYC7ba-gg8UTSAOUukkogFNgAmwWoYPsD3jBbzug623ToA.RZi6wfRQvzzkV6snQ2v57OnT2SVSSFZdhr7hDDvdnTU",
-      "https://60.img.avito.st/image/1/1.FenWSra-uQDA6hsB8B4bjNXquwZk_b0AZJrYCmhJuKJj6bs.gRHndxZXpPzS1l31csanhlCbuhVeXSuygHaQtbm5g80",
-      "https://50.img.avito.st/image/1/1.r3RaFba-A51MtaGcCC_6L1m1AZvooged6MVil-QWAj_vtgE.jf7Szm0Jy1TQoeySHYtzV4bsbGlsuF4OICEXQzjGX-A",
-      "https://b10.img.avito.st/image/1/1.1Yij6ba-eWG1SdtghZqn6qBJe2cRXn1hETkYax3qeMMWSns.4dqdMF4tdu77F1fO-B7rKkYhgB1AkOx7F0W5ZRIUXy0?cqp=2.6_1L9vhKD2uBLt-qyrAoZheVsuS8u7cVFre6r7a9jrN4_pCIDjlm5anolzs-MLkTK_L9899P2epdVNs="
+      "https://images.cdn-cian.ru/images/2-komnatnaya-kvartira-tomsk-lenina-prospekt-2064931202-1.jpg",
+      "https://images.cdn-cian.ru/images/2-komnatnaya-kvartira-tomsk-lenina-prospekt-2064931202-2.jpg",
+      "https://images.cdn-cian.ru/images/2-komnatnaya-kvartira-tomsk-lenina-prospekt-2064931202-3.jpg"
     ],
-    "photos_count": 5,
+    "photos_count": 3,
     "owner_name": "Собственник",
     "phone": "+7 (952) 898-75-42",
     "is_owner": true,
@@ -6081,12 +6333,11 @@ export const OFFERS: Offer[] = [
     "desc_short": "",
     "full_desc": "",
     "photos": [
-      "https://c80.img.avito.st/image/1/1.rRXvVra-Afz59qP9uXiTTdL2A_pd4QX8XYZg9lFVAF5a9QM.fASQB1l0B4g2ZPtoAW_HPNGFlEyFyHrQTNZkhUgQdWk",
-      "https://b50.img.avito.st/image/1/1.HwDvqba-s-n5CRHo3c1Vc9UJse9dHrfpXXnS41GqsktaCrE.vrn9IWP_2b3NLg3lf0jozeRjR9OnHBfDXUdn22ZgX5A",
-      "https://c80.img.avito.st/image/1/1.n-C1wra-MwmjYpEIh9T1nI9iMQ8HdTcJBxJSAwvBMqsAYTE.8WT5Zglcg-tnjaJ1rAPMXM3Sq8IfMQIdW51QF7R0SDc",
-      "https://90.img.avito.st/image/1/1.ZGostra-yIM6FmqCaPsAGBYWyoWeAcyDnmapiZK1ySGZFco.HDPV9vUJFdWNAlSUCzcytd3UAAYhvAHUuvezVYbIRPs"
+      "https://images.cdn-cian.ru/images/kvartira-studiya-tomsk-komsomolskiy-prospekt-2061293841-1.jpg",
+      "https://images.cdn-cian.ru/images/kvartira-studiya-tomsk-komsomolskiy-prospekt-2061293841-2.jpg",
+      "https://images.cdn-cian.ru/images/kvartira-studiya-tomsk-komsomolskiy-prospekt-2061293841-3.jpg"
     ],
-    "photos_count": 4,
+    "photos_count": 3,
     "owner_name": "Собственник",
     "phone": "+7 (901) 618-42-98",
     "is_owner": true,
@@ -6158,14 +6409,12 @@ export const OFFERS: Offer[] = [
     "desc_short": "",
     "full_desc": "",
     "photos": [
-      "https://c60.img.avito.st/image/1/1.t8_rNLa-Gyb9lLkniU6mybOVGSBZgx8mWeR6LFU3GoRelxk.BI6haK-p5S6bRcn1IAfUPdY0SrMuPAhw1PSHDTRQwxw",
-      "https://c80.img.avito.st/image/1/1.LZQaMra-gX0MkiN8TDI1kkKTg3uohYV9qOLgd6QxgN-vkYM.rITcE85getivvSfLZz8ehzx81TxY9muVoh7FYT85O_E",
-      "https://70.img.avito.st/image/1/1.PKMJdba-kEof1TJLfXUkpVHUkky7wpRKu6XxQLd2kei81pI.vL1EMHDy7asDM-xz2POF7U588vvvBxgHfej3gjHzywM",
-      "https://b00.img.avito.st/image/1/1.iluvg7a-JrK5I4Szt9G1X_ciJLQdNCKyHVNHuBGAJxAaICQ.8sFJc0wI3DyOSMKuJNSjNAk35oZ_xiiDbiRibQvO9so?cqp=2.6_1L9vhKD2uBLt-qyrAoZheVsuS8u7cVFre6r7a9jrN4_pCIDjlm5anolzs-MLkTK_L9899P2epdVNs=",
-      "https://80.img.avito.st/image/1/1.yslXmra-ZiBBOsQhT4Hdzw87ZCblLWIg5UoHKumZZ4LiOWQ.xnsK2qPuFwKobvxHRWJvRORgXlNZDwS0_-ioBe-i3xA",
-      "https://80.img.avito.st/image/1/1.DYibira-oWH1Kntgje5D9p0qo2cpPaVhKVrAayXxoLsuKaM.4vtNco8qLFo0Ye67ucalAv96COzqZj7OpUfN-bMAm1s"
+      "https://tsk.s.bsps.ru/images/sobipro/galleries/98/186542/44d1174e.jpg",
+      "https://tsk.s.bsps.ru/images/sobipro/galleries/98/186542/824add9e.jpg",
+      "https://tsk.s.bsps.ru/images/sobipro/galleries/98/186542/56203b71.jpg",
+      "https://tsk.s.bsps.ru/images/sobipro/galleries/98/186542/9c0d8b8e.jpg"
     ],
-    "photos_count": 6,
+    "photos_count": 4,
     "owner_name": "Собственник",
     "phone": "+7 (913) 821-79-66",
     "is_owner": true,
@@ -6430,12 +6679,11 @@ export const OFFERS: Offer[] = [
     "desc_short": "",
     "full_desc": "",
     "photos": [
-      "https://90.img.avito.st/image/1/1.uHvOpra-FJLYBraTsqjfQcwGFpR8ERCSfHZ1mHClFTB7BRY.vehtDgVInuCH-UnuXKh_qFAGDuFpOpNMgaokv1BxrdA",
-      "https://c80.img.avito.st/image/1/1.oeGWS7a-DQiA668J2E3G2JTrDw4k_AkIJJtsAihIDKoj6A8.7vzU5HR23rCtmmzOWanhqLTMfNMjUIhjwY2ZgZv8M9Y",
-      "https://b10.img.avito.st/image/1/1.uUu1q7a-FaKjC7ejy7nub7cLF6QHHBGiB3t0qAuoFAAACBc.i5JVB9FuhIDUviQg0tV-tpA-u4n_qufA4cNE_0TVzhg?cqp=2.6_1L9vhKD2uBLt-qyrAoZheVsuS8u7cVFre6r7a9jrN4_pCIDjlm5anolzs-MLkTK_L9899P2epdVNs=",
-      "https://80.img.avito.st/image/1/1.teQTQba-GQ0F4bsMdWf33xHhGwuh9h0NoZF4B61CGK-m4hs.3gZXZYCfxSfbkR1_l18GO39t-u-8L0w2fXxcF4YEVJg"
+      "https://tsk.s.bsps.ru/images/sobipro/galleries/4e/197869/3aa304.jpg",
+      "https://tsk.s.bsps.ru/images/sobipro/galleries/4e/197869/6d5126.jpg",
+      "https://tsk.s.bsps.ru/images/sobipro/galleries/4e/197869/915830.jpg"
     ],
-    "photos_count": 4,
+    "photos_count": 3,
     "owner_name": "Собственник",
     "phone": "+7 (952) 893-29-79",
     "is_owner": true,
@@ -6507,13 +6755,11 @@ export const OFFERS: Offer[] = [
     "desc_short": "",
     "full_desc": "",
     "photos": [
-      "https://b50.img.avito.st/image/1/1.rFqxkra-ALOnMqKy5fTFOrYyArUDJQSzA0JhuQ-RAREEMQI.PLYblFH6LDNYhCVcUwggTI-5p6xc9kjnPjn1XSW3J5A",
-      "https://40.img.avito.st/image/1/1.TeGtwba-4Qi7YUMJu5gggaph4w4fduUIHxGAAhPC4KoYYuM.wgSfOEbPsUdSrk7B-ThpPXg9ldBkhVH0LCGd9Ne5ApM",
-      "https://c60.img.avito.st/image/1/1.3w9qVra-c-Z89tHnWEnvTG32ceDY4Xfm2IYS7NRVckTf9XE.J8dFy5mUR8VVeNblBpsNqqh9Va_a_GXB-j87rSFxvf8",
-      "https://30.img.avito.st/image/1/1.FgDa8La-uunMUBjo-ohuYd1QuO9oR77paCDb42Tzu0tvU7g.aYY6PUtBHO5T8RzN7wB4J2YYE32js_xf0XFdDPKiZr4?cqp=2.6_1L9vhKD2uBLt-qyrAoZheVsuS8u7cVFre6r7a9jrN4_pCIDjlm5anolzs-MLkTK_L9899P2epdVNs=",
-      "https://90.img.avito.st/image/1/1.j7Hue7a-I1j424FZ_B2B1-nbIV5czCdYXKtCUlB4Ivpb2CE.5gYUzUOnD_8IiWFci7AFGhqDcoHIIYWLH5k_bmurQ9U"
+      "https://tsk.s.bsps.ru/images/sobipro/galleries/a8/196225/417ba2.jpg",
+      "https://tsk.s.bsps.ru/images/sobipro/galleries/ec/196162/3dbeb0.jpg",
+      "https://tsk.s.bsps.ru/images/sobipro/galleries/ec/196162/4fa12c.jpg"
     ],
-    "photos_count": 5,
+    "photos_count": 3,
     "owner_name": "Собственник",
     "phone": "+7 (901) 840-88-54",
     "is_owner": true,

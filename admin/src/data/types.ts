@@ -6,7 +6,7 @@ export interface Offer {
   price_display: string;
   price_unit: string;
   price_val: number;
-  deal_type: 'Длительная аренда' | 'Посуточная' | string;
+  deal_type?: 'Длительная аренда' | 'Посуточная' | string;
   rooms: string | number;
   area: number | string;
   living_area?: number | string;
@@ -22,15 +22,16 @@ export interface Offer {
   parking?: string;
   deposit: string;
   address: string;
+  district?: string;
   metro_name: string;
   metro_line?: string;
-  metro_walk: string;
+  metro_walk?: string;
   amenities?: string[];
   desc_short: string;
   full_desc?: string;
   photos: string[];
   photos_count: number;
-  owner_name: string;
+  owner_name?: string;
   phone: string;
   is_owner: boolean;
   is_new?: boolean;

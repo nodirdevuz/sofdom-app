@@ -544,6 +544,9 @@
       object-fit: cover;
       object-position: center center;
       display: block;
+      image-rendering: -webkit-optimize-contrast;
+      backface-visibility: hidden;
+      transform: translateZ(0);
     }
     .vip-card-body {
       padding: 14px;
@@ -764,6 +767,9 @@
       object-fit: cover;
       object-position: center center;
       display: block;
+      image-rendering: -webkit-optimize-contrast;
+      backface-visibility: hidden;
+      transform: translateZ(0);
     }
     .gallery-arrow {
       position: absolute;
