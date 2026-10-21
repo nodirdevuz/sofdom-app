@@ -1,0 +1,44 @@
+{
+  "name": "admin-panel",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "typecheck:scripts": "tsc -p scripts/tsconfig.json",
+    "deploy": "npm run typecheck && npm run typecheck:scripts && npm run build && vercel deploy --prod --yes",
+    "import:excel": "node scripts/import-excel-ostatki.ts",
+    "sync": "node scripts/sync-1c-to-supabase.ts",
+    "sync:test": "node scripts/sync-1c-to-supabase.ts --test"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.45.4",
+    "@tanstack/react-query": "^5.59.16",
+    "grammy": "^1.44.0",
+    "lucide-react": "^1.21.0",
+    "motion": "^12.40.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.26.2",
+    "recharts": "^3.9.0",
+    "xlsx-js-style": "^1.2.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.15",
+    "@types/react": "^18.3.5",
+    "@types/react-dom": "^18.3.0",
+    "@vitejs/plugin-react": "^4.3.1",
+    "autoprefixer": "^10.4.20",
+    "dotenv": "^16.4.5",
+    "exceljs": "^4.4.0",
+    "postcss": "^8.4.47",
+    "tailwindcss": "^3.4.13",
+    "typescript": "^5.5.4",
+    "vite": "^5.4.6",
+    "vitest": "^3.2.7"
+  }
+}
