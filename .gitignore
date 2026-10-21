@@ -28,3 +28,11 @@ node_modules/
 .next/
 dist/
 realty/cian_xapk/
+
+# Local absolute symlinks
+/auto
+/avito
+/fetchora-web
+/rea
+/scraper
+
