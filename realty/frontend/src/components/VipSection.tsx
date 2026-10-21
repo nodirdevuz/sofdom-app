@@ -17,9 +17,20 @@ export const VipSection: React.FC<VipSectionProps> = ({ vips, onSelectVip }) => 
       </div>
       <div className="vip-carousel">
         {vips.map((vip) => (
-          <div key={vip.id} className="vip-card clickable" onClick={() => onSelectVip(vip.id)}>
+          <div key={vip.id} className="vip-card clickable" onClick={() => onSelectVip(vip.offer_ref || vip.id)}>
             <div className="vip-card-img-wrap">
-              <img src={vip.photo} alt={vip.title} loading="lazy" />
+              <img
+                src={vip.photo}
+                alt={vip.title}
+                loading="lazy"
+                onError={(e) => {
+                  const target = e.currentTarget;
+                  if (!target.dataset.fallback) {
+                    target.dataset.fallback = '1';
+                    target.src = 'https://tsk.s.bsps.ru/images/sobipro/galleries/ec/196162/3dbeb0.jpg';
+                  }
+                }}
+              />
               <span className="card-badge-owner">VIP</span>
             </div>
             <div className="vip-card-body">

@@ -42,7 +42,21 @@ export const ListingCard: React.FC<ListingCardProps> = ({
       <div className="card-gallery-wrap" onClick={() => onOpenDetail(offer.id)}>
         <div className="gallery-slider" ref={sliderRef} onScroll={handleScroll}>
           {offer.photos.slice(0, 3).map((p, idx) => (
-            <img key={idx} className="gallery-slide-img" src={p} alt={offer.title} loading="lazy" decoding="async" />
+            <img
+              key={idx}
+              className="gallery-slide-img"
+              src={p}
+              alt={offer.title}
+              loading="lazy"
+              decoding="async"
+              onError={(e) => {
+                const target = e.currentTarget;
+                if (!target.dataset.fallback) {
+                  target.dataset.fallback = '1';
+                  target.src = 'https://tsk.s.bsps.ru/images/sobipro/galleries/ec/196162/3dbeb0.jpg';
+                }
+              }}
+            />
           ))}
         </div>
         <button className="gallery-arrow left" onClick={(e) => scrollSlider(e, -1)} aria-label="Предыдущее фото">

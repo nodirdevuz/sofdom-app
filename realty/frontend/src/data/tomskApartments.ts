@@ -14,39 +14,35 @@ export const TOMSK_MAP_FALLBACK: {
   "districts": [
     {
       "district": "Советский район",
-      "count": 77
+      "count": 71
     },
     {
       "district": "Октябрьский район",
-      "count": 22
+      "count": 25
     },
     {
       "district": "Ленинский район",
       "count": 21
     },
     {
-      "district": "Пригород",
-      "count": 20
-    },
-    {
       "district": "Кировский район",
-      "count": 17
+      "count": 19
     },
     {
-      "district": "Южные Ворота",
-      "count": 2
+      "district": "Пригород (Северск)",
+      "count": 10
     },
     {
-      "district": "Северск",
-      "count": 1
+      "district": "Пригород",
+      "count": 10
     },
     {
-      "district": "Зональная Станция",
-      "count": 1
+      "district": "Пригород (Южные Ворота)",
+      "count": 3
     },
     {
-      "district": "Южные Ворота (Зональная Станция)",
-      "count": 1
+      "district": "Пригород (Зональная Станция)",
+      "count": 3
     }
   ],
   "apartments": [
@@ -60,7 +56,7 @@ export const TOMSK_MAP_FALLBACK: {
       "rooms": "2-комн",
       "area": 36.9,
       "address": "Томск, Промышленный пер.,  2",
-      "district": "Советский район",
+      "district": "Кировский район",
       "photo": "https://b40.img.avito.st/image/1/1.hUo2n7a-KaMgP4uiMJnebho_K6WEKC2jhE9IqYicKAGDPCs.OcOIGBggEBncYb2il8rB2MnYGAuRwGrZQ3Toa2RHcxI",
       "photos_count": 5,
       "is_secret": false,
@@ -78,7 +74,7 @@ export const TOMSK_MAP_FALLBACK: {
       "rooms": "1-комн",
       "area": 39.0,
       "address": "Томск, ул. Вершинина,  58к2",
-      "district": "Советский район",
+      "district": "Кировский район",
       "photo": "https://00.img.avito.st/image/1/1.iMyYRLa-JCWO5IYkhGKL0YXkJiMq8yAlKpRFLyZHJYct5yY.GQ6Au1aWjJjHvps-wIlnQ9uEiKX2g3M_7tbIce0YX5U?cqp=2.6_1L9vhKD2uBLt-qyrAoZheVsuS8u7cVFre6r7a9jrN4_pCIDjlm5anolzs-MLkTK_L9899P2epdVNs=",
       "photos_count": 5,
       "is_secret": false,
@@ -96,7 +92,7 @@ export const TOMSK_MAP_FALLBACK: {
       "rooms": "Студия",
       "area": 18.0,
       "address": "Томск, Иркутский тракт,  17",
-      "district": "Советский район",
+      "district": "Октябрьский район",
       "photo": "https://20.img.avito.st/image/1/1.lYyFFba-OWWTtZtko1uVxIG1O2M3oj1lN8VYbzsWOMcwtjs.nconZ-Bd0YcZ5MpY64arJlYlK-d_KUCFidnyjjwpmlA?cqp=2.6_1L9vhKD2uBLt-qyrAoZheVsuS8u7cVFre6r7a9jrN4_pCIDjlm5anolzs-MLkTK_L9899P2epdVNs=",
       "photos_count": 5,
       "is_secret": false,
@@ -114,7 +110,7 @@ export const TOMSK_MAP_FALLBACK: {
       "rooms": "1-комн",
       "area": 38.0,
       "address": "Томск, пос. Зональная Станция, мкр-н Южные Ворота, ул. Виталия Грачёва,  3",
-      "district": "Южные Ворота",
+      "district": "Пригород (Южные Ворота)",
       "photo": "https://images.cdn-cian.ru/images/kvartira-tomsk-altayskaya-ulica-2988296902-1.jpg",
       "photos_count": 4,
       "is_secret": false,
@@ -150,7 +146,7 @@ export const TOMSK_MAP_FALLBACK: {
       "rooms": "Студия",
       "area": 18.0,
       "address": "Томск, Октябрьский р-н, Иркутский тракт, 17",
-      "district": "Советский район",
+      "district": "Октябрьский район",
       "photo": "https://tsk.s.bsps.ru/images/sobipro/galleries/e8/198736/5826da.jpg",
       "photos_count": 8,
       "is_secret": false,
@@ -168,7 +164,7 @@ export const TOMSK_MAP_FALLBACK: {
       "rooms": "2-комн",
       "area": 50.0,
       "address": "Северск, Коммунистический пр-т, 90",
-      "district": "Северск",
+      "district": "Пригород (Северск)",
       "photo": "https://tsk.s.bsps.ru/images/sobipro/galleries/fc/185962/2f4e26.jpg",
       "photos_count": 8,
       "is_secret": false,
@@ -186,7 +182,7 @@ export const TOMSK_MAP_FALLBACK: {
       "rooms": "1-комн",
       "area": 33.0,
       "address": "Томск, Кировский р-н, пос. Зональная Станция, 40 лет Победы 7",
-      "district": "Зональная Станция",
+      "district": "Пригород (Зональная Станция)",
       "photo": "https://tsk.s.bsps.ru/images/sobipro/galleries/8c/195091/9d1485.jpg",
       "photos_count": 8,
       "is_secret": false,
@@ -204,7 +200,7 @@ export const TOMSK_MAP_FALLBACK: {
       "rooms": "Студия",
       "area": 20.0,
       "address": "Томск, Октябрьский р-н, улица Мечникова, 1",
-      "district": "Советский район",
+      "district": "Октябрьский район",
       "photo": "https://tsk.s.bsps.ru/images/sobipro/galleries/f3/199126/6c4737.jpg",
       "photos_count": 5,
       "is_secret": false,
@@ -222,7 +218,7 @@ export const TOMSK_MAP_FALLBACK: {
       "rooms": "1-комн",
       "area": 38.0,
       "address": "Томск, пригород, м-н Южные ворота, Зональненское сельское поселение, пос. Зональная Станция, мкр. Южные Ворота, ул. Виталия Грачёва, 3",
-      "district": "Южные Ворота",
+      "district": "Пригород (Южные Ворота)",
       "photo": "https://tsk.s.bsps.ru/images/sobipro/galleries/8d/199125/454b33.jpg",
       "photos_count": 8,
       "is_secret": false,
@@ -258,7 +254,7 @@ export const TOMSK_MAP_FALLBACK: {
       "rooms": "1-комн",
       "area": 19.0,
       "address": "Томск, Кировский р-н, Полины Осипенко 31",
-      "district": "Советский район",
+      "district": "Кировский район",
       "photo": "https://tsk.s.bsps.ru/images/sobipro/galleries/f0/193282/d2ffef.jpg",
       "photos_count": 6,
       "is_secret": false,
@@ -492,7 +488,7 @@ export const TOMSK_MAP_FALLBACK: {
       "rooms": "2-комн",
       "area": 60.0,
       "address": "Томск, пригород, пос. Зональная Станция, Леонова 7",
-      "district": "Пригород",
+      "district": "Пригород (Зональная Станция)",
       "photo": "https://tsk.s.bsps.ru/images/sobipro/galleries/d0/199124/0b4609.jpg",
       "photos_count": 8,
       "is_secret": false,
@@ -600,7 +596,7 @@ export const TOMSK_MAP_FALLBACK: {
       "rooms": "2-комн",
       "area": 52.5,
       "address": "Северск, Северск, ул. Ленина, 108",
-      "district": "Пригород",
+      "district": "Пригород (Северск)",
       "photo": "https://tsk.s.bsps.ru/images/sobipro/galleries/83/194211/b2ebc9.jpg",
       "photos_count": 8,
       "is_secret": false,
@@ -654,7 +650,7 @@ export const TOMSK_MAP_FALLBACK: {
       "rooms": "1-комн",
       "area": 50.0,
       "address": "Северск, Северск, ул. Славского, 6",
-      "district": "Пригород",
+      "district": "Пригород (Северск)",
       "photo": "https://tsk.s.bsps.ru/images/sobipro/galleries/fe/199117/d5322f.jpg",
       "photos_count": 8,
       "is_secret": false,
@@ -690,7 +686,7 @@ export const TOMSK_MAP_FALLBACK: {
       "rooms": "2-комн",
       "area": 41.2,
       "address": "Томск, пригород, м-н Южные ворота, пос. Зональная Станция, Королева 20",
-      "district": "Южные Ворота (Зональная Станция)",
+      "district": "Пригород (Южные Ворота)",
       "photo": "https://tsk.s.bsps.ru/images/sobipro/galleries/ec/196162/3dbeb0.jpg",
       "photos_count": 8,
       "is_secret": false,
@@ -960,7 +956,7 @@ export const TOMSK_MAP_FALLBACK: {
       "rooms": "1-комн",
       "area": 36.5,
       "address": "Северск, Коммунистический пр-т, 120",
-      "district": "Пригород",
+      "district": "Пригород (Северск)",
       "photo": "https://tsk.s.bsps.ru/images/sobipro/galleries/70/193360/b5588b.jpg",
       "photos_count": 8,
       "is_secret": false,
@@ -1176,7 +1172,7 @@ export const TOMSK_MAP_FALLBACK: {
       "rooms": "1-комн",
       "area": 42.9,
       "address": "Россия, Томская область, Томский район, посёлок Зональная Станция, микрорайон Южные Ворота, улица Титова, 6Б",
-      "district": "Кировский район",
+      "district": "Пригород (Зональная Станция)",
       "photo": "https://images.cdn-cian.ru/images/kvartira-yuzhnye-vorota-titova-ulica-2989050271-1.jpg",
       "photos_count": 8,
       "is_secret": false,
@@ -1266,7 +1262,7 @@ export const TOMSK_MAP_FALLBACK: {
       "rooms": "1-комн",
       "area": 41.3,
       "address": "Россия, Томская область, Северск, улица Калинина, 50",
-      "district": "Пригород",
+      "district": "Пригород (Северск)",
       "photo": "https://images.cdn-cian.ru/images/kvartira-seversk-ulica-kalinina-2987969314-1.jpg",
       "photos_count": 8,
       "is_secret": false,
@@ -1302,7 +1298,7 @@ export const TOMSK_MAP_FALLBACK: {
       "rooms": "1-комн",
       "area": 30.1,
       "address": "Россия, Томская область, Северск, Лесная улица, 12Б",
-      "district": "Пригород",
+      "district": "Пригород (Северск)",
       "photo": "https://images.cdn-cian.ru/images/kvartira-seversk-lesnaya-ulica-2989142259-1.jpg",
       "photos_count": 8,
       "is_secret": false,
@@ -1338,7 +1334,7 @@ export const TOMSK_MAP_FALLBACK: {
       "rooms": "1-комн",
       "area": 47.8,
       "address": "Россия, Томская область, Северск, Коммунистический проспект, 151",
-      "district": "Пригород",
+      "district": "Пригород (Северск)",
       "photo": "https://images.cdn-cian.ru/images/kvartira-seversk-kommunisticheskiy-prospekt-2970964365-1.jpg",
       "photos_count": 8,
       "is_secret": false,
@@ -1626,7 +1622,7 @@ export const TOMSK_MAP_FALLBACK: {
       "rooms": "1-комн",
       "area": 53.0,
       "address": "Россия, Томская область, Северск, Северная улица, 30",
-      "district": "Пригород",
+      "district": "Пригород (Северск)",
       "photo": "https://images.cdn-cian.ru/images/kvartira-seversk-severnaya-ulica-2988296150-1.jpg",
       "photos_count": 8,
       "is_secret": false,
@@ -1824,7 +1820,7 @@ export const TOMSK_MAP_FALLBACK: {
       "rooms": "1-комн",
       "area": 39.1,
       "address": "Россия, Томская область, Северск, улица Калинина, 139",
-      "district": "Пригород",
+      "district": "Пригород (Северск)",
       "photo": "https://images.cdn-cian.ru/images/kvartira-seversk-ulica-kalinina-2987794059-1.jpg",
       "photos_count": 8,
       "is_secret": false,
@@ -1860,7 +1856,7 @@ export const TOMSK_MAP_FALLBACK: {
       "rooms": "1-комн",
       "area": 54.0,
       "address": "Россия, Томская область, Северск, Советская улица, 19",
-      "district": "Пригород",
+      "district": "Пригород (Северск)",
       "photo": "https://images.cdn-cian.ru/images/kvartira-seversk-sovetskaya-ulica-2913309783-1.jpg",
       "photos_count": 8,
       "is_secret": false,

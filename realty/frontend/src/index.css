@@ -1195,6 +1195,37 @@
       background: #e2e8f0;
     }
 
+    /* Seller Call Button */
+    .joymee-btn-seller-call {
+      width: 100%;
+      margin-top: 18px;
+      padding: 13.5px 20px;
+      background: var(--brand-yellow-gradient);
+      color: #1e1b18;
+      font-weight: 800;
+      font-size: 15px;
+      border-radius: var(--radius-full);
+      border: none;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 4px 14px rgba(245, 158, 11, 0.28);
+      transition: transform 0.15s ease, opacity 0.15s ease, box-shadow 0.15s ease;
+      text-decoration: none;
+      box-sizing: border-box;
+    }
+    .joymee-btn-seller-call:hover {
+      opacity: 0.95;
+      transform: translateY(-1px);
+      box-shadow: 0 6px 18px rgba(245, 158, 11, 0.38);
+      color: #1e1b18;
+    }
+    .joymee-btn-seller-call:active {
+      transform: scale(0.98);
+    }
+
     /* RIGHT COLUMN: Actions, Tags, Title, Price, Desc, Specs, Location */
     .joymee-right-col {
       display: flex;
@@ -1246,6 +1277,7 @@
 
     .joymee-btn-call {
       flex: 1;
+      width: 100%;
       padding: 14px 20px;
       background: var(--brand-yellow-gradient);
       color: #1e1b18;
@@ -1255,6 +1287,10 @@
       border: none;
       cursor: pointer;
       text-align: center;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
       box-shadow: var(--brand-yellow-glow);
       transition: opacity 0.18s ease, transform 0.15s ease;
     }

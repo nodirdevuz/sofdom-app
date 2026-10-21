@@ -72,7 +72,17 @@ export const LightboxModal: React.FC<LightboxModalProps> = ({
           </svg>
         </button>
         <div className="lightbox-img-wrapper">
-          <img src={photos[currentIdx]} alt="Полноэкранное фото" />
+          <img
+            src={photos[currentIdx]}
+            alt="Полноэкранное фото"
+            onError={(e) => {
+              const target = e.currentTarget;
+              if (!target.dataset.fallback) {
+                target.dataset.fallback = '1';
+                target.src = 'https://tsk.s.bsps.ru/images/sobipro/galleries/ec/196162/3dbeb0.jpg';
+              }
+            }}
+          />
         </div>
         <button
           className="lightbox-nav-btn lightbox-btn-next clickable"
@@ -98,7 +108,17 @@ export const LightboxModal: React.FC<LightboxModalProps> = ({
               onSelectIdx(i);
             }}
           >
-            <img src={url} alt={`Превью ${i + 1}`} />
+            <img
+              src={url}
+              alt={`Превью ${i + 1}`}
+              onError={(e) => {
+                const target = e.currentTarget;
+                if (!target.dataset.fallback) {
+                  target.dataset.fallback = '1';
+                  target.src = 'https://tsk.s.bsps.ru/images/sobipro/galleries/ec/196162/3dbeb0.jpg';
+                }
+              }}
+            />
           </div>
         ))}
       </div>

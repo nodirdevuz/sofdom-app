@@ -216,8 +216,8 @@ export const App: React.FC = () => {
       desc_short: 'Уютная квартира от собственника без комиссий.',
       full_desc: 'Сдается напрямую от собственника. Вся необходимая мебель и техника в наличии. Чистый подъезд, тихий двор.',
       photos: [
-        'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800&auto=format&fit=crop&q=80',
-        'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&auto=format&fit=crop&q=80'
+        'https://tsk.s.bsps.ru/images/sobipro/galleries/ec/196162/3dbeb0.jpg',
+        'https://tsk.s.bsps.ru/images/sobipro/galleries/a8/196225/417ba2.jpg'
       ],
       photos_count: 2,
       owner_name: 'Собственник',
