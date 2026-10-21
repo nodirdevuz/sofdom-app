@@ -191,10 +191,10 @@ class RealtyScraper:
                 desc = desc_m.group(1) if desc_m else ""
 
                 # Photos
-                photos = re.findall(r'src=\"(https://[^\"]+avito[^\"]+)\"', html) or re.findall(r'srcset=\"([^\"]+)\"', html)
+                raw_photos = re.findall(r'https://[a-zA-Z0-9.-]+\.img\.avito\.st/image/[^\s\"\'<>]+', html)
                 clean_photos = []
-                for p in photos:
-                    u = p.split(" ")[0].strip()
+                for p in raw_photos:
+                    u = p.split(" ")[0].strip().rstrip(",")
                     if u.startswith("https://") and "avito.st" in u and u not in clean_photos:
                         clean_photos.append(u)
 
@@ -309,6 +309,59 @@ class RealtyScraper:
 
         print(f"[✓] [БезПосредников] Total listings collected: {len(items)}")
         return items
+
+    def unlock_bezposrednikov_phone(self, sid: str, donor_cookie: str = None) -> dict:
+        """
+        Unlocks real owner phone number from tomsk.bezposrednikov.ru using a donor session cookie.
+        Reverse-engineered endpoint: /index.php?option=com_sobipro&task=contacts.details&tmpl=component&format=raw&method=xhr&sid={sid}
+        """
+        sid_clean = re.sub(r'\D', '', str(sid))
+        url = f"https://tomsk.bezposrednikov.ru/index.php?option=com_sobipro&task=contacts.details&tmpl=component&format=raw&method=xhr&sid={sid_clean}&v={int(time.time()*1000)}"
+        
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            'X-Requested-With': 'XMLHttpRequest',
+            'Referer': f'https://tomsk.bezposrednikov.ru/component/sobipro/?task=entry.details&sid={sid_clean}'
+        }
+        
+        cookies = {}
+        cookie_str = donor_cookie or os.environ.get("BEZPOSREDNIKOV_COOKIE", "")
+        if cookie_str:
+            for part in cookie_str.split(";"):
+                if "=" in part:
+                    k, v = part.strip().split("=", 1)
+                    cookies[k] = v
+
+        try:
+            resp = requests.get(url, headers=headers, cookies=cookies, impersonate='chrome120', timeout=10)
+            if resp.status_code == 200:
+                html = resp.text
+                if 'login-popup' in html:
+                    return {"success": False, "error": "donor_auth_required", "message": "Требуется сессия донорского аккаунта БезПосредников.ру"}
+                
+                # Extract phone numbers from HTML response
+                phones = re.findall(r'href=[\'"]tel:([^\'"]+)[\'"]', html)
+                names = re.findall(r'class=[\'"]entryContactsName[\'"][^>]*>([^<]+)<', html)
+                owner_name = names[0].strip() if names else "Собственник"
+                
+                if phones:
+                    clean_phone = phones[0].strip()
+                    return {
+                        "success": True,
+                        "phone": clean_phone,
+                        "additional_phones": phones[1:],
+                        "owner_name": owner_name
+                    }
+                else:
+                    phone_match = re.search(r'(\+7[\d\s\-\(\)]{10,16})', html)
+                    if phone_match:
+                        return {"success": True, "phone": phone_match.group(1).strip(), "owner_name": owner_name}
+
+                return {"success": False, "error": "phone_not_found", "html": html[:300]}
+        except Exception as e:
+            return {"success": False, "error": str(e)}
+            
+        return {"success": False, "error": f"HTTP {resp.status_code}"}
 
     def sync_all(self) -> dict:
         """Executes full synchronization for Tomsk from Avito, Cian, and Bezposrednikov."""

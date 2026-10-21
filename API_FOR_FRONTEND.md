@@ -55,27 +55,75 @@
 
 ---
 
-## 🎨 2. Как стилизовать желтые метки с ценами (Как на референсе)
+## 🎨 2. Как стилизовать желтые метки с ценами в Яндекс Картах (YMaps v2.1)
 
-На референсе используются **желтые плашки с ценой и черным треугольником внизу**.
-
-В Leaflet это делается через `L.divIcon`:
+Фронтенд-агент использует загрузчик `loadYmaps()` из `Komfort Go`.
+В Яндекс Картах v2.1 кастомные желтые плашки цен и кластеризация создаются через `ymaps.templateLayoutFactory` и `ymaps.Clusterer`:
 
 ```typescript
-// Создание желтого бейджа цены для метки
-export function createPriceMarkerIcon(priceText: string, isSecret: boolean = false) {
-  return L.divIcon({
-    className: 'custom-price-pin',
-    html: `
-      <div class="price-pin-bubble ${isSecret ? 'secret-pin' : ''}">
-        <span class="price-pin-text">${priceText}</span>
-        ${isSecret ? '<span class="secret-dot">🔥</span>' : ''}
-        <div class="price-pin-arrow"></div>
-      </div>
-    `,
-    iconSize: [85, 34],
-    iconAnchor: [42, 34]
+import { loadYmaps } from './lib/ymaps';
+
+// 1. Создание кастомного HTML-макета метки с ценой
+export function createPriceLayout(ymaps: any) {
+  return ymaps.templateLayoutFactory.createClass(`
+    <div class="price-pin-bubble $[properties.is_secret_class]">
+      <span class="price-pin-text">$[properties.price_badge]</span>
+      <div class="price-pin-arrow"></div>
+    </div>
+  `);
+}
+
+// 2. Инициализация карты и кластеризатора с ценами
+export async function initYandexMap(containerId: string, onSelectApartment: (aptId: string) => void) {
+  const ymaps = await loadYmaps();
+
+  const map = new ymaps.Map(containerId, {
+    center: [56.4977, 84.9744], // Центр Томска
+    zoom: 13,
+    controls: ['zoomControl', 'geolocationControl']
+  }, {
+    suppressMapOpenBlock: true // Убирает лишний мусор Яндекса
   });
+
+  const priceLayout = createPriceLayout(ymaps);
+
+  // Кластеризатор (группирует квартиры при отдалении)
+  const clusterer = new ymaps.Clusterer({
+    preset: 'islands#yellowClusterIcons',
+    groupByCoordinates: false,
+    clusterDisableClickZoom: false,
+    clusterHideIconOnBalloonOpen: false,
+    geoObjectHideIconOnBalloonOpen: false
+  });
+
+  // Загрузка точек с бэкенда
+  const res = await fetch('/api/apartments/map');
+  const data = await res.json();
+
+  const placemarks = data.apartments.map((apt: any) => {
+    const pm = new ymaps.Placemark([apt.lat, apt.lng], {
+      price_badge: apt.price_badge,
+      is_secret_class: apt.is_secret ? 'secret-pin' : '',
+      apartmentId: apt.id
+    }, {
+      iconLayout: priceLayout,
+      iconShape: {
+        type: 'Rectangle',
+        coordinates: [[-42, -34], [42, 0]]
+      }
+    });
+
+    pm.events.add('click', () => {
+      onSelectApartment(apt.id);
+    });
+
+    return pm;
+  });
+
+  clusterer.add(placemarks);
+  map.geoObjects.add(clusterer);
+
+  return { map, clusterer };
 }
 ```
 

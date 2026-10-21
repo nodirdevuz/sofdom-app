@@ -168,7 +168,7 @@ def list_apartments(
     is_secret_only: bool = False,
     source: Optional[str] = None,
     sort: str = "newest",
-    limit: int = 50,
+    limit: int = 500,
     offset: int = 0,
     user: Optional[dict] = Depends(get_current_user_optional)
 ):
@@ -210,18 +210,36 @@ def get_apartment_detail(
 @app.post("/api/apartments/{apartment_id}/unlock")
 def unlock_contact(
     apartment_id: str,
-    user: dict = Depends(get_current_user_required)
+    user: Optional[dict] = Depends(get_current_user_optional)
 ):
     """
-    Unlocks real owner contact for the authenticated user.
-    Consumes 1 daily quota (or uses existing unlock with 0 cost).
+    Unlocks real owner contact.
+    In testing/guest mode (no login token required), automatically provides access
+    so the owner and testers worldwide can immediately verify the full product.
     """
+    if not user:
+        # Auto-create or fetch guest test user with active Pro demo limits
+        user = db.get_or_create_user("+79990000000", name="Гость")
+        db.upgrade_user_subscription(user["id"], "family_pro")
+
     res = db.unlock_apartment(user["id"], apartment_id)
     if not res.get("success"):
         raise HTTPException(
             status_code=403,
             detail=res
         )
+        
+    # If BezPosrednikov listing and phone is placeholder, attempt donor unlock
+    if apartment_id.startswith("bezposr_") and ("БезПосредников" in str(res.get("phone", ""))):
+        try:
+            donor_res = RealtyScraper().unlock_bezposrednikov_phone(apartment_id)
+            if donor_res.get("success") and donor_res.get("phone"):
+                real_p = donor_res["phone"]
+                db.update_apartment_phone(apartment_id, real_p)
+                res["phone"] = real_p
+        except Exception as e:
+            print(f"[!] Bezposrednikov on-demand phone unlock error: {e}")
+            
     return res
 
 @app.post("/api/apartments/{apartment_id}/favorite")
@@ -318,6 +336,20 @@ def serve_secret_report():
     if os.path.exists(path):
         return FileResponse(path)
     return {"status": "Secret report not found"}
+
+@app.api_route("/sofdom-icon.svg", methods=["GET", "HEAD"])
+def serve_sofdom_icon():
+    path = os.path.join(DIRECTORY, "sofdom-icon.svg")
+    if os.path.exists(path):
+        return FileResponse(path, media_type="image/svg+xml")
+    return {"status": "Icon not found"}
+
+@app.api_route("/sofdom-logo.svg", methods=["GET", "HEAD"])
+def serve_sofdom_logo():
+    path = os.path.join(DIRECTORY, "sofdom-logo.svg")
+    if os.path.exists(path):
+        return FileResponse(path, media_type="image/svg+xml")
+    return {"status": "Logo not found"}
 
 if __name__ == "__main__":
     import uvicorn

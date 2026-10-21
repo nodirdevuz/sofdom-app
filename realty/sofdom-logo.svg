@@ -1,0 +1,250 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 490 160" width="100%" height="100%" fill="none">
+  <defs>
+    <!-- Мягкая тень под иконкой и текстом -->
+    <filter id="sd-shadow" x="-15%" y="-15%" width="135%" height="135%">
+      <feDropShadow dx="-3" dy="6" stdDeviation="5" flood-color="#1C1917" flood-opacity="0.32"/>
+    </filter>
+    <!-- Процедурная текстура натурального графитового камня -->
+    <filter id="sd-graphite-texture" x="0%" y="0%" width="100%" height="100%" color-interpolation-filters="sRGB">
+      <feTurbulence type="fractalNoise" baseFrequency="0.16 0.20" numOctaves="4" seed="11" result="fineGrain"/>
+      <feTurbulence type="turbulence" baseFrequency="0.035 0.048" numOctaves="3" seed="23" result="slateVeins"/>
+      <feBlend mode="multiply" in="fineGrain" in2="slateVeins" result="combinedNoise"/>
+      <feDiffuseLighting in="combinedNoise" lighting-color="#EAE4DC" surfaceScale="1.35" result="stoneRelief">
+        <feDistantLight azimuth="132" elevation="54"/>
+      </feDiffuseLighting>
+      <feComposite in="stoneRelief" in2="SourceGraphic" operator="in" result="clippedRelief"/>
+      <feBlend mode="soft-light" in="clippedRelief" in2="SourceGraphic" result="texturedStone"/>
+      <feColorMatrix type="matrix"
+        values="1 0 0 0 0
+                0 1 0 0 0
+                0 0 1 0 0
+                0 0 0 0.16 0" in="fineGrain" result="grainAlpha"/>
+      <feComposite in="grainAlpha" in2="SourceGraphic" operator="in" result="clippedGrain"/>
+      <feBlend mode="overlay" in="clippedGrain" in2="texturedStone"/>
+    </filter>
+    <filter id="sd-text-shadow" x="-10%" y="-10%" width="125%" height="125%">
+      <feDropShadow dx="-2" dy="4" stdDeviation="3" flood-color="#1C1917" flood-opacity="0.22"/>
+    </filter>
+    <filter id="sd-sphere-shadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="3" stdDeviation="2.5" flood-color="#78350F" flood-opacity="0.48"/>
+    </filter>
+
+    <!-- Градиенты натурального графитового камня (Корпус дома) -->
+    <linearGradient id="sd-stone-front" x1="20" y1="14" x2="140" y2="144" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#7D7972"/>
+      <stop offset="28%" stop-color="#64605A"/>
+      <stop offset="62%" stop-color="#504D48"/>
+      <stop offset="88%" stop-color="#43403C"/>
+      <stop offset="100%" stop-color="#373431"/>
+    </linearGradient>
+    <linearGradient id="sd-stone-bevel" x1="20" y1="14" x2="140" y2="144" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#9E9990"/>
+      <stop offset="35%" stop-color="#706C65"/>
+      <stop offset="75%" stop-color="#4A4742"/>
+      <stop offset="100%" stop-color="#2B2927"/>
+    </linearGradient>
+    <linearGradient id="sd-inner-wall" x1="36" y1="36" x2="124" y2="132" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#282623"/>
+      <stop offset="45%" stop-color="#3F3C38"/>
+      <stop offset="100%" stop-color="#635F59"/>
+    </linearGradient>
+    <linearGradient id="sd-side-wall" x1="14" y1="68" x2="20" y2="146" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#4A4742"/>
+      <stop offset="50%" stop-color="#363330"/>
+      <stop offset="100%" stop-color="#262421"/>
+    </linearGradient>
+    <linearGradient id="sd-roof-slope" x1="14" y1="71" x2="80" y2="14" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#5C5852"/>
+      <stop offset="55%" stop-color="#736F68"/>
+      <stop offset="100%" stop-color="#8A857C"/>
+    </linearGradient>
+
+    <!-- Внутреннее свечение ниши -->
+    <radialGradient id="sd-back-glow" cx="80" cy="88" r="46" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#FDE047" stop-opacity="0.88"/>
+      <stop offset="42%" stop-color="#FBBF24" stop-opacity="0.42"/>
+      <stop offset="78%" stop-color="#FEF3C7" stop-opacity="0.16"/>
+      <stop offset="100%" stop-color="#FAF6EE" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Градиенты янтарного стекла (Арка) -->
+    <linearGradient id="sd-amber-body" x1="80" y1="38" x2="80" y2="130" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#B45309"/>
+      <stop offset="22%" stop-color="#F59E0B"/>
+      <stop offset="60%" stop-color="#D97706"/>
+      <stop offset="72%" stop-color="#92400E"/>
+      <stop offset="100%" stop-color="#5C2406"/>
+    </linearGradient>
+    <linearGradient id="sd-amber-edge" x1="38" y1="38" x2="122" y2="130" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#78350F"/>
+      <stop offset="50%" stop-color="#B45309"/>
+      <stop offset="100%" stop-color="#451A03"/>
+    </linearGradient>
+    <linearGradient id="sd-amber-shine" x1="80" y1="40" x2="80" y2="128" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#FEF08A" stop-opacity="0.92"/>
+      <stop offset="55%" stop-color="#FDE68A" stop-opacity="0.52"/>
+      <stop offset="100%" stop-color="#F59E0B" stop-opacity="0.18"/>
+    </linearGradient>
+
+    <!-- Градиенты замочной скважины и 3D золотого шара -->
+    <linearGradient id="sd-keyhole-rim" x1="65" y1="68" x2="95" y2="118" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#FDE68A"/>
+      <stop offset="35%" stop-color="#D97706"/>
+      <stop offset="75%" stop-color="#92400E"/>
+      <stop offset="100%" stop-color="#78350F"/>
+    </linearGradient>
+    <radialGradient id="sd-gold-sphere" cx="80" cy="84" r="11" fx="75.5" fy="79.5" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#FFFBEB"/>
+      <stop offset="18%" stop-color="#FDE047"/>
+      <stop offset="48%" stop-color="#D99B26"/>
+      <stop offset="80%" stop-color="#854D0E"/>
+      <stop offset="94%" stop-color="#A16207"/>
+      <stop offset="100%" stop-color="#713F12"/>
+    </radialGradient>
+
+    <!-- Градиент текста SofDom -->
+    <linearGradient id="sd-text-grad" x1="165" y1="45" x2="165" y2="105" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#5E5A54"/>
+      <stop offset="50%" stop-color="#383532"/>
+      <stop offset="100%" stop-color="#1E1C1A"/>
+    </linearGradient>
+
+    <!-- Маска лицевой каменной стены -->
+    <clipPath id="sd-stone-face-clip">
+      <path fill-rule="evenodd" clip-rule="evenodd"
+            d="M 80 14 L 20 68 V 144 H 140 V 68 L 126 55.4 V 29 H 108 V 39.2 L 80 14 Z
+               M 36 132 V 84 C 36 63 55 47 80 35 C 105 47 124 63 124 84 V 132 H 36 Z"/>
+    </clipPath>
+
+    <!-- Маска внутренней арки -->
+    <clipPath id="sd-niche-clip">
+      <path d="M 38 130 V 84 C 38 64 56 49 80 38 C 104 49 122 64 122 84 V 130 Z"/>
+    </clipPath>
+  </defs>
+
+  <!-- ================= ИКОНКА ДОМА (НАТУРАЛЬНЫЙ ГРАФИТОВЫЙ КАМЕНЬ) ================= -->
+  <g filter="url(#sd-shadow)">
+    <!-- 3D боковая грань слева -->
+    <path d="M 20 68 L 14 71 V 146 L 20 144 V 68 Z" fill="url(#sd-side-wall)"/>
+    <path d="M 80 14 L 74 17 L 14 71 L 20 68 L 80 14 Z" fill="url(#sd-roof-slope)"/>
+    <path d="M 108 29 L 103.5 31.5 V 37.5 L 108 39.2 V 29 Z" fill="#2A2825"/>
+
+    <!-- Основной каменный корпус дома с текстурой графитового сланца -->
+    <path fill-rule="evenodd" clip-rule="evenodd"
+          d="M 80 14 L 20 68 V 144 H 140 V 68 L 126 55.4 V 29 H 108 V 39.2 L 80 14 Z
+             M 36 132 V 84 C 36 63 55 47 80 35 C 105 47 124 63 124 84 V 132 H 36 Z"
+          fill="url(#sd-stone-front)"
+          filter="url(#sd-graphite-texture)"/>
+
+    <!-- Векторные минеральные прожилки и слоистость камня -->
+    <g clip-path="url(#sd-stone-face-clip)">
+      <ellipse cx="52" cy="42" rx="26" ry="9" transform="rotate(-38 52 42)" fill="#948F86" opacity="0.22"/>
+      <ellipse cx="114" cy="46" rx="18" ry="7" transform="rotate(28 114 46)" fill="#858078" opacity="0.2"/>
+      <ellipse cx="28" cy="105" rx="9" ry="28" transform="rotate(8 28 105)" fill="#78736B" opacity="0.22"/>
+      <ellipse cx="132" cy="102" rx="8" ry="24" transform="rotate(-6 132 102)" fill="#363430" opacity="0.26"/>
+      <ellipse cx="78" cy="138" rx="34" ry="6" fill="#6E6A63" opacity="0.2"/>
+
+      <path d="M 64 26 L 72 31 L 80 23 L 86 27" stroke="#9C968D" stroke-width="0.8" opacity="0.42" stroke-linecap="round"/>
+      <path d="M 34 54 L 46 58 L 53 53" stroke="#33312E" stroke-width="0.9" opacity="0.38" stroke-linecap="round"/>
+      <path d="M 40 48 L 52 44 L 61 46" stroke="#9E988E" stroke-width="0.7" opacity="0.38" stroke-linecap="round"/>
+      <path d="M 111 32 L 117 42 L 124 46" stroke="#9A948B" stroke-width="0.85" opacity="0.45" stroke-linecap="round"/>
+      <path d="M 114 34 L 119 41 L 125 44" stroke="#2E2C29" stroke-width="0.7" opacity="0.4" stroke-linecap="round"/>
+      <path d="M 122 65 L 132 74 L 138 72" stroke="#8C877E" stroke-width="0.8" opacity="0.38" stroke-linecap="round"/>
+      <path d="M 21 82 L 29 90 L 35 88" stroke="#918C83" stroke-width="0.75" opacity="0.38" stroke-linecap="round"/>
+      <path d="M 22 118 L 30 112 L 35 115" stroke="#2B2926" stroke-width="0.85" opacity="0.4" stroke-linecap="round"/>
+      <path d="M 126 112 L 134 120 L 139 118" stroke="#8A857C" stroke-width="0.75" opacity="0.35" stroke-linecap="round"/>
+      <path d="M 48 134 L 62 139 L 74 137" stroke="#8F8A81" stroke-width="0.8" opacity="0.4" stroke-linecap="round"/>
+      <path d="M 96 135 L 110 140 L 122 136" stroke="#2B2926" stroke-width="0.8" opacity="0.38" stroke-linecap="round"/>
+    </g>
+
+    <!-- Четкая граненая фаска по периметру каменного блока -->
+    <path fill-rule="evenodd" clip-rule="evenodd"
+          d="M 80 14 L 20 68 V 144 H 140 V 68 L 126 55.4 V 29 H 108 V 39.2 L 80 14 Z
+             M 36 132 V 84 C 36 63 55 47 80 35 C 105 47 124 63 124 84 V 132 H 36 Z"
+          fill="none"
+          stroke="url(#sd-stone-bevel)"
+          stroke-width="1.4"
+          stroke-linejoin="round"/>
+
+    <path d="M 20 68 L 80 14 L 108 39.2 M 108 29 H 126" stroke="#ABA59C" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round" opacity="0.75"/>
+
+    <!-- Внутренняя каменная фаска (глубина ниши) -->
+    <path fill-rule="evenodd" clip-rule="evenodd"
+          d="M 36 132 V 84 C 36 63 55 47 80 35 C 105 47 124 63 124 84 V 132 H 36 Z
+             M 38 130 V 84 C 38 64 56 49 80 38 C 104 49 122 64 122 84 V 130 H 38 Z"
+          fill="url(#sd-inner-wall)"/>
+  </g>
+
+  <!-- ================= ВНУТРЕННЯЯ НИША, ЯНТАРНАЯ АРКА И КЛЮЧ ================= -->
+  <g clip-path="url(#sd-niche-clip)">
+    <!-- Задняя светлая стена ниши -->
+    <rect x="36" y="35" width="88" height="97" fill="#FAF7F0"/>
+
+    <!-- Мягкая внутренняя тень от арки на задней стене -->
+    <path d="M 52 130 V 86 C 52 70 65 61 80 53 C 95 61 108 70 108 86 V 130"
+          stroke="#D6C7B2" stroke-width="6" fill="none" opacity="0.5"/>
+
+    <!-- Теплое золотое свечение вокруг замочной скважины -->
+    <circle cx="80" cy="88" r="46" fill="url(#sd-back-glow)"/>
+
+    <!-- ЯНТАРНАЯ СТЕКЛЯННАЯ АРКА -->
+    <path fill-rule="evenodd" clip-rule="evenodd"
+          d="M 38 130 V 84 C 38 64 56 49 80 38 C 104 49 122 64 122 84 V 130 H 107 V 86 C 107 70.5 94.5 61 80 52.5 C 65.5 61 53 70.5 53 86 V 130 H 38 Z"
+          fill="url(#sd-amber-body)"
+          stroke="url(#sd-amber-edge)"
+          stroke-width="1.2"/>
+
+    <!-- Эффект преломления толстого стекла в нижней части колонн арки -->
+    <rect x="39.5" y="101" width="12" height="27.5" rx="1" fill="#5C2406" opacity="0.48"/>
+    <rect x="108.5" y="101" width="12" height="27.5" rx="1" fill="#5C2406" opacity="0.48"/>
+    <!-- Горизонтальные грани преломления -->
+    <line x1="39" y1="101" x2="52" y2="101" stroke="#FDE68A" stroke-width="1" opacity="0.58"/>
+    <line x1="108" y1="101" x2="121" y2="101" stroke="#FDE68A" stroke-width="1" opacity="0.58"/>
+
+    <!-- Объемный внутренний 3D-бортик янтарной арки (стеклянный блик) -->
+    <path d="M 42 129 V 84.5 C 42 66.5 58.5 53 80 42.5 C 101.5 53 118 66.5 118 84.5 V 129"
+          stroke="url(#sd-amber-shine)" stroke-width="2.2" fill="none"/>
+    <path d="M 51.5 129 V 86 C 51.5 70 64.5 60 80 51.5 C 95.5 60 108.5 70 108.5 86 V 129"
+          stroke="#FEF08A" stroke-width="1.2" fill="none" opacity="0.72"/>
+
+    <!-- Нижняя каменная полка внутри проема -->
+    <rect x="38" y="128.5" width="84" height="2" fill="#4A4640" opacity="0.8"/>
+
+    <!-- ================= ЗАМОЧНАЯ СКВАЖИНА И ЗОЛОТОЙ ШАР ================= -->
+    <path d="M 71.2 95.5 A 14.5 14.5 0 1 1 88.8 95.5 L 91.5 117 H 68.5 Z"
+          fill="url(#sd-keyhole-rim)"
+          stroke="#B45309"
+          stroke-width="0.8"/>
+
+    <path d="M 73.4 94 A 12 12 0 1 1 86.6 94 L 88.8 114.5 H 71.2 Z"
+          fill="#FFFBEB"
+          stroke="#F59E0B"
+          stroke-width="0.8"/>
+
+    <path d="M 73.4 94 L 75.5 96 L 73.8 111.5 L 71.2 114.5 Z" fill="#D97706" opacity="0.55"/>
+    <path d="M 86.6 94 L 84.5 96 L 86.2 111.5 L 88.8 114.5 Z" fill="#92400E" opacity="0.65"/>
+    <path d="M 71.2 114.5 L 73.8 111.5 H 86.2 L 88.8 114.5 Z" fill="#78350F" opacity="0.75"/>
+    <path d="M 75.5 96 H 84.5 L 86.2 111.5 H 73.8 Z" fill="#FEF3C7"/>
+
+    <!-- Центральный 3D золотой шар -->
+    <circle cx="80" cy="84" r="10.6" fill="url(#sd-gold-sphere)" filter="url(#sd-sphere-shadow)"/>
+    <ellipse cx="76.5" cy="80.5" rx="3.2" ry="2.4" transform="rotate(-30 76.5 80.5)" fill="#FFFFFF" opacity="0.68"/>
+  </g>
+
+  <!-- ================= 3D ТИПОГРАФИКА ================= -->
+  <g filter="url(#sd-text-shadow)">
+    <!-- 3D-выдавливание (объем букв SofDom) -->
+    <text x="163" y="96" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="68" font-weight="800" fill="#211F1D" letter-spacing="-1.5">
+      SofDom
+    </text>
+    <!-- Лицевая часть букв SofDom -->
+    <text x="166" y="94" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="68" font-weight="800" fill="url(#sd-text-grad)" stroke="#706C65" stroke-width="0.6" letter-spacing="-1.5">
+      SofDom
+    </text>
+  </g>
+
+  <!-- Подзаголовок (только русский язык) -->
+  <text x="168" y="126" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif" font-size="19" font-weight="700" fill="#3D3A36" letter-spacing="2.4">
+    БЕЗ ПОСРЕДНИКОВ
+  </text>
+</svg>

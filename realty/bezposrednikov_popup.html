@@ -1,0 +1,182 @@
+<div class="white-popup login-popup">
+    <h1>Войдите на сайт</h1>
+    <p>Контактная информация доступна только зарегистрированным пользователям. Это позволяет нам бороться с посредниками.</p>
+
+    <script>
+jQuery(function() {
+    jQuery(document).ready(function($) {
+
+                    $.getScript("/components/com_auth/media/vkid-sdk/2.6.5/index.js").done(function(script, textStatus) {
+                enableVkLoginButton();
+            });
+        
+                    $.getScript("https://yastatic.net/s3/passport-sdk/autofill/v1/sdk-suggest-with-polyfills-latest.js").done(function(script, textStatus) {
+                enableYaLoginButton();
+            });
+        
+        jQuery('.reg-description-link').on('click', function() {
+            jQuery('.reg-description-link').hide();
+            jQuery('.reg-description').show();
+        });
+
+        jQuery('.login-registration-note-handler').on('click', function() {
+            jQuery('.login-registration-note-handler').hide();
+            jQuery('.login-registration-note').show();
+        });
+
+        $('#member-registration').on('submit', function() {
+            $('#member-registration-btn').prop('disabled', true);
+            $(this).find('#jform_password').prop('type', 'password');
+        });
+
+        $('#member-login').on('submit', function() {
+            $('#member-login-btn').prop('disabled', true);
+            $(this).find('#password').prop('type', 'password');
+        });
+
+        $(window).on('yandex-challenge-hidden', function() {
+            $('#member-registration-btn').prop('disabled', false);
+            $('#member-login-btn').prop('disabled', false);
+        });        
+    });
+});
+</script>
+
+<div class="login-registration-wrapper">
+    <div class="login-tabs-container">
+        <div class="login-registration-error">
+            <div class="alert alert-error">
+                <a class="close" data-dismiss="alert">×</a>
+
+                <h4 class="alert-heading">Ошибка</h4>
+
+                <div class="alert-message"></div>
+            </div>
+        </div>
+
+                    <div class="oauth-providers-container">
+                                    <div class="social-suggest-button vk-suggest-button">
+                        <!--<button class="social-login-button vk-login-button">
+                            <img src="/img/social/vk-login.svg"> Войти с VK ID 
+                        </button>-->
+
+                        <div id="VkIdOneTapButton"></div>
+                    </div>
+                                                    <div class="social-suggest-button yandex-suggest-button">
+                        <!--<button class="social-login-button yandex-login-button">
+                            <img src="/img/social/yandex-login.svg"> Яндекс ID
+                        </button>-->
+
+                        <div id="YandexIdOneTapButton"></div>
+                    </div>
+                            </div>
+            <div class="login-registration-subhead">
+                <div class="line"></div>
+                <div class="text">или по номеру телефона</div>
+                <div class="line"></div>
+            </div>
+            <div class="clearfix"></div>
+        
+        <ul class="login-tabs" role="tablist">
+            <li role="presentation" class="active"><a href="#login-tab" aria-controls="login" role="tab" data-toggle="tab">Вход</a></li>
+                
+            <li role="presentation"><a href="#registration-tab" aria-controls="registration" role="tab" data-toggle="tab">Регистрация</a></li>
+                    </ul>
+
+        <div class="clearfix"></div>
+
+        <div class="login-tab active" id="login-tab">
+            <div class="contentBlock">
+            <form action="/" method="post" id="member-login" class="submission small style login-form">
+    <h3 style="margin-top:0;">Вход на сайт</h3>
+
+    <div class="control-group">
+        <div class="controls ">
+            <input type="tel" name="username" class="validate-username required" id="username " value="" size="25" placeholder="Мобильный телефон" required="" autocomplete="tel" autocorrect="off" autocapitalize="off" spellcheck="false" aria-required="true">
+        </div>
+    </div>
+    <div class="control-group">
+        <div class="controls password-input">
+            <input type="password" name="password" id="password" value="" placeholder="Пароль" class="validate-password required" size="25" maxlength="99" required="" autocomplete="current-password" autocorrect="off" autocapitalize="off" spellcheck="false" aria-required="true">
+            <span class="show-hide-pass show-hide-pass-show" title="Показать пароль" data-placement="right"></span>
+        </div>
+    </div>
+
+
+    <div class="control-group">
+        <button type="submit" class="button button-primary" id="member-login-btn">Войти</button>
+        <a class="remember-link" href="/auth/restore">Забыли пароль?</a>
+
+        <div class="login-registration-note-handler"><span>Зачем регистрироваться?</span></div>
+        <div class="login-registration-note">После регистрации вы сможете просматривать контакты, получать уведомления о новых объявлениях, размещать свои объявления и многое другое.</div>
+    </div>
+
+    <!--<input type="password" name="password_copy" class="hide jform_password_copy" value="">-->
+
+    <input type="hidden" name="option" value="com_auth">
+    <input type="hidden" name="task" value="user.login">
+    <input type="hidden" name="return" value="aHR0cHM6Ly90b21zay5iZXpwb3NyZWRuaWtvdi5ydS9zZGFtLzMta29tbmF0bnllLzE5OTEyMi1zZGFtLTMtay1rdmFydGlyYS02MGt2LW0tdG9tc2stdWwtdm9qa292YS01Nw==" />
+    <input id="remember" type="hidden" name="remember" value="yes">
+
+    <input type="hidden" name="c26541a950086127fb13e9c1fa78a3c6" value="1" /></form>
+            </div>
+
+            <div class="form-actions">
+                <p>Регистрируясь и/или авторизуясь на сайте, вы принимаете условия 
+                    <a href="/pravila-i-rekomendatsii" target="_blank">правил сайта</a>, <a href="/agreement-terms" target="_blank">пользовательского соглашения</a> 
+                    и даёте согласие на обработку персональных данных в соответствии с нашей <a href="/agreement-privacy" target="_blank">политикой конфиденциальности</a>. 
+                </p>
+                            </div>          
+        </div>
+
+                <div class="login-tab" id="registration-tab">
+            <div class="contentBlock registration">
+                <h3 style="margin-top:0;">Бесплатная регистрация</h3>
+
+                <form action="/" method="post" id="member-registration" class="form-validate form-inline style" enctype="multipart/form-data">
+                    <div class="control-group">
+                        <div class="controls">
+                            <input type="tel" placeholder="Мобильный телефон" name="username" id="jform_username" value="" class="required" autocomplete="tel" autocorrect="off" autocapitalize="off" spellcheck="false" size="30" required="required" aria-required="true" title="Номер мобильного телефона"/>
+                        </div>
+                    </div>
+
+                    <div class="control-group">
+                        <div class="controls">
+                            <input type="text" placeholder="Пароль" name="password" id="jform_password" value="" autocomplete="new-password" minlengt="4" autocorrect="off" autocapitalize="off" spellcheck="false" class="validate-password required" data-placement="left" size="30" required="required" aria-required="true" title="Длина пароля - 4 символа или более"/>
+                            <span class="hasTooltip show-hide-pass" title="Скрыть пароль" data-placement="right"></span>
+                        </div>
+                    </div>
+
+                    <div class="control-group">
+                        <div class="controls">
+                            <input type="text" placeholder="Имя" name="jform[name]" id="jform_name" value="" autocomplete="given-name" class="required" size="30" required="required" aria-required="true" title="Только имя, без фамилии"/>
+                        </div>
+                    </div>
+
+                                        <div class="captcha-wrapper captcha-invisible">
+                    <div id="dynamic_recaptcha_703241" class="smart-captcha" data-sitekey="n9Bfj0egThdszvaQif0adYeLyUXVY40JwjnA3NaR" data-invisible="1" data-action_element="#member-registration" data-form_action="submit""><span class="no-captcha-message">Если вы видите этот текст, значит ваш браузер или какое-либо приложение блокирует работу Яндекс SmartCaptcha</span></div>                    </div>
+                    
+                    <div class="control-group terms-block">
+                        <div class="controls">
+                            <label id="jform_rentprofile_pp-lbl" for="jform_pp" class="required checkbox">
+                                <input type="checkbox" name="jform[pp]" id="jform_pp" value="1" class="required checkbox" required="required" aria-required="true" />
+                                <span>Я прочитал(а) и согласен(сна) с <a href="/agreement-privacy" target="_blank">политикой конфиденциальности</a>.</span>
+                            </label>
+                        </div>
+                        <div class="controls">
+                            <label id="jform_rentprofile_tos-lbl" for="jform_tos" class="required checkbox">
+                                <input type="checkbox" name="jform[tos]" id="jform_tos" value="1" class="required checkbox" required="required" aria-required="true" />
+                                <span>Я прочитал(а) и согласен(сна) с <a href="/agreement-terms" target="_blank">пользовательским соглашением</a>.
+                                <br>Подтверждаю, что никогда не сдавал(а) жильё с комиссией в качестве посредника и ознакомился(ась) с <a href="/pravila-i-rekomendatsii" target="_blank">правилами сайта</a></span>
+                            </label>
+                        </div>
+                    </div>                            
+
+                    <button type="submit" class="button button-primary validate" id="member-registration-btn">Регистрация</button>
+                    <input type="hidden" name="option" value="com_auth" />
+                    <input type="hidden" name="task" value="registration.register" />
+                    <input type="hidden" name="c26541a950086127fb13e9c1fa78a3c6" value="1" />                </form>
+            </div>
+        </div>
+            </div>
+</div></div>

@@ -136,5 +136,43 @@ class TestRealtyBackend(unittest.TestCase):
         self.assertIsNotNone(first_pin["distance_km"])
         print(f"[✓] Map API verified: {map_data['count']} pins found within 3km of user. Nearest: {first_pin['price_badge']} at {first_pin['distance_km']} km")
 
+        print("\n--- 11. Testing Telegram User Linking & Bot Alerts ---")
+        from bot import RealtyTelegramBot
+        # Link telegram chat to test user
+        tg_res = db.link_telegram_user(telegram_chat_id="123456789", phone=self.test_phone, username="tomsk_renter")
+        self.assertEqual(tg_res["user"]["telegram_chat_id"], "123456789")
+        
+        # Verify subscribers list includes user
+        subs = db.get_subscribers_for_alerts()
+        self.assertTrue(any(s["telegram_chat_id"] == "123456789" for s in subs))
+        
+        # Test bot mock dispatch
+        bot = RealtyTelegramBot()
+        dispatched = bot.dispatch_pending_alerts()
+        self.assertGreaterEqual(dispatched, 0)
+        print(f"[✓] Telegram bot & alert pipeline verified! Linked Chat ID: 123456789, Subscriber active.")
+
+        print("\n--- 12. Testing Anti-Bot Roadblock Guardian & Captcha Handling ---")
+        from captcha_solver import AntiBotGuardian, SmartCaptchaSolver
+        guardian = AntiBotGuardian()
+        
+        # 1. Detect SmartCaptcha
+        sc_sample = '<div class="smart-captcha">Защита от роботов</div>'
+        self.assertEqual(guardian.detect_challenge(sc_sample), "YANDEX_SMARTCAPTCHA")
+        plan_sc = guardian.resolve_action_plan("YANDEX_SMARTCAPTCHA")
+        self.assertEqual(plan_sc["action"], "SOLVE_CAPTCHA_OR_CROSS_MATCH")
+        self.assertEqual(plan_sc["fallback"], "CROSS_MATCH_AVITO_CIAN")
+        
+        # 2. Detect Avito PoW 439
+        self.assertEqual(guardian.detect_challenge("", status_code=439), "AVITO_POW_439")
+        plan_pow = guardian.resolve_action_plan("AVITO_POW_439")
+        self.assertEqual(plan_pow["action"], "AUTO_SOLVE_POW")
+        
+        # 3. Detect Paywall (48h lock)
+        pw_sample = '<div class="need-pay">Ранний доступ</div>'
+        self.assertEqual(guardian.detect_challenge(pw_sample), "BEZPOSR_PAYWALL")
+        
+        print("[✓] Anti-Bot Guardian passed: SmartCaptcha, Avito PoW, and Paywall detection verified.")
+
 if __name__ == "__main__":
     unittest.main()

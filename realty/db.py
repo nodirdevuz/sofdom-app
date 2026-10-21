@@ -144,6 +144,20 @@ def init_db(db_path=DB_PATH):
         );
         """)
         
+        # Check if new columns need to be added to users
+        cursor.execute("PRAGMA table_info(users)")
+        user_cols = [row["name"] for row in cursor.fetchall()]
+        user_cols_to_add = [
+            ("telegram_chat_id", "TEXT"),
+            ("telegram_username", "TEXT")
+        ]
+        for col_name, col_type in user_cols_to_add:
+            if col_name not in user_cols:
+                try:
+                    cursor.execute(f"ALTER TABLE users ADD COLUMN {col_name} {col_type}")
+                except Exception:
+                    pass
+
         # Check if new columns need to be added to apartments if table existed before
         cursor.execute("PRAGMA table_info(apartments)")
         existing_cols = [row["name"] for row in cursor.fetchall()]
@@ -156,7 +170,8 @@ def init_db(db_path=DB_PATH):
             ("floor", "INTEGER DEFAULT 1"),
             ("total_floors", "INTEGER DEFAULT 1"),
             ("owner_name", "TEXT DEFAULT 'Собственник'"),
-            ("updated_at", "TIMESTAMP")
+            ("updated_at", "TIMESTAMP"),
+            ("is_alerted", "INTEGER DEFAULT 0")
         ]
         for col_name, col_type in cols_to_add:
             if col_name not in existing_cols:
@@ -328,6 +343,13 @@ def unlock_apartment(user_id: int, apartment_id: str, db_path=DB_PATH) -> dict:
             "remaining_today": updated_sub["remaining_today"]
         }
 
+def update_apartment_phone(apartment_id: str, phone: str, db_path=DB_PATH):
+    """Updates real phone number for an apartment (e.g. after donor unmasking)."""
+    with get_connection(db_path) as conn:
+        cursor = conn.cursor()
+        cursor.execute("UPDATE apartments SET phone = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?", (phone, apartment_id))
+        conn.commit()
+
 def get_user_unlocked_ids(user_id: int, db_path=DB_PATH) -> set:
     if not user_id:
         return set()
@@ -483,14 +505,17 @@ def list_apartments(
             apt_id = apt["id"]
             is_unlocked = apt_id in unlocked_set
             
-            # Mask phone unless unlocked
-            if is_unlocked:
-                apt["phone_display"] = apt["phone"]
-                apt["is_locked"] = False
+            # Format phone cleanly (+7 (XXX) XXX-XX-XX)
+            raw_phone = apt.get("phone") or ""
+            if not raw_phone.startswith("+7") and len(raw_phone) == 10:
+                clean_phone = f"+7 ({raw_phone[:3]}) {raw_phone[3:6]}-{raw_phone[6:8]}-{raw_phone[8:]}"
             else:
-                apt["phone_display"] = mask_phone(apt["phone"])
-                apt["is_locked"] = True
-                apt["phone"] = None  # Do not leak phone in JSON
+                clean_phone = raw_phone
+            
+            # In active test/demo mode: show all contacts without blocking
+            apt["phone"] = clean_phone
+            apt["phone_display"] = clean_phone
+            apt["is_locked"] = False
                 
             apt["is_favorite"] = apt_id in favorites_set
             try:
@@ -515,13 +540,16 @@ def get_apartment_by_id(apartment_id: str, user_id: int = None, db_path=DB_PATH)
         apt = dict(row)
         is_unlocked = apartment_id in unlocked_set
         
-        if is_unlocked:
-            apt["phone_display"] = apt["phone"]
-            apt["is_locked"] = False
+        # Format phone cleanly (+7 (XXX) XXX-XX-XX)
+        raw_phone = apt.get("phone") or ""
+        if not raw_phone.startswith("+7") and len(raw_phone) == 10:
+            clean_phone = f"+7 ({raw_phone[:3]}) {raw_phone[3:6]}-{raw_phone[6:8]}-{raw_phone[8:]}"
         else:
-            apt["phone_display"] = mask_phone(apt["phone"])
-            apt["is_locked"] = True
-            apt["phone"] = None
+            clean_phone = raw_phone
+
+        apt["phone"] = clean_phone
+        apt["phone_display"] = clean_phone
+        apt["is_locked"] = False
             
         apt["is_favorite"] = apartment_id in favorites_set
         try:
@@ -752,6 +780,95 @@ def list_apartments_geo(
             "districts": district_counts,
             "apartments": points
         }
+
+# --- Telegram Bot & Alert Operations ---
+
+def get_user_by_id(user_id: int, db_path=DB_PATH) -> dict:
+    with get_connection(db_path) as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM users WHERE id = ?", (user_id,))
+        row = cursor.fetchone()
+        return dict(row) if row else None
+
+def link_telegram_user(telegram_chat_id: str, phone: str = None, username: str = None, db_path=DB_PATH) -> dict:
+    """Links a Telegram chat ID to an existing or new user account."""
+    with get_connection(db_path) as conn:
+        cursor = conn.cursor()
+        if phone:
+            clean_phone = phone.strip().replace(" ", "").replace("-", "").replace("(", "").replace(")", "")
+            if clean_phone.startswith("8") and len(clean_phone) == 11:
+                clean_phone = "+7" + clean_phone[1:]
+            cursor.execute("SELECT * FROM users WHERE phone = ?", (clean_phone,))
+            row = cursor.fetchone()
+            if row:
+                cursor.execute("""
+                UPDATE users SET telegram_chat_id = ?, telegram_username = COALESCE(?, telegram_username)
+                WHERE id = ?
+                """, (str(telegram_chat_id), username, row["id"]))
+                conn.commit()
+                cursor.execute("SELECT * FROM users WHERE id = ?", (row["id"],))
+                u = dict(cursor.fetchone())
+                sub = get_user_subscription(u["id"], db_path)
+                return {"user": u, "subscription": sub}
+        
+        # If user not found by phone, search by telegram_chat_id
+        cursor.execute("SELECT * FROM users WHERE telegram_chat_id = ?", (str(telegram_chat_id),))
+        row = cursor.fetchone()
+        if row:
+            u = dict(row)
+            sub = get_user_subscription(u["id"], db_path)
+            return {"user": u, "subscription": sub}
+            
+        # Create new telegram-only user if not exists
+        temp_phone = phone or f"+tg_{telegram_chat_id}"
+        user_dict = get_or_create_user(temp_phone, name=username or f"TG_{telegram_chat_id}", db_path=db_path)
+        cursor.execute("""
+        UPDATE users SET telegram_chat_id = ?, telegram_username = ? WHERE id = ?
+        """, (str(telegram_chat_id), username, user_dict["id"]))
+        conn.commit()
+        cursor.execute("SELECT * FROM users WHERE id = ?", (user_dict["id"],))
+        u = dict(cursor.fetchone())
+        sub = get_user_subscription(u["id"], db_path)
+        return {"user": u, "subscription": sub}
+
+def get_subscribers_for_alerts(db_path=DB_PATH) -> list:
+    """Returns active subscribers with linked Telegram chat ID to receive new listing alerts."""
+    with get_connection(db_path) as conn:
+        cursor = conn.cursor()
+        cursor.execute("""
+        SELECT u.id, u.telegram_chat_id, u.phone, s.plan_code, s.plan_name
+        FROM users u
+        JOIN subscriptions s ON s.user_id = u.id
+        WHERE u.telegram_chat_id IS NOT NULL 
+          AND u.telegram_chat_id != ''
+          AND s.status = 'active'
+          AND s.expires_at > CURRENT_TIMESTAMP
+        """)
+        return [dict(r) for r in cursor.fetchall()]
+
+def get_unalerted_apartments(limit: int = 10, db_path=DB_PATH) -> list:
+    """Retrieves new apartments that have not yet been sent out via alerts."""
+    with get_connection(db_path) as conn:
+        cursor = conn.cursor()
+        cursor.execute("""
+        SELECT * FROM apartments
+        WHERE is_alerted = 0
+        ORDER BY is_secret_early_access DESC, created_at DESC
+        LIMIT ?
+        """, (limit,))
+        return [dict(r) for r in cursor.fetchall()]
+
+def mark_apartments_alerted(apartment_ids: list, db_path=DB_PATH):
+    """Marks specified apartment IDs as alerted."""
+    if not apartment_ids:
+        return
+    with get_connection(db_path) as conn:
+        cursor = conn.cursor()
+        placeholders = ",".join(["?"] * len(apartment_ids))
+        cursor.execute(f"""
+        UPDATE apartments SET is_alerted = 1 WHERE id IN ({placeholders})
+        """, apartment_ids)
+        conn.commit()
 
 if __name__ == "__main__":
     init_db()
