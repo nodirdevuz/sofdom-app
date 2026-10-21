@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import { FALLBACK_PHOTO_SVG } from '../lib/constants';
 
 interface LightboxModalProps {
   isOpen: boolean;
@@ -116,7 +117,7 @@ export const LightboxModal: React.FC<LightboxModalProps> = ({
               const target = e.currentTarget;
               if (!target.dataset.fallback) {
                 target.dataset.fallback = '1';
-                target.src = 'https://tsk.s.bsps.ru/images/sobipro/galleries/ec/196162/3dbeb0.jpg';
+                target.src = FALLBACK_PHOTO_SVG;
               }
             }}
           />
@@ -152,7 +153,7 @@ export const LightboxModal: React.FC<LightboxModalProps> = ({
                 const target = e.currentTarget;
                 if (!target.dataset.fallback) {
                   target.dataset.fallback = '1';
-                  target.src = 'https://tsk.s.bsps.ru/images/sobipro/galleries/ec/196162/3dbeb0.jpg';
+                  target.src = FALLBACK_PHOTO_SVG;
                 }
               }}
             />

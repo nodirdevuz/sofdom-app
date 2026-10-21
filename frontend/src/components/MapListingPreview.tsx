@@ -1,6 +1,7 @@
 import React from 'react';
 import { MapApartment, formatDistance } from '../services/mapService';
 import { Lang, I18N } from '../lib/i18n';
+import { FALLBACK_PHOTO_SVG } from '../lib/constants';
 
 interface Props {
   apartment: MapApartment | null;
@@ -18,7 +19,7 @@ export const MapListingPreview: React.FC<Props> = ({
   if (!apartment) return null;
 
   const t = I18N[lang];
-  const defaultPhoto = 'https://tsk.s.bsps.ru/images/sobipro/galleries/ec/196162/3dbeb0.jpg';
+  const defaultPhoto = FALLBACK_PHOTO_SVG;
   const photo = apartment.photo && apartment.photo.trim() !== '' ? apartment.photo : defaultPhoto;
   const distText = formatDistance(apartment.distance_km);
 

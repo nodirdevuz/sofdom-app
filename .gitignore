@@ -1,38 +1,30 @@
-# Binary APKs and XAPKs (too large for GitHub)
-*.apk
-*.xapk
-apks/*.apk
-apks/*.xapk
+# Dependencies
+frontend/node_modules/
+node_modules/
+dist/
+frontend/dist/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+backend/__pycache__/
+*.sqlite3-journal
+
+# Secrets & Environment
+.env
+.env.*
+*.env
+*.env.local
+backend/.bezposrednikov.env
 
 # macOS
 .DS_Store
 .AppleDouble
 .LSOverride
 
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-.venv
-.venv/
-venv/
-
-# Secrets and environment
-.env
-.env.*
-*.env
-*.env.local
-
-# Node
-node_modules/
-.next/
-dist/
-realty/cian_xapk/
-
-# Local absolute symlinks
-/auto
-/avito
-/fetchora-web
-/rea
-/scraper
-
+# Binary Packages
+*.apk
+*.xapk

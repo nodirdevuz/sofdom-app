@@ -1,5 +1,6 @@
 import React, { useRef, useState } from 'react';
 import { Offer, LayoutMode } from '../types';
+import { FALLBACK_PHOTO_SVG } from '../lib/constants';
 
 interface ListingCardProps {
   offer: Offer;
@@ -53,7 +54,7 @@ export const ListingCard: React.FC<ListingCardProps> = ({
                 const target = e.currentTarget;
                 if (!target.dataset.fallback) {
                   target.dataset.fallback = '1';
-                  target.src = 'https://tsk.s.bsps.ru/images/sobipro/galleries/ec/196162/3dbeb0.jpg';
+                  target.src = FALLBACK_PHOTO_SVG;
                 }
               }}
             />

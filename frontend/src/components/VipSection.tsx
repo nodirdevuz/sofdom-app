@@ -1,5 +1,6 @@
 import React from 'react';
 import { VipOffer } from '../types';
+import { FALLBACK_PHOTO_SVG } from '../lib/constants';
 
 interface VipSectionProps {
   vips: VipOffer[];
@@ -27,7 +28,7 @@ export const VipSection: React.FC<VipSectionProps> = ({ vips, onSelectVip }) => 
                   const target = e.currentTarget;
                   if (!target.dataset.fallback) {
                     target.dataset.fallback = '1';
-                    target.src = 'https://tsk.s.bsps.ru/images/sobipro/galleries/ec/196162/3dbeb0.jpg';
+                    target.src = FALLBACK_PHOTO_SVG;
                   }
                 }}
               />

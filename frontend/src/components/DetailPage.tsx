@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Offer } from '../types';
 import { loadYmaps } from '../lib/ymaps';
 import { ListingCard } from './ListingCard';
+import { FALLBACK_PHOTO_SVG } from '../lib/constants';
 
 interface DetailPageProps {
   offer: Offer;
@@ -263,7 +264,7 @@ export const DetailPage: React.FC<DetailPageProps> = ({
                       const target = e.currentTarget;
                       if (!target.dataset.fallback) {
                         target.dataset.fallback = '1';
-                        target.src = 'https://tsk.s.bsps.ru/images/sobipro/galleries/ec/196162/3dbeb0.jpg';
+                        target.src = FALLBACK_PHOTO_SVG;
                       }
                     }}
                   />
@@ -333,7 +334,7 @@ export const DetailPage: React.FC<DetailPageProps> = ({
                     const target = e.currentTarget;
                     if (!target.dataset.fallback) {
                       target.dataset.fallback = '1';
-                      target.src = 'https://tsk.s.bsps.ru/images/sobipro/galleries/ec/196162/3dbeb0.jpg';
+                      target.src = FALLBACK_PHOTO_SVG;
                     }
                   }}
                 />
