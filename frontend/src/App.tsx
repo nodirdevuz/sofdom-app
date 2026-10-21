@@ -12,6 +12,7 @@ import { LightboxModal } from './components/LightboxModal';
 import { ProfileModal } from './components/ProfileModal';
 import { MobileBottomNav } from './components/MobileBottomNav';
 import { YandexMap } from './components/YandexMap';
+import { AdminDashboard } from './components/admin/AdminDashboard';
 import { useSwipeBack } from './hooks/useSwipeBack';
 
 function formatTimeAgo(dateStr?: string): string {
@@ -80,6 +81,7 @@ export const App: React.FC = () => {
   const [layoutMode, setLayoutMode] = useState<LayoutMode>('list');
   const [isMapVisible, setIsMapVisible] = useState<boolean>(false);
   const [isProfileOpen, setIsProfileOpen] = useState<boolean>(false);
+  const [isAdminOpen, setIsAdminOpen] = useState<boolean>(false);
   const [mobileTab, setMobileTab] = useState<'main' | 'map'>('main');
   const [visibleCount, setVisibleCount] = useState<number>(36);
 
@@ -92,6 +94,18 @@ export const App: React.FC = () => {
     photos: [],
     currentIdx: 0
   });
+
+  // Hash routing for Admin Dashboard (#admin)
+  useEffect(() => {
+    const handleHash = () => {
+      if (window.location.hash === '#admin') {
+        setIsAdminOpen(true);
+      }
+    };
+    handleHash();
+    window.addEventListener('hashchange', handleHash);
+    return () => window.removeEventListener('hashchange', handleHash);
+  }, []);
 
   // Fetch live Tomsk apartments from backend API
   useEffect(() => {
@@ -489,7 +503,24 @@ export const App: React.FC = () => {
         theme={theme}
         onSetTheme={setTheme}
         onClose={() => setIsProfileOpen(false)}
+        onOpenAdmin={() => setIsAdminOpen(true)}
       />
+
+      {/* ADMIN DASHBOARD (Adapted from KomfortAdmin) */}
+      {isAdminOpen && (
+        <AdminDashboard
+          offers={offersList}
+          onClose={() => {
+            setIsAdminOpen(false);
+            if (window.location.hash === '#admin') {
+              window.history.pushState(null, '', window.location.pathname);
+            }
+          }}
+          onOpenDetail={(id) => {
+            setSelectedOfferId(id);
+          }}
+        />
+      )}
 
       {/* MOBILE BOTTOM NAVIGATION */}
       <MobileBottomNav

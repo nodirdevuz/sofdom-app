@@ -25,6 +25,8 @@ backend/.bezposrednikov.env
 .AppleDouble
 .LSOverride
 
-# Binary Packages
+# Binary Packages and Decompiled APKs
 *.apk
 *.xapk
+apks/
+
