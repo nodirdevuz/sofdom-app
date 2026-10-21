@@ -237,8 +237,81 @@ class RealtyScraper:
 
         return items
 
+    def fetch_bezposrednikov_tomsk(self, pages: int = 2) -> list:
+        """Fetches direct-owner listings from tomsk.bezposrednikov.ru."""
+        print(f"[*] [БезПосредников] Fetching Tomsk catalog (pages: {pages})...")
+        items = []
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        }
+        for page in range(1, pages + 1):
+            url = "https://tomsk.bezposrednikov.ru/sdam/kvartiry" if page == 1 else f"https://tomsk.bezposrednikov.ru/sdam/kvartiry?site={page}"
+            try:
+                resp = requests.get(url, headers=headers, impersonate='chrome120', timeout=12)
+                if resp.status_code != 200:
+                    continue
+
+                blocks = re.findall(
+                    r'<div[^>]*class=\"sEnLiCell[^\"]*\"[^>]*data-id=\"(\d+)\"[^>]*>(.*?)(?=<div[^>]*class=\"sEnLiCell|$)',
+                    resp.text,
+                    re.DOTALL
+                )
+
+                for sid, block in blocks:
+                    t_m = re.search(r'<div class=\"sEnLiTitle\">.*?<a[^>]*>(.*?)</a>', block, re.DOTALL)
+                    title = re.sub(r'<[^>]+>', '', t_m.group(1)).strip().replace('\n', ' ') if t_m else 'Квартира в Томске'
+                    title = re.sub(r'\s+', ' ', title)
+
+                    p_m = re.search(r'itemprop=\"price\"[^\d]*([\d\s]+)', block)
+                    raw_price = p_m.group(1) if p_m else '0'
+                    price = int(re.sub(r'\D', '', raw_price) or 0)
+                    if price <= 0:
+                        continue
+
+                    a_m = re.search(r'<div class=\"sEnLiCity\">.*?<span>(.*?)</span>', block, re.DOTALL)
+                    addr = re.sub(r'<[^>]+>', '', a_m.group(1)).strip() if a_m else 'г. Томск'
+
+                    photos = re.findall(r'href=\"(//tsk\.s\.bsps\.ru/images/sobipro/galleries/[^\"]+\.jpg)\"', block)
+                    full_photos = ['https:' + p for p in set(photos)]
+
+                    desc_m = re.search(r'<div itemprop=\"description\">(.*?)</div>', block, re.DOTALL)
+                    desc = re.sub(r'<[^>]+>', ' ', desc_m.group(1)).strip() if desc_m else ''
+                    desc = re.sub(r'\s+', ' ', desc)
+
+                    rooms, area, floor, total_floors = self.parse_title_specs(title)
+
+                    items.append({
+                        'id': f"bezposr_{sid}",
+                        'source': 'bezposrednikov',
+                        'is_secret_early_access': 0,
+                        'title': title,
+                        'price': price,
+                        'deposit': 0,
+                        'commission': 0,
+                        'address': addr,
+                        'city': 'Томск',
+                        'district': '',
+                        'rooms': rooms,
+                        'area': area,
+                        'floor': floor,
+                        'total_floors': total_floors,
+                        'lat': 56.4977,
+                        'lng': 84.9744,
+                        'phone': 'Собственник (БезПосредников.ру)',
+                        'owner_name': 'Собственник',
+                        'photos': full_photos[:8],
+                        'description': desc,
+                        'url': f"https://tomsk.bezposrednikov.ru/component/sobipro/?task=entry.details&sid={sid}"
+                    })
+                print(f"  [+] [БезПосредников] Page {page}: extracted {len(blocks)} entries")
+            except Exception as e:
+                print(f"  [!] [БезПосредников] Error on page {page}: {e}")
+
+        print(f"[✓] [БезПосредников] Total listings collected: {len(items)}")
+        return items
+
     def sync_all(self) -> dict:
-        """Executes full synchronization for Tomsk from both Avito and Cian."""
+        """Executes full synchronization for Tomsk from Avito, Cian, and Bezposrednikov."""
         t0 = time.time()
         print("\n=====================================================")
         print("🚀 Starting Realty Sniper Synchronization (Томск)...")
@@ -246,8 +319,9 @@ class RealtyScraper:
 
         cian_items = self.fetch_cian_tomsk(pages=2)
         avito_items = self.fetch_avito_tomsk()
+        bezposr_items = self.fetch_bezposrednikov_tomsk(pages=2)
 
-        all_items = cian_items + avito_items
+        all_items = cian_items + avito_items + bezposr_items
         saved_count = 0
         secret_count = 0
 
@@ -259,7 +333,7 @@ class RealtyScraper:
 
         elapsed = round(time.time() - t0, 2)
         print(f"\n[✓] Sync Finished in {elapsed}s!")
-        print(f"    Total processed: {saved_count} (Cian: {len(cian_items)}, Avito: {len(avito_items)})")
+        print(f"    Total processed: {saved_count} (Cian: {len(cian_items)}, Avito: {len(avito_items)}, БП: {len(bezposr_items)})")
         print(f"    Secret early-access apartments: {secret_count}")
         print("=====================================================\n")
 
@@ -269,6 +343,7 @@ class RealtyScraper:
             "total_saved": saved_count,
             "cian_count": len(cian_items),
             "avito_count": len(avito_items),
+            "bezposr_count": len(bezposr_items),
             "secret_count": secret_count
         }
 
