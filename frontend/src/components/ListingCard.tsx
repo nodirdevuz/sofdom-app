@@ -126,16 +126,6 @@ export const ListingCard: React.FC<ListingCardProps> = ({
           <span className="card-location-dot"></span>
           <span className="card-location-text">Томск, {district}</span>
         </div>
-        {/* Prominent Phone Link directly on mobile tile */}
-        <div className="card-mobile-phone-row">
-          <a
-            href={`tel:${offer.phone.replace(/[^0-9+]/g, '')}`}
-            className="card-mobile-phone-link"
-            onClick={(e) => e.stopPropagation()}
-          >
-            📞 {offer.phone}
-          </a>
-        </div>
       </div>
     </article>
   );
