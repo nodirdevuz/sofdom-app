@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Offer } from '../types';
 import { loadYmaps } from '../lib/ymaps';
+import { ListingCard } from './ListingCard';
 
 interface DetailPageProps {
   offer: Offer;
@@ -96,6 +97,9 @@ export const DetailPage: React.FC<DetailPageProps> = ({
           yandexMapDisablePoiInteractivity: true,
         }
       );
+
+      // Explicitly enable two-finger multi-touch (pinch-zoom and rotate) and drag gestures
+      map.behaviors.enable(['drag', 'multiTouch', 'dblClickZoom']);
 
       const priceLayout = ym.templateLayoutFactory.createClass(`
         <div class="price-pin-bubble active-pin">
@@ -441,8 +445,16 @@ export const DetailPage: React.FC<DetailPageProps> = ({
               )}
             </div>
 
-            <div className="joymee-map-container">
-              <div ref={mapRef} style={{ width: '100%', height: '100%' }}></div>
+            <div
+              className="joymee-map-container"
+              onTouchStart={(e) => e.stopPropagation()}
+              onTouchMove={(e) => e.stopPropagation()}
+              onTouchEnd={(e) => e.stopPropagation()}
+            >
+              <div
+                ref={mapRef}
+                style={{ width: '100%', height: '100%', touchAction: 'none' }}
+              ></div>
 
               {/* Minimal Top-Right Action: Open in Yandex Maps */}
               <button
@@ -465,54 +477,36 @@ export const DetailPage: React.FC<DetailPageProps> = ({
               </div>
             </div>
           </div>
-
-          {/* Similar Offers Section */}
-          {similarOffers && similarOffers.length > 0 && (
-            <div className="joymee-similar-section">
-              <div className="joymee-similar-header">
-                <div>
-                  <h2 className="joymee-similar-title">Похожие квартиры</h2>
-                  <div className="joymee-similar-sub">Похожие по параметрам и цене</div>
-                </div>
-              </div>
-
-              <div className="joymee-similar-grid">
-                {similarOffers.map((sim) => (
-                  <div
-                    key={sim.id}
-                    className="joymee-similar-card clickable"
-                    onClick={() => {
-                      if (onSelectOffer) {
-                        onSelectOffer(sim.id);
-                        window.scrollTo({ top: 0, behavior: 'smooth' });
-                      }
-                    }}
-                  >
-                    <div className="joymee-similar-photo-wrap">
-                      <img
-                        src={sim.photos[0] || 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800&auto=format&fit=crop&q=80'}
-                        alt={sim.title}
-                        className="joymee-similar-photo"
-                        loading="lazy"
-                      />
-                      {sim.photos_count > 1 && (
-                        <span className="joymee-similar-count-badge">📷 {sim.photos_count}</span>
-                      )}
-                    </div>
-                    <div className="joymee-similar-info">
-                      <div className="joymee-similar-price">
-                        {sim.price_display} <span className="joymee-similar-unit">{sim.price_unit}</span>
-                      </div>
-                      <div className="joymee-similar-card-title">{sim.title}</div>
-                      <div className="joymee-similar-address-text">📍 {sim.metro_name || sim.address}</div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
         </div>
       </div>
+
+      {/* Similar Offers Section (Full width across the bottom of the page) */}
+      {similarOffers && similarOffers.length > 0 && (
+        <div className="joymee-similar-section">
+          <div className="joymee-similar-header">
+            <div>
+              <h2 className="joymee-similar-title">Похожие квартиры</h2>
+              <div className="joymee-similar-sub">Похожие по параметрам и цене</div>
+            </div>
+          </div>
+
+          <div className="cards-container mode-grid joymee-similar-cards-container">
+            {similarOffers.map((sim) => (
+              <ListingCard
+                key={sim.id}
+                offer={sim}
+                layoutMode="grid"
+                onOpenDetail={(id) => {
+                  if (onSelectOffer) {
+                    onSelectOffer(id);
+                    window.scrollTo({ top: 0, behavior: 'instant' });
+                  }
+                }}
+              />
+            ))}
+          </div>
+        </div>
+      )}
     </section>
   );
 };

@@ -1538,12 +1538,15 @@
 
     .joymee-map-container {
       position: relative;
-      height: 260px;
+      height: 280px;
       border-radius: 20px;
       overflow: hidden;
       border: 1px solid var(--border-light);
       box-shadow: 0 4px 16px rgba(15, 23, 42, 0.08);
       background: #f8fafc;
+      touch-action: none !important;
+      user-select: none;
+      -webkit-user-select: none;
     }
 
     /* Minimal Top-Right Action Button */
@@ -1562,10 +1565,11 @@
       border: 1px solid rgba(0, 0, 0, 0.08);
       font-size: 12px;
       font-weight: 700;
-      padding: 6px 12px;
+      padding: 7px 13px;
       border-radius: 9999px;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
       cursor: pointer;
+      touch-action: manipulation;
       transition: all 0.15s ease;
     }
     .joymee-map-expand-btn:hover {
@@ -1573,6 +1577,9 @@
       color: #ffffff;
       border-color: #0f172a;
       transform: translateY(-1px);
+    }
+    .joymee-map-expand-btn:active {
+      transform: scale(0.95);
     }
 
     /* Minimal Sleek Zoom Controls Stack */
@@ -1583,30 +1590,35 @@
       z-index: 20;
       display: flex;
       flex-direction: column;
-      gap: 4px;
+      gap: 6px;
     }
     .joymee-map-zoom-pill {
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
       background: rgba(255, 255, 255, 0.95);
       backdrop-filter: blur(8px);
       -webkit-backdrop-filter: blur(8px);
       border: 1px solid rgba(0, 0, 0, 0.08);
       color: #0f172a;
-      font-size: 16px;
+      font-size: 18px;
       font-weight: 800;
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
       cursor: pointer;
+      touch-action: manipulation;
       transition: all 0.15s ease;
     }
     .joymee-map-zoom-pill:hover {
       background: #0f172a;
       color: #ffffff;
       border-color: #0f172a;
+    }
+    .joymee-map-zoom-pill:active {
+      transform: scale(0.92);
+      background: #e2e8f0;
     }
 
     /* =======================================================
@@ -2277,7 +2289,22 @@
       .lightbox-btn-next { right: 8px; }
 
       #detailSection {
-        padding-bottom: 96px;
+        padding: 0 10px 96px !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+        margin: 8px 0 0 !important;
+      }
+      .joymee-similar-section {
+        margin-top: 28px !important;
+        padding-top: 20px !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+      }
+      .joymee-similar-cards-container {
+        padding: 0 0 24px !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
       }
     }
   
