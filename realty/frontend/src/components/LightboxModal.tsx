@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 
 interface LightboxModalProps {
   isOpen: boolean;
@@ -19,6 +19,8 @@ export const LightboxModal: React.FC<LightboxModalProps> = ({
   onPrev,
   onNext
 }) => {
+  const touchStartRef = useRef<{ x: number; y: number } | null>(null);
+
   useEffect(() => {
     if (!isOpen) return;
 
@@ -36,6 +38,26 @@ export const LightboxModal: React.FC<LightboxModalProps> = ({
       document.body.style.overflow = '';
     };
   }, [isOpen, onPrev, onNext, onClose]);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (e.touches.length === 1) {
+      touchStartRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+    }
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (!touchStartRef.current || e.changedTouches.length === 0) return;
+    const deltaX = e.changedTouches[0].clientX - touchStartRef.current.x;
+    const deltaY = Math.abs(e.changedTouches[0].clientY - touchStartRef.current.y);
+    touchStartRef.current = null;
+    if (Math.abs(deltaX) > 40 && deltaY < 60) {
+      if (deltaX < 0) {
+        onNext();
+      } else {
+        onPrev();
+      }
+    }
+  };
 
   if (!isOpen || photos.length === 0) return null;
 
@@ -55,6 +77,8 @@ export const LightboxModal: React.FC<LightboxModalProps> = ({
 
       <div
         className="lightbox-center-stage"
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
         onClick={(e) => {
           if (e.target === e.currentTarget) onClose();
         }}
@@ -71,7 +95,20 @@ export const LightboxModal: React.FC<LightboxModalProps> = ({
             <path d="m15 18-6-6 6-6" />
           </svg>
         </button>
-        <div className="lightbox-img-wrapper">
+        <div
+          className="lightbox-img-wrapper"
+          onClick={(e) => {
+            e.stopPropagation();
+            // Tap on left 40% goes prev, tap on right 40% goes next
+            const rect = e.currentTarget.getBoundingClientRect();
+            const clickX = e.clientX - rect.left;
+            if (clickX < rect.width * 0.4) {
+              onPrev();
+            } else if (clickX > rect.width * 0.6) {
+              onNext();
+            }
+          }}
+        >
           <img
             src={photos[currentIdx]}
             alt="Полноэкранное фото"

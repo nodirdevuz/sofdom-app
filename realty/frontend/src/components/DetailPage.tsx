@@ -45,6 +45,7 @@ export const DetailPage: React.FC<DetailPageProps> = ({
   const [isFav, setIsFav] = useState(false);
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstance = useRef<any>(null);
+  const photoTouchStart = useRef<{ x: number; y: number } | null>(null);
 
   useEffect(() => {
     setActivePhotoIdx(0);
@@ -52,6 +53,26 @@ export const DetailPage: React.FC<DetailPageProps> = ({
     setRevealedPhone(getFormattedPhone(offer.phone, offer.id));
     window.scrollTo({ top: 0, behavior: 'instant' });
   }, [offer.id, offer.phone]);
+
+  const handlePhotoTouchStart = (e: React.TouchEvent) => {
+    if (e.touches.length === 1) {
+      photoTouchStart.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+    }
+  };
+
+  const handlePhotoTouchEnd = (e: React.TouchEvent) => {
+    if (!photoTouchStart.current || e.changedTouches.length === 0) return;
+    const deltaX = e.changedTouches[0].clientX - photoTouchStart.current.x;
+    const deltaY = Math.abs(e.changedTouches[0].clientY - photoTouchStart.current.y);
+    photoTouchStart.current = null;
+    if (Math.abs(deltaX) > 40 && deltaY < 60) {
+      if (deltaX < 0) {
+        nextPhoto();
+      } else {
+        prevPhoto();
+      }
+    }
+  };
 
   const handleTogglePhone = async () => {
     if (!isPhoneRevealed) {
@@ -143,13 +164,13 @@ export const DetailPage: React.FC<DetailPageProps> = ({
 
   const p = offer.photos;
 
-  const prevPhoto = (e: React.MouseEvent) => {
-    e.stopPropagation();
+  const prevPhoto = (e?: React.SyntheticEvent) => {
+    if (e) e.stopPropagation();
     setActivePhotoIdx((prev) => (prev - 1 + p.length) % p.length);
   };
 
-  const nextPhoto = (e: React.MouseEvent) => {
-    e.stopPropagation();
+  const nextPhoto = (e?: React.SyntheticEvent) => {
+    if (e) e.stopPropagation();
     setActivePhotoIdx((prev) => (prev + 1) % p.length);
   };
 
@@ -217,8 +238,13 @@ export const DetailPage: React.FC<DetailPageProps> = ({
       <div className="joymee-detail-grid">
         {/* LEFT COLUMN: Main Photo Carousel + Thumbs + Desktop Seller Card */}
         <div className="joymee-left-col">
-          {/* Main Photo Box with compact subtle arrows & dashes */}
-          <div className="joymee-main-photo-card" onClick={() => onOpenLightbox(activePhotoIdx)}>
+          {/* Main Photo Box with touch swipe, counter and compact arrows */}
+          <div
+            className="joymee-main-photo-card"
+            onTouchStart={handlePhotoTouchStart}
+            onTouchEnd={handlePhotoTouchEnd}
+            onClick={() => onOpenLightbox(activePhotoIdx)}
+          >
             <img
               src={p[activePhotoIdx]}
               alt={offer.title}
@@ -231,12 +257,31 @@ export const DetailPage: React.FC<DetailPageProps> = ({
               }}
             />
 
-            <button className="joymee-arrow-btn joymee-arrow-left" onClick={prevPhoto}>
+            {/* Photo Counter Badge */}
+            <div className="joymee-photo-counter-pill">
+              📷 {activePhotoIdx + 1} / {p.length}
+            </div>
+
+            <button
+              className="joymee-arrow-btn joymee-arrow-left"
+              onClick={(e) => {
+                e.stopPropagation();
+                prevPhoto();
+              }}
+              aria-label="Предыдущее фото"
+            >
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                 <path d="m15 18-6-6 6-6" />
               </svg>
             </button>
-            <button className="joymee-arrow-btn joymee-arrow-right" onClick={nextPhoto}>
+            <button
+              className="joymee-arrow-btn joymee-arrow-right"
+              onClick={(e) => {
+                e.stopPropagation();
+                nextPhoto();
+              }}
+              aria-label="Следующее фото"
+            >
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                 <path d="m9 18 6-6-6-6" />
               </svg>

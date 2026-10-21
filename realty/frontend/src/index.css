@@ -1011,6 +1011,8 @@
       background: #0f172a;
       box-shadow: var(--shadow-md);
       cursor: pointer;
+      user-select: none;
+      -webkit-user-select: none;
     }
     .joymee-main-photo-card img {
       width: 100%;
@@ -1018,10 +1020,28 @@
       object-fit: cover;
       object-position: center center;
       display: block;
+      image-rendering: -webkit-optimize-contrast;
       transition: transform 0.2s ease;
     }
     .joymee-main-photo-card:hover img {
       transform: scale(1.01);
+    }
+    .joymee-photo-counter-pill {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      padding: 5px 12px;
+      background: rgba(15, 23, 42, 0.65);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 20px;
+      color: #ffffff;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+      z-index: 10;
+      pointer-events: none;
     }
 
     .joymee-arrow-btn {
@@ -1679,18 +1699,30 @@
       overflow: hidden;
     }
     .lightbox-img-wrapper {
-      max-width: 100%;
-      max-height: 100%;
+      position: relative;
+      width: 90vw;
+      max-width: 960px;
+      height: 72vh;
+      max-height: 640px;
       display: flex;
       align-items: center;
       justify-content: center;
+      overflow: hidden;
+      border-radius: var(--radius-lg);
+      background: #05070d;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+      cursor: pointer;
+      user-select: none;
+      -webkit-user-select: none;
     }
     .lightbox-img-wrapper img {
-      max-width: 88vw;
-      max-height: 75vh;
+      width: 100%;
+      height: 100%;
       object-fit: contain;
-      border-radius: var(--radius-md);
-      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+      object-position: center center;
+      display: block;
+      image-rendering: -webkit-optimize-contrast;
+      transition: opacity 0.15s ease;
     }
 
     .lightbox-nav-btn {
@@ -2268,8 +2300,33 @@
       }
 
       .joymee-main-photo-card {
-        height: 280px;
+        width: 100%;
+        height: auto;
+        aspect-ratio: 4 / 3;
+        max-height: 320px;
         border-radius: 18px;
+      }
+      .card-mobile-phone-row {
+        margin-top: 6px;
+        display: flex;
+        align-items: center;
+      }
+      .card-mobile-phone-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--brand-yellow);
+        background: rgba(245, 158, 11, 0.12);
+        padding: 4px 10px;
+        border-radius: 10px;
+        border: 1px solid rgba(245, 158, 11, 0.28);
+        text-decoration: none;
+        transition: background 0.15s ease, transform 0.15s ease;
+      }
+      .card-mobile-phone-link:active {
+        transform: scale(0.96);
       }
       .joymee-title {
         font-size: 20px;
