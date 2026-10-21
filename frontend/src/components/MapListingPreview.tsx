@@ -95,9 +95,6 @@ export const MapListingPreview: React.FC<Props> = ({
                 (e.target as HTMLImageElement).src = defaultPhoto;
               }}
             />
-            {apartment.photos_count && apartment.photos_count > 1 ? (
-              <span className="sheet-photos-pill">📷 {apartment.photos_count}</span>
-            ) : null}
             {distText ? (
               <span className="sheet-dist-pill">🚶 {distText}</span>
             ) : null}

@@ -187,7 +187,6 @@ export const App: React.FC = () => {
         backToFeed();
       } else if (mobileTab === 'map') {
         setMobileTab('main');
-        window.location.hash = '';
       }
     },
     enabled: !!(lightbox.isOpen || isProfileOpen || selectedOfferId || mobileTab === 'map'),
@@ -343,8 +342,6 @@ export const App: React.FC = () => {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } else if (tab === 'map') {
       setSelectedOfferId(null);
-      setIsMapVisible(true);
-      window.location.hash = 'map';
     }
   };
 
@@ -359,17 +356,23 @@ export const App: React.FC = () => {
         onChangeLang={handleLangChange}
       />
 
-      {/* MOBILE FULLSCREEN MAP VIEW */}
-      {mobileTab === 'map' && !selectedOfferId && (
-        <div className="mobile-fullscreen-map-page">
-          <YandexMap
-            onSelectApartment={openDetail}
-            showDistrictChips={true}
-            onClose={() => setMobileTab('main')}
-            lang={lang}
-          />
-        </div>
-      )}
+      {/* MOBILE FULLSCREEN MAP VIEW (Preserved in DOM to prevent reload/re-initialization flashes) */}
+      <div
+        className="mobile-fullscreen-map-page"
+        style={{
+          display: mobileTab === 'map' && !selectedOfferId ? 'block' : 'none',
+          visibility: mobileTab === 'map' && !selectedOfferId ? 'visible' : 'hidden',
+          pointerEvents: mobileTab === 'map' && !selectedOfferId ? 'auto' : 'none'
+        }}
+      >
+        <YandexMap
+          onSelectApartment={openDetail}
+          showDistrictChips={true}
+          onClose={() => setMobileTab('main')}
+          lang={lang}
+          isActive={mobileTab === 'map' && !selectedOfferId}
+        />
+      </div>
 
       {/* DETAIL PAGE VIEW */}
       {selectedOffer && (

@@ -15,6 +15,7 @@ interface Props {
   showDistrictChips?: boolean;
   onClose?: () => void;
   lang?: Lang;
+  isActive?: boolean;
 }
 
 const DISTRICT_COORDS: Record<string, [number, number]> = {
@@ -42,6 +43,7 @@ export const YandexMap: React.FC<Props> = ({
   showDistrictChips = true,
   onClose,
   lang = 'ru',
+  isActive = true,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<any>(null);
@@ -49,6 +51,18 @@ export const YandexMap: React.FC<Props> = ({
   const ymapsRef = useRef<any>(null);
   const userMarkerRef = useRef<any>(null);
   const debounceTimerRef = useRef<any>(null);
+  const lastPinClickTimeRef = useRef<number>(0);
+
+  // Smoothly adapt map when active tab changes without remounting
+  useEffect(() => {
+    if (isActive && mapInstanceRef.current) {
+      setTimeout(() => {
+        if (mapInstanceRef.current) {
+          mapInstanceRef.current.container.fitToViewport();
+        }
+      }, 60);
+    }
+  }, [isActive]);
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -67,6 +81,7 @@ export const YandexMap: React.FC<Props> = ({
 
   const handleSelectApartmentById = useCallback(
     (id: string) => {
+      lastPinClickTimeRef.current = Date.now();
       const apt = apartmentsRef.current.find((a) => String(a.id) === String(id));
       if (apt) {
         setSelectedApartment(apt);
@@ -100,12 +115,14 @@ export const YandexMap: React.FC<Props> = ({
 
     let touchStartX = 0;
     let touchStartY = 0;
+    let touchStartTime = 0;
     let isTouchDrag = false;
 
     const onTouchStart = (e: TouchEvent) => {
       if (e.touches.length === 1) {
         touchStartX = e.touches[0].clientX;
         touchStartY = e.touches[0].clientY;
+        touchStartTime = Date.now();
         isTouchDrag = false;
       }
     };
@@ -114,18 +131,19 @@ export const YandexMap: React.FC<Props> = ({
       if (e.touches.length > 0) {
         const dx = Math.abs(e.touches[0].clientX - touchStartX);
         const dy = Math.abs(e.touches[0].clientY - touchStartY);
-        if (dx > 8 || dy > 8) {
+        if (dx > 18 || dy > 18) {
           isTouchDrag = true;
         }
       }
     };
 
     const onPinTrigger = (e: MouseEvent | TouchEvent) => {
-      if (isTouchDrag && e.type === 'touchend') return;
+      if (isTouchDrag && Date.now() - touchStartTime > 350 && e.type === 'touchend') return;
       const target = (e.target as HTMLElement).closest('.price-pin-bubble');
       if (target) {
         const aptId = target.getAttribute('data-id');
         if (aptId && selectAptRef.current) {
+          lastPinClickTimeRef.current = Date.now();
           e.preventDefault();
           e.stopPropagation();
           selectAptRef.current(aptId);
@@ -156,9 +174,11 @@ export const YandexMap: React.FC<Props> = ({
       clusterer.removeAll();
 
       const priceLayout = ym.templateLayoutFactory.createClass(
-        '<div class="price-pin-bubble $[properties.is_secret_class] $[properties.is_active_class]" data-id="$[properties.apartmentId]">' +
-          '<span class="price-pin-text">$[properties.price_badge]</span>' +
-          '<div class="price-pin-arrow"></div>' +
+        '<div style="position:relative;transform:translate(-50%,-100%);margin-top:-2px;pointer-events:auto;">' +
+          '<div class="price-pin-bubble $[properties.is_secret_class] $[properties.is_active_class]" data-id="$[properties.apartmentId]">' +
+            '<span class="price-pin-text">$[properties.price_badge]</span>' +
+            '<div class="price-pin-arrow"></div>' +
+          '</div>' +
         '</div>',
         {
           build: function () {
@@ -167,6 +187,7 @@ export const YandexMap: React.FC<Props> = ({
             if (el) {
               const onPinClick = (e: any) => {
                 e.stopPropagation?.();
+                lastPinClickTimeRef.current = Date.now();
                 const aptId = this.getData()?.properties?.get('apartmentId');
                 if (aptId && selectAptRef.current) {
                   selectAptRef.current(aptId);
@@ -199,12 +220,12 @@ export const YandexMap: React.FC<Props> = ({
           },
           {
             iconLayout: priceLayout,
-            iconOffset: [-38, -34],
+            iconOffset: [0, 0],
             iconShape: {
               type: 'Rectangle',
               coordinates: [
-                [-48, -40],
-                [48, 10],
+                [-48, -42],
+                [48, 2],
               ],
             },
             hasBalloon: false,
@@ -214,6 +235,7 @@ export const YandexMap: React.FC<Props> = ({
 
         pm.events.add('click', (e: any) => {
           e.stopPropagation?.();
+          lastPinClickTimeRef.current = Date.now();
           handleSelectApartmentById(apt.id);
         });
 
@@ -273,22 +295,43 @@ export const YandexMap: React.FC<Props> = ({
 
         mapInstanceRef.current = map;
 
-        // Custom clusterer with brand styling
+        // Custom clusterer with brand styling and smooth controlled zoom
         const clusterer = new ym.Clusterer({
           preset: 'islands#yellowClusterIcons',
           groupByCoordinates: false,
-          clusterDisableClickZoom: false,
+          clusterDisableClickZoom: true, // We handle gentle, controlled zoom
           clusterHideIconOnBalloonOpen: false,
           geoObjectHideIconOnBalloonOpen: false,
           minClusterSize: 2,
+          gridSize: 64,
+          maxZoom: 16,
         });
 
-        // Clicking a clusterer item selects apartment if it was a single placemark
+        // Click on clusterer item or cluster itself
         clusterer.events.add('click', (e: any) => {
           const target = e.get('target');
+          // If clicked on cluster of apartments (e.g. 2, 3, 4 apartments)
+          if (target && typeof target.getGeoObjects === 'function') {
+            const map = mapInstanceRef.current;
+            if (map) {
+              const currentZoom = map.getZoom();
+              // Smooth gentle zoom (+1.5), capped strictly at 16 (neighborhood view, 200-500 meters)
+              const nextZoom = Math.min(Math.round(currentZoom + 1.5), 16);
+              const coords = target.geometry.getCoordinates();
+              map.setCenter(coords, nextZoom, {
+                duration: 320,
+                timingFunction: 'ease-in-out',
+                checkZoomRange: true,
+              });
+            }
+            return;
+          }
+
+          // If clicked on a single placemark inside clusterer
           if (target && target.properties) {
             const aptId = target.properties.get('apartmentId');
             if (aptId && selectAptRef.current) {
+              lastPinClickTimeRef.current = Date.now();
               selectAptRef.current(aptId);
             }
           }
@@ -299,6 +342,8 @@ export const YandexMap: React.FC<Props> = ({
 
         // Click outside any marker (on map background) closes preview sheet
         map.events.add('click', (e: any) => {
+          // Ignore click if a pin was just clicked in the last 400ms
+          if (Date.now() - lastPinClickTimeRef.current < 400) return;
           const target = e.get('target');
           if (target && target !== map) return;
           setSelectedApartment(null);

@@ -2993,18 +2993,12 @@
   right: 0;
   z-index: 45;
   background: var(--bg-surface, #ffffff);
-  animation: mapPageFade 0.24s var(--ease-out-apple) both;
-  will-change: opacity, transform;
 }
-@keyframes mapPageFade {
-  from {
-    opacity: 0;
-    transform: scale(0.99);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
+.joymee-ymap-canvas {
+  touch-action: pan-x pan-y pinch-zoom !important;
+}
+.joymee-yandex-map-wrapper {
+  touch-action: pan-x pan-y pinch-zoom !important;
 }
 .mobile-fullscreen-map-page .joymee-yandex-map-wrapper {
   border-radius: 0;
