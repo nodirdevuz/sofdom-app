@@ -4,6 +4,7 @@
 
 export const OVERVIEW_PATH = '/overview';
 export const LISTINGS_PATH = '/listings';
+export const ANALYTICS_PATH = '/analytics';
 export const USERS_PATH = '/users';
 export const SCRAPERS_PATH = '/scrapers';
 
@@ -30,6 +31,13 @@ export const navItems: NavItem[] = [
     badge: '162',
   },
   {
+    id: 'analytics',
+    label: 'Аналитика и датчики',
+    path: ANALYTICS_PATH,
+    icon: 'activity',
+    badge: 'Live',
+  },
+  {
     id: 'users',
     label: 'Пользователи и подписки',
     path: USERS_PATH,
@@ -37,9 +45,8 @@ export const navItems: NavItem[] = [
   },
   {
     id: 'scrapers',
-    label: 'Сборщики и Кэш',
+    label: 'Сборщики и Модерация',
     path: SCRAPERS_PATH,
-    icon: 'activity',
-    badge: 'Live',
+    icon: 'cpu',
   },
 ];

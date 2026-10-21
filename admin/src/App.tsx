@@ -4,6 +4,7 @@ import { useAuth } from './auth';
 import Login from './pages/Login';
 import Overview from './pages/Overview';
 import Listings from './pages/Listings';
+import Analytics from './pages/Analytics';
 import Users from './pages/Users';
 import Scrapers from './pages/Scrapers';
 
@@ -28,6 +29,7 @@ export default function App() {
         <Route index element={<Navigate to="/overview" replace />} />
         <Route path="/overview" element={<Overview />} />
         <Route path="/listings" element={<Listings />} />
+        <Route path="/analytics" element={<Analytics />} />
         <Route path="/users" element={<Users />} />
         <Route path="/scrapers" element={<Scrapers />} />
         <Route path="*" element={<Navigate to="/overview" replace />} />

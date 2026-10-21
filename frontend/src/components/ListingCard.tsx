@@ -1,6 +1,7 @@
 import React, { useRef, useState } from 'react';
 import { Offer, LayoutMode } from '../types';
 import { FALLBACK_PHOTO_SVG } from '../lib/constants';
+import { telemetry } from '../lib/telemetry';
 
 interface ListingCardProps {
   offer: Offer;
@@ -34,13 +35,18 @@ export const ListingCard: React.FC<ListingCardProps> = ({
 
   const district = offer.metro_name || (offer.address ? offer.address.split(',')[1]?.trim() : 'Советский р-н');
 
+  const handleOpen = () => {
+    telemetry.track('listing_view', 3, { offerId: offer.id, title: offer.title, price: offer.price_val });
+    onOpenDetail(offer.id);
+  };
+
   return (
     <article
       className={`offer-card ${layoutMode === 'list' ? 'card-list-layout' : 'card-grid-layout'}`}
-      onClick={() => onOpenDetail(offer.id)}
+      onClick={handleOpen}
     >
       {/* 1. Photo Gallery */}
-      <div className="card-gallery-wrap" onClick={() => onOpenDetail(offer.id)}>
+      <div className="card-gallery-wrap" onClick={handleOpen}>
         <div className="gallery-slider" ref={sliderRef} onScroll={handleScroll}>
           {offer.photos.slice(0, 3).map((p, idx) => (
             <img
@@ -55,6 +61,7 @@ export const ListingCard: React.FC<ListingCardProps> = ({
                 if (!target.dataset.fallback) {
                   target.dataset.fallback = '1';
                   target.src = FALLBACK_PHOTO_SVG;
+                  telemetry.trackFriction('broken_photo_cdn', 'ListingCard', { offerId: offer.id, url: p });
                 }
               }}
             />

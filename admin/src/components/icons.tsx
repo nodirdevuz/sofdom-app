@@ -2,7 +2,6 @@
  * SVG-иконки, перенесённые один-в-один из исходного дизайна.
  * Цвет наследуется через `currentColor`.
  */
-import type { NavGroup } from '../nav';
 
 const stroke = {
   fill: 'none',
@@ -94,7 +93,7 @@ function FinanceIcon() {
 }
 
 /** Иконка группы навигации по её id. */
-export function GroupIcon({ id }: { id: NavGroup['id'] }) {
+export function GroupIcon({ id }: { id: string }) {
   switch (id) {
     case 'cashiers':
       return <WalletIcon />;

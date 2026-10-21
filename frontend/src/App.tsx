@@ -14,6 +14,7 @@ import { FiltersModal } from './components/FiltersModal';
 import { MobileBottomNav } from './components/MobileBottomNav';
 import { YandexMap } from './components/YandexMap';
 import { useSwipeBack } from './hooks/useSwipeBack';
+import { telemetry } from './lib/telemetry';
 
 function formatTimeAgo(dateStr?: string): string {
   if (!dateStr) return 'Недавно';
@@ -346,6 +347,12 @@ export const App: React.FC = () => {
 
     observer.observe(target);
     return () => observer.disconnect();
+  }, [filteredOffers.length]);
+
+  useEffect(() => {
+    if (offersList.length > 0 && filteredOffers.length === 0) {
+      telemetry.trackFriction('zero_search_results', 'FilterFeed', { filter });
+    }
   }, [filteredOffers.length]);
 
   const savedFeedScrollY = useRef(0);

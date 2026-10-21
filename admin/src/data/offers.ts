@@ -1,4 +1,4 @@
-import { Offer, VipOffer } from '../types';
+import { Offer, VipOffer } from './types';
 
 export const VIPS: VipOffer[] = [
   {

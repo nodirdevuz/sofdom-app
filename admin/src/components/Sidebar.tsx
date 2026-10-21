@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom';
-import { LayoutGrid, Building2, Users, Cpu, LogOut, X } from 'lucide-react';
+import { LayoutGrid, Building2, Users, Cpu, Activity, LogOut, X } from 'lucide-react';
 import { navItems } from '../nav';
 import { useAuth } from '../auth';
 
@@ -24,6 +24,8 @@ function getIcon(id: string, active: boolean) {
       return <LayoutGrid size={17} color={color} strokeWidth={1.9} />;
     case 'listings':
       return <Building2 size={17} color={color} strokeWidth={1.9} />;
+    case 'analytics':
+      return <Activity size={17} color={color} strokeWidth={1.9} />;
     case 'users':
       return <Users size={17} color={color} strokeWidth={1.9} />;
     case 'scrapers':
