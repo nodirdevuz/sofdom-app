@@ -80,7 +80,6 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
           <div className="profile-user-info">
             <div className="profile-user-name">Личный кабинет SofDom</div>
             <div className="profile-user-phone">+7 (926) 845-••-••</div>
-            <div className="profile-user-badge">✓ Подтверждённый аккаунт</div>
           </div>
         </div>
 
@@ -100,7 +99,7 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
           </div>
         </div>
 
-        {/* Full-fledged Menu List */}
+        {/* Clean Modern Menu List */}
         <div className="profile-menu-list">
           <div className="profile-menu-item clickable" onClick={() => alert('Открывается список избранных квартир')}>
             <div className="profile-menu-icon-wrap">
@@ -145,19 +144,6 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
             <span className="profile-menu-chevron">›</span>
           </div>
 
-          <div className="profile-menu-item clickable" onClick={() => alert('История звонков и контактов')}>
-            <div className="profile-menu-icon-wrap">
-              <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
-              </svg>
-            </div>
-            <div className="profile-menu-text-wrap">
-              <span className="profile-menu-title">Контакты и история</span>
-              <span className="profile-menu-sub">Номера просмотренных продавцов</span>
-            </div>
-            <span className="profile-menu-chevron">›</span>
-          </div>
-
           <div className="profile-menu-item clickable" onClick={() => alert('Служба поддержки SofDom в Telegram')}>
             <div className="profile-menu-icon-wrap">
               <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -172,29 +158,6 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
             </div>
             <span className="profile-menu-chevron">›</span>
           </div>
-
-          {onOpenAdmin && (
-            <div
-              className="profile-menu-item clickable"
-              style={{ color: '#059669', fontWeight: 600 }}
-              onClick={() => {
-                onClose();
-                onOpenAdmin();
-              }}
-            >
-              <div className="profile-menu-icon-wrap" style={{ background: '#ecfdf5', color: '#059669' }}>
-                <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M12 20h9" />
-                  <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
-                </svg>
-              </div>
-              <div className="profile-menu-text-wrap">
-                <span className="profile-menu-title" style={{ color: '#059669' }}>Панель управления</span>
-                <span className="profile-menu-sub">Статистика и парсеры</span>
-              </div>
-              <span className="profile-menu-chevron">⚙️</span>
-            </div>
-          )}
         </div>
 
         {/* Logout Button */}

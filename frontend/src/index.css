@@ -3297,10 +3297,10 @@
   background: var(--bg-surface, #ffffff);
 }
 .joymee-ymap-canvas {
-  touch-action: pan-x pan-y pinch-zoom !important;
+  touch-action: none !important;
 }
 .joymee-yandex-map-wrapper {
-  touch-action: pan-x pan-y pinch-zoom !important;
+  touch-action: none !important;
 }
 .mobile-fullscreen-map-page .joymee-yandex-map-wrapper {
   border-radius: 0;
@@ -3865,3 +3865,107 @@
 .status-pill.pos { background: #dcfce7; color: #166534; }
 .status-pill.neu { background: #f1f5f9; color: #475569; }
 .status-pill.neg { background: #fee2e2; color: #991b1b; }
+
+/* =========================================================
+   FULL-PAGE MOBILE FILTERS VIEW (Apple / Figma Clean Style)
+   ========================================================= */
+
+.filters-fullpage-container {
+  width: 100%;
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 18px 16px 110px; /* 110px padding for bottom capsule */
+  min-height: calc(100vh - 56px);
+  box-sizing: border-box;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.filters-page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border-light, #e2e8f0);
+}
+
+.filters-page-title {
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--text-main, #0f172a);
+  margin: 0;
+}
+
+.filters-page-reset-btn {
+  background: none;
+  border: none;
+  color: #ef4444;
+  font-size: 13.5px;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 6px 10px;
+  border-radius: 8px;
+  transition: opacity 0.15s ease;
+}
+
+.filters-page-reset-btn:hover {
+  opacity: 0.8;
+}
+
+.filters-page-body {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.filter-card-section {
+  background: var(--bg-surface, #ffffff);
+  border: 1px solid var(--border-light, #e2e8f0);
+  border-radius: 16px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+}
+
+.filter-section-title {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--text-main, #0f172a);
+  letter-spacing: -0.01em;
+}
+
+.filter-section-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.filters-page-actions {
+  margin-top: 8px;
+  position: sticky;
+  bottom: 84px; /* Sits cleanly above the floating capsule menu */
+  z-index: 30;
+  padding: 6px 0;
+}
+
+.filters-page-apply-btn {
+  width: 100%;
+  padding: 15px 20px;
+  border-radius: 16px;
+  border: none;
+  background: var(--brand-yellow-gradient, linear-gradient(135deg, #FACC15 0%, #F59E0B 100%));
+  color: #1e1b18;
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  box-shadow: 0 4px 18px rgba(245, 158, 11, 0.35);
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.filters-page-apply-btn:active {
+  transform: scale(0.98);
+}
