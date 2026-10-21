@@ -565,14 +565,16 @@ export const App: React.FC = () => {
         lang={lang}
       />
 
-      {/* MOBILE BOTTOM NAVIGATION */}
-      <MobileBottomNav
-        activeTab={mobileTab}
-        onSelectTab={handleMobileNav}
-        onOpenProfile={() => setIsProfileOpen(true)}
-        onOpenFilters={() => setIsFiltersOpen(true)}
-        lang={lang}
-      />
+      {/* MOBILE BOTTOM NAVIGATION (Hidden on DetailPage so Avito Sticky Dock takes over seamlessly) */}
+      {!selectedOffer && (
+        <MobileBottomNav
+          activeTab={mobileTab}
+          onSelectTab={handleMobileNav}
+          onOpenProfile={() => setIsProfileOpen(true)}
+          onOpenFilters={() => setIsFiltersOpen(true)}
+          lang={lang}
+        />
+      )}
     </>
   );
 };

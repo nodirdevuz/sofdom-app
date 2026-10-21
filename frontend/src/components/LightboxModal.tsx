@@ -27,18 +27,22 @@ export const LightboxModal: React.FC<LightboxModalProps> = ({
   const [isZoomed, setIsZoomed] = useState(false);
   const [panOffset, setPanOffset] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
+  const [dragDownY, setDragDownY] = useState(0);
+  const [isDismissing, setIsDismissing] = useState(false);
   const dragStartRef = useRef<{ x: number; y: number } | null>(null);
 
   const touchStartRef = useRef<{ x: number; y: number; time: number } | null>(null);
   const lastTapRef = useRef<number>(0);
   const thumbStripRef = useRef<HTMLDivElement>(null);
 
-  // Reset zoom on index change
+  // Reset zoom & drag on index change or close
   useEffect(() => {
     setIsZoomed(false);
     setPanOffset({ x: 0, y: 0 });
     setIsDragging(false);
-  }, [currentIdx]);
+    setDragDownY(0);
+    setIsDismissing(false);
+  }, [currentIdx, isOpen]);
 
   // Scroll active thumbnail into center of thumb strip
   useEffect(() => {
@@ -130,28 +134,47 @@ export const LightboxModal: React.FC<LightboxModalProps> = ({
         x: touch.clientX - dragStartRef.current.x,
         y: touch.clientY - dragStartRef.current.y
       });
+    } else if (!isZoomed && touchStartRef.current && e.touches.length === 1) {
+      const dy = e.touches[0].clientY - touchStartRef.current.y;
+      const dx = e.touches[0].clientX - touchStartRef.current.x;
+      // Fluid swipe down to dismiss tracking
+      if (dy > 0 && dy > Math.abs(dx) * 0.75) {
+        setDragDownY(dy);
+      }
     }
   };
 
   const handleStageTouchEnd = (e: React.TouchEvent) => {
     setIsDragging(false);
-    if (!touchStartRef.current || e.changedTouches.length === 0) return;
+    if (!touchStartRef.current || e.changedTouches.length === 0) {
+      setDragDownY(0);
+      return;
+    }
     const deltaX = e.changedTouches[0].clientX - touchStartRef.current.x;
     const deltaY = e.changedTouches[0].clientY - touchStartRef.current.y;
     touchStartRef.current = null;
 
     if (!isZoomed) {
-      // Horizontal swipe to flip
+      // Swipe down to dismiss threshold
+      if (dragDownY > 80 || (deltaY > 80 && Math.abs(deltaX) < 70)) {
+        setIsDismissing(true);
+        setTimeout(() => {
+          onClose();
+          setDragDownY(0);
+          setIsDismissing(false);
+        }, 180);
+        return;
+      }
+
+      setDragDownY(0);
+
+      // Horizontal swipe to flip photos
       if (Math.abs(deltaX) > 45 && Math.abs(deltaY) < 70) {
         if (deltaX < 0) {
           onNext();
         } else {
           onPrev();
         }
-      }
-      // Swipe down to dismiss
-      if (deltaY > 90 && Math.abs(deltaX) < 60) {
-        onClose();
       }
     }
   };
@@ -186,6 +209,11 @@ export const LightboxModal: React.FC<LightboxModalProps> = ({
       className="lightbox-overlay"
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
+      style={{
+        backgroundColor: `rgba(9, 12, 17, ${Math.max(0.15, 0.98 - dragDownY / 350)})`,
+        opacity: isDismissing ? 0 : 1,
+        transition: isDismissing ? 'opacity 0.18s ease-out' : 'background-color 0.08s ease'
+      }}
     >
       {/* 1. TOP BAR */}
       <div className="lightbox-topbar">
@@ -292,6 +320,12 @@ export const LightboxModal: React.FC<LightboxModalProps> = ({
               ? {
                   transform: `translate(${panOffset.x}px, ${panOffset.y}px) scale(2)`,
                   cursor: isDragging ? 'grabbing' : 'grab'
+                }
+              : dragDownY > 0
+              ? {
+                  transform: `translate3d(0, ${dragDownY}px, 0) scale(${Math.max(0.75, 1 - dragDownY / 900)})`,
+                  transition: isDismissing ? 'transform 0.18s ease-out, opacity 0.18s ease-out' : 'none',
+                  opacity: isDismissing ? 0 : 1
                 }
               : undefined
           }

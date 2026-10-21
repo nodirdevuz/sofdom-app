@@ -3,27 +3,39 @@
        CSS RESET & VARIABLES (ZERO GREEN - JOYMEE PALETTE)
        ======================================================= */
     :root {
-      --bg-page: #f4f5f7;
+      /* Avito Warm Paper Canvas & Clean Surface */
+      --bg-page: #f7f8f9;
       --bg-surface: #ffffff;
       --bg-card: #ffffff;
-      --bg-muted: #f1f5f9;
-      --bg-hover: #e2e8f0;
-      --text-main: #0f172a;
-      --text-muted: #64748b;
-      --text-sub: #94a3b8;
-      --border-light: #e2e8f0;
+      --bg-muted: #f0f2f5;
+      --bg-hover: #e8eaed;
+      --text-main: #111418;
+      --text-muted: #7a8593;
+      --text-sub: #9aa4b0;
+      --border-light: #e8eaed;
       
-      /* Rich Warm Honey Amber RGB Palette (Zero flat neon) */
-      --brand-yellow: rgb(251, 191, 36);
-      --brand-yellow-rgb: 251, 191, 36;
-      --brand-yellow-hover: rgb(245, 158, 11);
-      --brand-yellow-gradient: linear-gradient(135deg, rgb(252, 211, 77) 0%, rgb(245, 158, 11) 100%);
-      --brand-yellow-matte: rgba(251, 191, 36, 0.16);
-      --brand-yellow-matte-hover: rgba(251, 191, 36, 0.25);
-      --brand-yellow-matte-border: rgba(251, 191, 36, 0.38);
-      --brand-yellow-glow: 0 4px 16px rgba(245, 158, 11, 0.28);
-      --brand-yellow-text: #92400e;
-      --accent-dark: #0f172a;
+      /* Avito Exact Brand Palette (from APK decompilation) */
+      --avito-green: #04e061;
+      --avito-green-hover: #03c856;
+      --avito-green-active: #02b34c;
+      --avito-blue: #00aaff;
+      --avito-red: #ff6163;
+      --avito-yellow: #ffcf24;
+      --avito-purple: #a168f7;
+      --avito-chat-bg: #f0f2f5;
+      --avito-chat-hover: #e4e6eb;
+
+      /* Mapped Primary Brand Variables */
+      --brand-yellow: #04e061;
+      --brand-yellow-rgb: 4, 224, 97;
+      --brand-yellow-hover: #03c856;
+      --brand-yellow-gradient: linear-gradient(135deg, #04e061 0%, #02b34c 100%);
+      --brand-yellow-matte: rgba(4, 224, 97, 0.12);
+      --brand-yellow-matte-hover: rgba(4, 224, 97, 0.2);
+      --brand-yellow-matte-border: rgba(4, 224, 97, 0.32);
+      --brand-yellow-glow: 0 4px 16px rgba(4, 224, 97, 0.28);
+      --brand-yellow-text: #ffffff;
+      --accent-dark: #111418;
       
       --radius-sm: 8px;
       --radius-md: 12px;
@@ -48,27 +60,26 @@
     }
 
     [data-theme="dark"] {
-      --bg-page: #0b0f19;
-      --bg-surface: #131b2e;
-      --bg-card: #182238;
-      --bg-muted: #1e293b;
-      --bg-hover: #29354d;
-      --text-main: #f8fafc;
-      --text-muted: #94a3b8;
-      --text-sub: #64748b;
-      --border-light: #243048;
+      --bg-page: #111418;
+      --bg-surface: #1a1f25;
+      --bg-card: #1f252d;
+      --bg-muted: #272f3a;
+      --bg-hover: #323b49;
+      --text-main: #f7f8f9;
+      --text-muted: #9aa4b0;
+      --text-sub: #7a8593;
+      --border-light: #2b3340;
       
-      /* Rich Warm Honey Amber RGB Palette (Zero flat neon) */
-      --brand-yellow: rgb(251, 191, 36);
-      --brand-yellow-rgb: 251, 191, 36;
-      --brand-yellow-hover: rgb(252, 211, 77);
-      --brand-yellow-gradient: linear-gradient(135deg, rgb(252, 211, 77) 0%, rgb(245, 158, 11) 100%);
-      --brand-yellow-matte: rgba(251, 191, 36, 0.18);
-      --brand-yellow-matte-hover: rgba(251, 191, 36, 0.28);
-      --brand-yellow-matte-border: rgba(251, 191, 36, 0.44);
-      --brand-yellow-glow: 0 4px 18px rgba(251, 191, 36, 0.35);
-      --brand-yellow-text: #fef08a;
-      --accent-dark: #f8fafc;
+      --brand-yellow: #04e061;
+      --brand-yellow-rgb: 4, 224, 97;
+      --brand-yellow-hover: #03c856;
+      --brand-yellow-gradient: linear-gradient(135deg, #04e061 0%, #02b34c 100%);
+      --brand-yellow-matte: rgba(4, 224, 97, 0.2);
+      --brand-yellow-matte-hover: rgba(4, 224, 97, 0.3);
+      --brand-yellow-matte-border: rgba(4, 224, 97, 0.44);
+      --brand-yellow-glow: 0 4px 18px rgba(4, 224, 97, 0.35);
+      --brand-yellow-text: #ffffff;
+      --accent-dark: #f7f8f9;
 
       --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4);
       --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.5);
@@ -812,6 +823,44 @@
       z-index: 5;
     }
 
+    /* AVITO BENCHMARK HEART FAVORITE BUTTON */
+    .card-heart-btn {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: rgba(17, 20, 24, 0.35);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      z-index: 10;
+      transition: transform 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+      touch-action: manipulation;
+    }
+    .card-heart-btn:hover {
+      background: rgba(17, 20, 24, 0.55);
+      transform: scale(1.08);
+    }
+    .card-heart-btn:active {
+      transform: scale(0.92);
+    }
+    .card-heart-btn.active {
+      background: #ffffff;
+      border-color: rgba(255, 97, 99, 0.3);
+      box-shadow: 0 2px 10px rgba(255, 97, 99, 0.35);
+    }
+    .card-heart-btn.active svg {
+      stroke: var(--avito-red);
+      fill: var(--avito-red);
+    }
+
     .card-badge-owner {
       position: absolute;
       top: 8px;
@@ -979,17 +1028,14 @@
       margin: 16px auto 48px;
       padding: 0 24px;
       width: 100%;
-      animation: detailPageEnter 0.24s var(--ease-out-apple) both;
-      will-change: transform, opacity;
+      animation: detailPageFade 0.2s var(--ease-out-apple) both;
     }
-    @keyframes detailPageEnter {
+    @keyframes detailPageFade {
       from {
         opacity: 0;
-        transform: translateY(12px);
       }
       to {
         opacity: 1;
-        transform: translateY(0);
       }
     }
 
@@ -2719,39 +2765,58 @@
       .cards-container {
         display: grid !important;
         grid-template-columns: repeat(2, 1fr) !important;
-        gap: 8px !important;
-        padding: 0 0 96px !important;
+        gap: 10px !important;
+        padding: 8px 12px 100px !important;
         width: 100% !important;
         box-sizing: border-box !important;
       }
 
-      /* 2-Tile Grid on mobile without jumps/animations */
+      /* Avito 2-Tile Grid on mobile with 12px corners, warm white card, subtle hairline border */
       .offer-card {
         display: flex !important;
         flex-direction: column !important;
         grid-template-columns: none !important;
-        border-radius: 16px !important;
+        border-radius: 12px !important;
         overflow: hidden !important;
         transform: none !important;
-        transition: none !important;
+        transition: transform 0.12s ease !important;
         user-select: none !important;
         -webkit-user-select: none !important;
         border: 1px solid var(--border-light) !important;
         background: var(--bg-card) !important;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04) !important;
+        cursor: pointer !important;
       }
       .offer-card:hover,
+      .offer-card.clickable:hover {
+        transform: none !important;
+      }
       .offer-card:active,
       .offer-card.clickable:active {
-        transform: none !important;
+        transform: scale(0.982) !important;
         border-color: var(--border-light) !important;
       }
 
       .offer-card .card-gallery-wrap {
-        height: 135px !important;
+        aspect-ratio: 4 / 3 !important;
+        height: auto !important;
         width: 100% !important;
-        border-radius: 0 !important;
+        border-radius: 12px 12px 0 0 !important;
         transform: none !important;
-        background: #0b0f19 !important;
+        background: #111418 !important;
+        position: relative !important;
+        overflow: hidden !important;
+      }
+      /* Prevent horizontal slider from hijacking vertical feed scrolling on mobile */
+      .offer-card .gallery-slider {
+        pointer-events: none !important;
+        touch-action: pan-y !important;
+        overflow-x: hidden !important;
+      }
+      .offer-card .card-heart-btn {
+        pointer-events: auto !important;
+        top: 8px !important;
+        right: 8px !important;
       }
       .offer-card .gallery-arrow {
         display: none !important;
@@ -2766,11 +2831,15 @@
       }
       .offer-card .gallery-counter {
         bottom: 6px !important;
-        right: 6px !important;
-        font-size: 9px !important;
-        font-weight: 700 !important;
-        padding: 2px 5px !important;
+        left: 6px !important;
+        right: auto !important;
+        font-size: 10px !important;
+        font-weight: 600 !important;
+        padding: 2px 6px !important;
         border-radius: 4px !important;
+        background: rgba(17, 20, 24, 0.65) !important;
+        backdrop-filter: blur(4px) !important;
+        color: #ffffff !important;
       }
 
       .desktop-only-content {
@@ -2780,59 +2849,56 @@
         display: none !important;
       }
 
+      /* Avito 1-to-1 Information Hierarchy on Mobile 2-Tile */
       .card-mobile-body {
         display: flex !important;
         flex-direction: column !important;
         padding: 10px 10px 12px !important;
-        gap: 3px !important;
+        gap: 2px !important;
         background: var(--bg-card) !important;
       }
-      .card-mobile-body .card-price-main {
-        font-size: 15px !important;
-        font-weight: 800 !important;
+      .card-mobile-price-row {
+        display: flex !important;
+        align-items: baseline !important;
+        gap: 3px !important;
+      }
+      .card-mobile-price {
+        font-size: 16.5px !important;
+        font-weight: 700 !important;
         line-height: 1.2 !important;
-        letter-spacing: -0.3px !important;
+        letter-spacing: -0.2px !important;
         color: var(--text-main) !important;
       }
-      .card-mobile-body .card-price-unit {
-        font-size: 11px !important;
-        font-weight: 600 !important;
+      .card-mobile-period {
+        font-size: 11.5px !important;
+        font-weight: 500 !important;
         color: var(--text-muted) !important;
       }
       .card-mobile-title {
-        font-size: 12.5px !important;
-        font-weight: 700 !important;
+        font-size: 13.5px !important;
+        font-weight: 500 !important;
         line-height: 1.3 !important;
         color: var(--text-main) !important;
         display: -webkit-box !important;
         -webkit-line-clamp: 2 !important;
         -webkit-box-orient: vertical !important;
         overflow: hidden !important;
-        margin: 1px 0 0 !important;
+        margin: 2px 0 0 !important;
       }
       .card-mobile-location {
-        display: flex !important;
-        align-items: center !important;
-        gap: 5px !important;
-        font-size: 11px !important;
+        font-size: 12px !important;
         color: var(--text-muted) !important;
-        font-weight: 500 !important;
+        font-weight: 400 !important;
         white-space: nowrap !important;
         overflow: hidden !important;
         text-overflow: ellipsis !important;
         margin-top: 2px !important;
       }
-      .card-mobile-location .card-location-dot {
-        width: 6px !important;
-        height: 6px !important;
-        border-radius: 50% !important;
-        background: rgb(245, 158, 11) !important;
-        flex-shrink: 0 !important;
-      }
-      .card-mobile-location .card-location-text {
-        overflow: hidden !important;
-        text-overflow: ellipsis !important;
-        white-space: nowrap !important;
+      .card-mobile-time {
+        font-size: 11px !important;
+        color: var(--text-sub) !important;
+        font-weight: 400 !important;
+        margin-top: 1px !important;
       }
       /* Hide elements on mobile header as ordered */
       .header-theme-toggle {
@@ -4079,3 +4145,165 @@
 .status-pill.pos { background: #dcfce7; color: #166534; }
 .status-pill.neu { background: #f1f5f9; color: #475569; }
 .status-pill.neg { background: #fee2e2; color: #991b1b; }
+
+/* =======================================================
+   AVITO BENCHMARK SELLER ACTIONS & STICKY DOCK
+   ======================================================= */
+.joymee-seller-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 18px;
+  width: 100%;
+}
+.joymee-seller-actions .joymee-btn-seller-call {
+  margin-top: 0 !important;
+  flex: 1.25;
+  height: 48px;
+  padding: 0 18px;
+  background: var(--avito-green) !important;
+  color: #ffffff !important;
+  font-weight: 700;
+  font-size: 15px;
+  border-radius: 12px;
+  border: none;
+  box-shadow: 0 4px 14px rgba(4, 224, 97, 0.32) !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.15s ease;
+  text-decoration: none;
+}
+.joymee-seller-actions .joymee-btn-seller-call:hover {
+  background: var(--avito-green-hover) !important;
+  color: #ffffff !important;
+}
+.joymee-seller-actions .joymee-btn-seller-call:active {
+  background: var(--avito-green-active) !important;
+  transform: scale(0.97);
+}
+.joymee-btn-seller-chat {
+  flex: 1;
+  height: 48px;
+  padding: 0 16px;
+  background: var(--avito-chat-bg);
+  color: var(--text-main);
+  font-weight: 700;
+  font-size: 15px;
+  border-radius: 12px;
+  border: 1px solid var(--border-light);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+.joymee-btn-seller-chat:hover {
+  background: var(--avito-chat-hover);
+}
+.joymee-btn-seller-chat:active {
+  transform: scale(0.97);
+}
+
+/* AVITO-BENCHMARK STICKY BOTTOM ACTION DOCK */
+.avito-sticky-dock {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--bg-surface);
+  border-top: 1px solid var(--border-light);
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08);
+  padding: 10px 16px;
+  padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  z-index: 1000;
+  box-sizing: border-box;
+  animation: avitoDockSlideUp 0.22s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+@keyframes avitoDockSlideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+@media (min-width: 992px) {
+  .avito-sticky-dock {
+    display: none !important;
+  }
+}
+.avito-btn-fav {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: var(--avito-chat-bg);
+  border: 1px solid var(--border-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  cursor: pointer;
+  transition: transform 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+}
+.avito-btn-fav:active {
+  transform: scale(0.93);
+}
+.avito-btn-fav.active {
+  background: #fff0f1;
+  border-color: rgba(255, 97, 99, 0.3);
+}
+.avito-btn-call {
+  flex: 1.25;
+  height: 48px;
+  border-radius: 12px;
+  background: var(--avito-green);
+  color: #ffffff !important;
+  font-size: 15px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 4px 14px rgba(4, 224, 97, 0.32);
+  text-decoration: none;
+  cursor: pointer;
+  border: none;
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+.avito-btn-call:hover {
+  background: var(--avito-green-hover);
+}
+.avito-btn-call:active {
+  background: var(--avito-green-active);
+  transform: scale(0.97);
+}
+.avito-btn-chat {
+  flex: 1;
+  height: 48px;
+  border-radius: 12px;
+  background: var(--avito-chat-bg);
+  color: var(--text-main);
+  font-size: 15px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 1px solid var(--border-light);
+  cursor: pointer;
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+.avito-btn-chat:hover {
+  background: var(--avito-chat-hover);
+}
+.avito-btn-chat:active {
+  transform: scale(0.97);
+}
+
+@media (max-width: 991px) {
+  #detailSection {
+    padding-bottom: calc(88px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+}
