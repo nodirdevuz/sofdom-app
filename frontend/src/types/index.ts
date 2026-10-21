@@ -56,6 +56,11 @@ export interface FilterState {
   ownerOnly: boolean;
   noDeposit: boolean;
   sortBy: 'new' | 'price_asc' | 'price_desc';
+  minPrice?: number | null;
+  maxPrice?: number | null;
+  districts?: string[];
+  notFirstFloor?: boolean;
+  hasRenovation?: boolean;
 }
 
 export type LayoutMode = 'list' | 'grid';

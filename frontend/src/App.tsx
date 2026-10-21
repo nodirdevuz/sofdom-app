@@ -10,6 +10,7 @@ import { ListingCard } from './components/ListingCard';
 import { DetailPage } from './components/DetailPage';
 import { LightboxModal } from './components/LightboxModal';
 import { ProfileModal } from './components/ProfileModal';
+import { FiltersModal } from './components/FiltersModal';
 import { MobileBottomNav } from './components/MobileBottomNav';
 import { YandexMap } from './components/YandexMap';
 import { useSwipeBack } from './hooks/useSwipeBack';
@@ -80,8 +81,25 @@ export const App: React.FC = () => {
   const [layoutMode, setLayoutMode] = useState<LayoutMode>('list');
   const [isMapVisible, setIsMapVisible] = useState<boolean>(false);
   const [isProfileOpen, setIsProfileOpen] = useState<boolean>(false);
+  const [isFiltersOpen, setIsFiltersOpen] = useState<boolean>(false);
   const [mobileTab, setMobileTab] = useState<'main' | 'map'>('main');
   const [visibleCount, setVisibleCount] = useState<number>(36);
+
+  const resetFilter = () => {
+    setFilter({
+      dealType: 'all',
+      rooms: null,
+      selectedRooms: [],
+      ownerOnly: false,
+      noDeposit: false,
+      sortBy: 'new',
+      minPrice: null,
+      maxPrice: null,
+      districts: [],
+      notFirstFloor: false,
+      hasRenovation: false
+    });
+  };
 
   const [lightbox, setLightbox] = useState<{
     isOpen: boolean;
@@ -181,6 +199,8 @@ export const App: React.FC = () => {
     onBack: () => {
       if (lightbox.isOpen) {
         closeLightbox();
+      } else if (isFiltersOpen) {
+        setIsFiltersOpen(false);
       } else if (isProfileOpen) {
         setIsProfileOpen(false);
       } else if (selectedOfferId) {
@@ -189,7 +209,7 @@ export const App: React.FC = () => {
         setMobileTab('main');
       }
     },
-    enabled: !!(lightbox.isOpen || isProfileOpen || selectedOfferId || mobileTab === 'map'),
+    enabled: !!(lightbox.isOpen || isFiltersOpen || isProfileOpen || selectedOfferId || mobileTab === 'map'),
   });
 
   const selectedOffer = useMemo(() => {
@@ -260,6 +280,30 @@ export const App: React.FC = () => {
       }
       if (filter.ownerOnly && !o.is_owner) return false;
       if (filter.noDeposit && !o.deposit.toLowerCase().includes('без залога')) return false;
+
+      // Price range filters
+      if (filter.minPrice && o.price_val < filter.minPrice) return false;
+      if (filter.maxPrice && o.price_val > filter.maxPrice) return false;
+
+      // District filters
+      if (filter.districts && filter.districts.length > 0) {
+        const matchesDistrict = filter.districts.some((d) => {
+          const dClean = d.replace(' район', '').toLowerCase();
+          return o.address.toLowerCase().includes(dClean) || o.title.toLowerCase().includes(dClean);
+        });
+        if (!matchesDistrict) return false;
+      }
+
+      // Feature toggles
+      if (filter.notFirstFloor) {
+        const floorNum = typeof o.floor === 'number' ? o.floor : parseInt(String(o.floor_str).split('/')[0], 10);
+        if (floorNum === 1) return false;
+      }
+      if (filter.hasRenovation) {
+        const reno = (o.renovation || '').toLowerCase();
+        if (!reno.includes('евро') && !reno.includes('дизайн') && !reno.includes('капитальн')) return false;
+      }
+
       return true;
     }).sort((a, b) => {
       if (filter.sortBy === 'price_asc') return a.price_val - b.price_val;
@@ -486,12 +530,22 @@ export const App: React.FC = () => {
         }
       />
 
-      {/* PROFILE BOTTOM SHEET WITH THEME SWITCHER */}
+      {/* PROFILE BOTTOM SHEET */}
       <ProfileModal
         isOpen={isProfileOpen}
-        theme={theme}
-        onSetTheme={setTheme}
         onClose={() => setIsProfileOpen(false)}
+        onOpenAdmin={() => window.open('./admin/', '_blank')}
+      />
+
+      {/* FILTERS MODAL */}
+      <FiltersModal
+        isOpen={isFiltersOpen}
+        onClose={() => setIsFiltersOpen(false)}
+        filter={filter}
+        onChangeFilter={(newFilter) => setFilter((prev) => ({ ...prev, ...newFilter }))}
+        totalResultsCount={filteredOffers.length}
+        onReset={resetFilter}
+        lang={lang}
       />
 
       {/* MOBILE BOTTOM NAVIGATION */}
@@ -499,6 +553,7 @@ export const App: React.FC = () => {
         activeTab={mobileTab}
         onSelectTab={handleMobileNav}
         onOpenProfile={() => setIsProfileOpen(true)}
+        onOpenFilters={() => setIsFiltersOpen(true)}
         lang={lang}
       />
     </>
