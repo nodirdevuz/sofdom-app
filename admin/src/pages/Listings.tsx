@@ -6,19 +6,23 @@ import { PageHeader } from '../components/PageHeader';
 
 export default function Listings() {
   const [search, setSearch] = useState('');
-  const [sourceFilter, setSourceFilter] = useState<'all' | 'avito' | 'cian' | 'bezposr'>('all');
+  const [sourceFilter, setSourceFilter] = useState<'all' | 'early' | 'moderated' | 'local'>('all');
   const [districtFilter, setDistrictFilter] = useState<string>('all');
 
   const offers = OFFERS;
 
   const filtered = useMemo(() => {
     return offers.filter((o: Offer) => {
-      const src = (o.source || o.id || '').toLowerCase();
+      const ext = ((o as any).external_ref || o.source || '').toLowerCase();
+      const isEarly = ext.includes('avito');
+      const isModerated = ext.includes('cian');
+      const isLocal = !isEarly && !isModerated;
+
       const matchesSource =
         sourceFilter === 'all' ||
-        (sourceFilter === 'avito' && src.includes('avito')) ||
-        (sourceFilter === 'cian' && src.includes('cian')) ||
-        (sourceFilter === 'bezposr' && (src.includes('bezposr') || (!src.includes('avito') && !src.includes('cian'))));
+        (sourceFilter === 'early' && isEarly) ||
+        (sourceFilter === 'moderated' && isModerated) ||
+        (sourceFilter === 'local' && isLocal);
 
       const district = o.metro_name || 'Советский';
       const matchesDistrict = districtFilter === 'all' || district === districtFilter;
@@ -28,6 +32,7 @@ export default function Listings() {
         !q ||
         o.title.toLowerCase().includes(q) ||
         o.address.toLowerCase().includes(q) ||
+        o.id.toLowerCase().includes(q) ||
         (o.phone && o.phone.includes(q));
 
       return matchesSource && matchesDistrict && matchesSearch;
@@ -44,11 +49,11 @@ export default function Listings() {
   return (
     <div className="space-y-5">
       <PageHeader
-        title="Объявления Томска"
-        subtitle={`База предложений от собственников (${filtered.length} из ${offers.length})`}
+        title="Объявления SofDom"
+        subtitle={`Единая база предложений от собственников (${filtered.length} из ${offers.length})`}
       />
 
-      {/* Панель фильтров: кнопки источников (чипы) + поиск + выбор района */}
+      {/* Панель фильтров: каналы верификации + поиск + выбор района */}
       <div className="flex flex-col md:flex-row gap-3 items-stretch md:items-center justify-between">
         <div className="flex flex-wrap gap-2 items-center">
           <button
@@ -56,28 +61,28 @@ export default function Listings() {
             onClick={() => setSourceFilter('all')}
             className={chipClass(sourceFilter === 'all')}
           >
-            Все
+            Все лоты
           </button>
           <button
             type="button"
-            onClick={() => setSourceFilter('avito')}
-            className={chipClass(sourceFilter === 'avito')}
+            onClick={() => setSourceFilter('early')}
+            className={chipClass(sourceFilter === 'early')}
           >
-            Авито
+            ⚡ Ранний доступ
           </button>
           <button
             type="button"
-            onClick={() => setSourceFilter('cian')}
-            className={chipClass(sourceFilter === 'cian')}
+            onClick={() => setSourceFilter('moderated')}
+            className={chipClass(sourceFilter === 'moderated')}
           >
-            ЦИАН
+            🛡️ Модерация SofDom
           </button>
           <button
             type="button"
-            onClick={() => setSourceFilter('bezposr')}
-            className={chipClass(sourceFilter === 'bezposr')}
+            onClick={() => setSourceFilter('local')}
+            className={chipClass(sourceFilter === 'local')}
           >
-            БезПосредников
+            📍 Томск Локал
           </button>
         </div>
 
@@ -144,9 +149,9 @@ export default function Listings() {
             </thead>
             <tbody>
               {filtered.slice(0, 60).map((o: Offer) => {
-                const src = (o.source || o.id || '').toLowerCase();
-                const isAvito = src.includes('avito');
-                const isCian = src.includes('cian');
+                const ext = ((o as any).external_ref || o.source || '').toLowerCase();
+                const isEarly = ext.includes('avito');
+                const isModerated = ext.includes('cian');
 
                 return (
                   <tr
@@ -156,19 +161,19 @@ export default function Listings() {
                     <td className="px-5 py-[13px] whitespace-nowrap">
                       <span
                         className={`inline-flex items-center px-2 py-0.5 rounded-[6px] text-[12px] font-semibold ${
-                          isAvito
+                          isEarly
                             ? 'bg-[#1f2937] text-white'
-                            : isCian
+                            : isModerated
                             ? 'bg-[#e8ebef] text-[#3a4654]'
                             : 'bg-[#eef0f2] text-[#5a6675]'
                         }`}
                       >
-                        {isAvito ? 'Авито' : isCian ? 'ЦИАН' : 'БезПосредников'}
+                        {isEarly ? '⚡ Ранний' : isModerated ? '🛡️ SofDom' : '📍 Локал'}
                       </span>
                     </td>
                     <td className="px-5 py-[13px]">
                       <div className="font-semibold text-[#111418] text-[13.5px]">{o.title}</div>
-                      <div className="text-[12px] text-[#8a94a0] tabular-nums">ID: {o.id}</div>
+                      <div className="text-[12px] text-[#475569] font-medium tabular-nums">№ {o.id}</div>
                     </td>
                     <td className="px-5 py-[13px]">
                       <div className="text-[#1a1f25] text-[13.5px]">{o.address}</div>

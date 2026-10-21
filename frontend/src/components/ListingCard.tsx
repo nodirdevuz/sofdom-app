@@ -103,7 +103,7 @@ export const ListingCard: React.FC<ListingCardProps> = ({
       <div className="card-action-right desktop-only-content">
         <div>
           <div className="card-price-main">
-            {offer.price_display} <span className="card-price-unit">{offer.price_unit}</span>
+            {offer.price_display.includes('₽') ? offer.price_display : `${offer.price_display} ${offer.price_unit}`}
           </div>
           <div className="card-deposit-info">Залог: {offer.deposit}</div>
         </div>
@@ -126,7 +126,7 @@ export const ListingCard: React.FC<ListingCardProps> = ({
       {/* 4. Mobile 2-Tile Body (Shown on Mobile 2-column grid) */}
       <div className="card-mobile-body">
         <div className="card-price-main">
-          {offer.price_display} <span className="card-price-unit">{offer.price_unit}</span>
+          {offer.price_display.includes('₽') ? offer.price_display : `${offer.price_display} ${offer.price_unit}`}
         </div>
         <h2 className="card-mobile-title">{offer.title}</h2>
         <div className="card-mobile-location">

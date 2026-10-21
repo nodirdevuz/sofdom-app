@@ -1,6 +1,7 @@
 export interface Offer {
   id: string;
   source?: string;
+  external_ref?: string;
   title: string;
   raw_title?: string;
   price_display: string;

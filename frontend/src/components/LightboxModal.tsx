@@ -1,10 +1,12 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { FALLBACK_PHOTO_SVG } from '../lib/constants';
 
 interface LightboxModalProps {
   isOpen: boolean;
   photos: string[];
   currentIdx: number;
+  offerId?: string;
+  offerTitle?: string;
   onClose: () => void;
   onSelectIdx: (idx: number) => void;
   onPrev: () => void;
@@ -15,25 +17,64 @@ export const LightboxModal: React.FC<LightboxModalProps> = ({
   isOpen,
   photos,
   currentIdx,
+  offerId = 'SD-1001',
+  offerTitle = 'Квартира в аренду',
   onClose,
   onSelectIdx,
   onPrev,
   onNext
 }) => {
-  const touchStartRef = useRef<{ x: number; y: number } | null>(null);
+  const [isZoomed, setIsZoomed] = useState(false);
+  const [panOffset, setPanOffset] = useState({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
+  const dragStartRef = useRef<{ x: number; y: number } | null>(null);
 
+  const touchStartRef = useRef<{ x: number; y: number; time: number } | null>(null);
+  const lastTapRef = useRef<number>(0);
+  const thumbStripRef = useRef<HTMLDivElement>(null);
+
+  // Reset zoom on index change
+  useEffect(() => {
+    setIsZoomed(false);
+    setPanOffset({ x: 0, y: 0 });
+    setIsDragging(false);
+  }, [currentIdx]);
+
+  // Scroll active thumbnail into center of thumb strip
+  useEffect(() => {
+    if (!isOpen || !thumbStripRef.current) return;
+    const activeThumb = thumbStripRef.current.children[currentIdx] as HTMLElement;
+    if (activeThumb) {
+      const container = thumbStripRef.current;
+      const scrollLeft = activeThumb.offsetLeft - container.clientWidth / 2 + activeThumb.clientWidth / 2;
+      container.scrollTo({ left: scrollLeft, behavior: 'smooth' });
+    }
+  }, [currentIdx, isOpen]);
+
+  // Keyboard navigation & body scroll locking
   useEffect(() => {
     if (!isOpen) return;
 
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
+      if (e.key === 'Escape') {
+        if (isZoomed) {
+          setIsZoomed(false);
+          setPanOffset({ x: 0, y: 0 });
+        } else {
+          onClose();
+        }
+      }
       if (e.key === 'ArrowLeft') onPrev();
       if (e.key === 'ArrowRight') onNext();
+      if (e.key === '+' || e.key === '=') setIsZoomed(true);
+      if (e.key === '-' || e.key === '_') {
+        setIsZoomed(false);
+        setPanOffset({ x: 0, y: 0 });
+      }
     };
 
     window.addEventListener('keydown', handleKeyDown);
 
-    // Save initial style to restore on unmount
     const prevBodyOverflow = document.body.style.overflow;
     const prevHtmlOverflow = document.documentElement.style.overflow;
     const prevBodyTouchAction = document.body.style.touchAction;
@@ -42,84 +83,177 @@ export const LightboxModal: React.FC<LightboxModalProps> = ({
     document.documentElement.style.overflow = 'hidden';
     document.body.style.touchAction = 'none';
 
-    // Prevent background scrolling/rubberbanding on touch devices
-    const preventBackgroundTouch = (e: TouchEvent) => {
-      const target = e.target as HTMLElement | null;
-      // Allow scrolling inside thumbnail strip horizontally
-      if (target?.closest('.lightbox-bottom-strip')) {
-        return;
-      }
-      if (e.cancelable) {
-        e.preventDefault();
-      }
-    };
-
-    window.addEventListener('touchmove', preventBackgroundTouch, { passive: false });
-
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
-      window.removeEventListener('touchmove', preventBackgroundTouch);
       document.body.style.overflow = prevBodyOverflow;
       document.documentElement.style.overflow = prevHtmlOverflow;
       document.body.style.touchAction = prevBodyTouchAction;
     };
-  }, [isOpen, onPrev, onNext, onClose]);
+  }, [isOpen, onPrev, onNext, onClose, isZoomed]);
 
-  const handleTouchStart = (e: React.TouchEvent) => {
+  const toggleZoom = useCallback((clientX?: number, clientY?: number) => {
+    setIsZoomed((prev) => {
+      const next = !prev;
+      if (!next) {
+        setPanOffset({ x: 0, y: 0 });
+      }
+      return next;
+    });
+  }, []);
+
+  // Double tap handler for mobile
+  const handleStageTouchStart = (e: React.TouchEvent) => {
     if (e.touches.length === 1) {
-      touchStartRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+      const now = Date.now();
+      const touch = e.touches[0];
+      touchStartRef.current = { x: touch.clientX, y: touch.clientY, time: now };
+
+      if (isZoomed) {
+        dragStartRef.current = { x: touch.clientX - panOffset.x, y: touch.clientY - panOffset.y };
+        setIsDragging(true);
+      }
+
+      // Double tap detected (< 300ms)
+      if (now - lastTapRef.current < 300) {
+        toggleZoom(touch.clientX, touch.clientY);
+        lastTapRef.current = 0;
+      } else {
+        lastTapRef.current = now;
+      }
     }
   };
 
-  const handleTouchMove = (e: React.TouchEvent) => {
-    // Isolate touch movement to modal
-    e.stopPropagation();
+  const handleStageTouchMove = (e: React.TouchEvent) => {
+    if (isZoomed && isDragging && dragStartRef.current && e.touches.length === 1) {
+      const touch = e.touches[0];
+      setPanOffset({
+        x: touch.clientX - dragStartRef.current.x,
+        y: touch.clientY - dragStartRef.current.y
+      });
+    }
   };
 
-  const handleTouchEnd = (e: React.TouchEvent) => {
+  const handleStageTouchEnd = (e: React.TouchEvent) => {
+    setIsDragging(false);
     if (!touchStartRef.current || e.changedTouches.length === 0) return;
     const deltaX = e.changedTouches[0].clientX - touchStartRef.current.x;
     const deltaY = e.changedTouches[0].clientY - touchStartRef.current.y;
     touchStartRef.current = null;
 
-    // Horizontal swipe for photo navigation
-    if (Math.abs(deltaX) > 40 && Math.abs(deltaY) < 70) {
-      if (deltaX < 0) {
-        onNext();
-      } else {
-        onPrev();
+    if (!isZoomed) {
+      // Horizontal swipe to flip
+      if (Math.abs(deltaX) > 45 && Math.abs(deltaY) < 70) {
+        if (deltaX < 0) {
+          onNext();
+        } else {
+          onPrev();
+        }
+      }
+      // Swipe down to dismiss
+      if (deltaY > 90 && Math.abs(deltaX) < 60) {
+        onClose();
       }
     }
   };
 
+  // Mouse pan handlers for desktop zoom mode
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (isZoomed) {
+      setIsDragging(true);
+      dragStartRef.current = { x: e.clientX - panOffset.x, y: e.clientY - panOffset.y };
+    }
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (isZoomed && isDragging && dragStartRef.current) {
+      setPanOffset({
+        x: e.clientX - dragStartRef.current.x,
+        y: e.clientY - dragStartRef.current.y
+      });
+    }
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
+
   if (!isOpen || photos.length === 0) return null;
+
+  const currentPhoto = photos[currentIdx];
 
   return (
     <div
       className="lightbox-overlay"
-      onTouchMove={handleTouchMove}
+      onMouseMove={handleMouseMove}
+      onMouseUp={handleMouseUp}
     >
+      {/* 1. TOP BAR */}
       <div className="lightbox-topbar">
-        <div className="lightbox-counter">
-          {currentIdx + 1} / {photos.length}
+        {/* Left: Property Title and SofDom ID */}
+        <div className="lightbox-title-meta">
+          <span className="lightbox-id-tag">№ {offerId}</span>
+          <span className="lightbox-title-text" title={offerTitle}>
+            {offerTitle}
+          </span>
         </div>
-        <button className="lightbox-close-btn clickable" onClick={onClose} title="Закрыть (Esc)">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
-            <line x1="18" y1="6" x2="6" y2="18" />
-            <line x1="6" y1="6" x2="18" y2="18" />
-          </svg>
-        </button>
+
+        {/* Center: Photo Counter Pill */}
+        <div className="lightbox-counter-pill">
+          <span>{currentIdx + 1}</span>
+          <span className="lightbox-counter-divider">/</span>
+          <span>{photos.length}</span>
+        </div>
+
+        {/* Right: Actions (Zoom Toggle + Close) */}
+        <div className="lightbox-actions-group">
+          <button
+            className={`lightbox-action-btn ${isZoomed ? 'active' : ''} clickable`}
+            onClick={() => toggleZoom()}
+            title={isZoomed ? 'Сбросить масштаб (1x)' : 'Приблизить фото (2x)'}
+            aria-label="Масштаб"
+          >
+            {isZoomed ? (
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="11" cy="11" r="8" />
+                <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                <line x1="8" y1="11" x2="14" y2="11" />
+              </svg>
+            ) : (
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="11" cy="11" r="8" />
+                <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                <line x1="11" y1="8" x2="11" y2="14" />
+                <line x1="8" y1="11" x2="14" y2="11" />
+              </svg>
+            )}
+            <span className="lightbox-action-label">{isZoomed ? '1x' : '2x'}</span>
+          </button>
+
+          <button
+            className="lightbox-close-btn clickable"
+            onClick={onClose}
+            title="Закрыть (Esc)"
+            aria-label="Закрыть"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
+        </div>
       </div>
 
+      {/* 2. CENTER STAGE (FULL EXPANSIVE VIEW) */}
       <div
-        className="lightbox-center-stage"
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
+        className={`lightbox-center-stage ${isZoomed ? 'zoomed-stage' : ''}`}
+        onTouchStart={handleStageTouchStart}
+        onTouchMove={handleStageTouchMove}
+        onTouchEnd={handleStageTouchEnd}
         onClick={(e) => {
-          if (e.target === e.currentTarget) onClose();
+          if (e.target === e.currentTarget && !isZoomed) onClose();
         }}
       >
+        {/* Previous Chevron Button */}
         <button
           className="lightbox-nav-btn lightbox-btn-prev clickable"
           onClick={(e) => {
@@ -128,27 +262,45 @@ export const LightboxModal: React.FC<LightboxModalProps> = ({
           }}
           aria-label="Предыдущее фото"
         >
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round">
             <path d="m15 18-6-6 6-6" />
           </svg>
         </button>
+
+        {/* Expansive Image Box (Exact hugging wrapper so shield sits on bottom-right of photo) */}
         <div
-          className="lightbox-img-wrapper"
+          className={`lightbox-img-box ${isZoomed ? 'is-zoomed' : ''} ${isDragging ? 'is-dragging' : ''}`}
+          onMouseDown={handleMouseDown}
+          onDoubleClick={(e) => {
+            e.stopPropagation();
+            toggleZoom(e.clientX, e.clientY);
+          }}
           onClick={(e) => {
             e.stopPropagation();
-            // Tap on left 40% goes prev, tap on right 40% goes next
-            const rect = e.currentTarget.getBoundingClientRect();
-            const clickX = e.clientX - rect.left;
-            if (clickX < rect.width * 0.4) {
-              onPrev();
-            } else if (clickX > rect.width * 0.6) {
-              onNext();
+            if (!isZoomed) {
+              const rect = e.currentTarget.getBoundingClientRect();
+              const clickX = e.clientX - rect.left;
+              if (clickX < rect.width * 0.35) {
+                onPrev();
+              } else if (clickX > rect.width * 0.65) {
+                onNext();
+              }
             }
           }}
+          style={
+            isZoomed
+              ? {
+                  transform: `translate(${panOffset.x}px, ${panOffset.y}px) scale(2)`,
+                  cursor: isDragging ? 'grabbing' : 'grab'
+                }
+              : undefined
+          }
         >
           <img
-            src={photos[currentIdx]}
-            alt="Полноэкранное фото"
+            key={currentIdx}
+            src={currentPhoto}
+            alt={`${offerTitle} — фото ${currentIdx + 1}`}
+            className="lightbox-main-img"
             onError={(e) => {
               const target = e.currentTarget;
               if (!target.dataset.fallback) {
@@ -157,7 +309,23 @@ export const LightboxModal: React.FC<LightboxModalProps> = ({
               }
             }}
           />
+
+          {/* SOFDOM WATERMARK SHIELD:
+              Covers competitor watermarks (ЦИАН ID... / ru09) in bottom-right corner
+              with authoritative SofDom verification badge and internal listing ID */}
+          <div className="lightbox-photo-shield">
+            <div className="shield-top">
+              <span className="shield-dot" />
+              <span>SofDom • Проверено</span>
+            </div>
+            <div className="shield-sub">
+              <span>№ {offerId}</span>
+              <span className="shield-tag">Оригинал</span>
+            </div>
+          </div>
         </div>
+
+        {/* Next Chevron Button */}
         <button
           className="lightbox-nav-btn lightbox-btn-next clickable"
           onClick={(e) => {
@@ -166,25 +334,27 @@ export const LightboxModal: React.FC<LightboxModalProps> = ({
           }}
           aria-label="Следующее фото"
         >
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round">
             <path d="m9 18 6-6-6-6" />
           </svg>
         </button>
       </div>
 
-      <div className="lightbox-bottom-strip">
+      {/* 3. BOTTOM THUMBNAILS CAROUSEL */}
+      <div className="lightbox-bottom-strip" ref={thumbStripRef}>
         {photos.map((url, i) => (
           <div
             key={i}
-            className={`lightbox-thumb-item ${i === currentIdx ? 'active' : ''}`}
+            className={`lightbox-thumb-item ${i === currentIdx ? 'active' : ''} clickable`}
             onClick={(e) => {
               e.stopPropagation();
               onSelectIdx(i);
             }}
+            title={`Фото ${i + 1}`}
           >
             <img
               src={url}
-              alt={`Превью ${i + 1}`}
+              alt={`Миниатюра ${i + 1}`}
               onError={(e) => {
                 const target = e.currentTarget;
                 if (!target.dataset.fallback) {

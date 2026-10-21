@@ -47,7 +47,7 @@ export const TOMSK_MAP_FALLBACK: {
   ],
   "apartments": [
     {
-      "id": "avito_8167774294",
+      "id": "SD-1009",
       "lat": 56.4560544,
       "lng": 84.9657342,
       "title": "2-к. квартира, 36,9 м², 5/9 эт.",
@@ -65,7 +65,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "5/9 эт."
     },
     {
-      "id": "avito_8341097858",
+      "id": "SD-1010",
       "lat": 56.4627011,
       "lng": 84.9627261,
       "title": "1-к. квартира, 39 м², 2/10 эт.",
@@ -83,7 +83,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "2/10 эт."
     },
     {
-      "id": "avito_8308763680",
+      "id": "SD-1011",
       "lat": 56.5020943,
       "lng": 85.0074898,
       "title": "Квартира-студия, 18 м², 1/1 эт.",
@@ -101,7 +101,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "1/1 эт."
     },
     {
-      "id": "avito_8483334034",
+      "id": "SD-1012",
       "lat": 56.4447333,
       "lng": 85.0276743,
       "title": "1-к. квартира, 38 м², 1/17 эт.",
@@ -119,7 +119,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "1/17 эт."
     },
     {
-      "id": "bezposr_164418",
+      "id": "SD-1013",
       "lat": 56.4522799,
       "lng": 84.9730081,
       "title": "1-к. квартира ⋅ 47 м² ⋅ 2/6 этаж",
@@ -137,7 +137,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "2/6 эт."
     },
     {
-      "id": "bezposr_198736",
+      "id": "SD-1014",
       "lat": 56.5020943,
       "lng": 85.0074898,
       "title": "Студия ⋅ 18 м² ⋅ 1/1 этаж",
@@ -155,7 +155,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "1/1 эт."
     },
     {
-      "id": "bezposr_185962",
+      "id": "SD-1015",
       "lat": 56.5921515,
       "lng": 84.9047438,
       "title": "2-к. квартира ⋅ 50 м² ⋅ 3/5 этаж",
@@ -173,7 +173,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "3/5 эт."
     },
     {
-      "id": "bezposr_195091",
+      "id": "SD-1016",
       "lat": 56.4271481,
       "lng": 85.021483,
       "title": "1-к. квартира ⋅ 33 м² ⋅ 4/5 этаж",
@@ -191,7 +191,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "4/5 эт."
     },
     {
-      "id": "bezposr_199126",
+      "id": "SD-1017",
       "lat": 56.4997712,
       "lng": 85.0782652,
       "title": "Студия ⋅ 20 м² ⋅ 7/10 этаж",
@@ -209,7 +209,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "7/10 эт."
     },
     {
-      "id": "bezposr_199125",
+      "id": "SD-1018",
       "lat": 56.4447333,
       "lng": 85.0276743,
       "title": "1-к. квартира ⋅ 38 м² ⋅ 1/17 этаж",
@@ -227,7 +227,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "1/17 эт."
     },
     {
-      "id": "bezposr_198241",
+      "id": "SD-1019",
       "lat": 56.4764164,
       "lng": 84.9802782,
       "title": "2-к. квартира ⋅ 44.2 м² ⋅ 8/9 этаж",
@@ -245,7 +245,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "8/9 эт."
     },
     {
-      "id": "bezposr_193282",
+      "id": "SD-1020",
       "lat": 56.4570593,
       "lng": 84.9714106,
       "title": "1-к. квартира ⋅ 19 м² ⋅ 5/5 этаж",
@@ -263,7 +263,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "5/5 эт."
     },
     {
-      "id": "bezposr_198550",
+      "id": "SD-1021",
       "lat": 56.4804209,
       "lng": 84.9938439,
       "title": "2-к. квартира ⋅ 67.6 м² ⋅ 8/9 этаж",
@@ -281,7 +281,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "8/9 эт."
     },
     {
-      "id": "cian_334986722",
+      "id": "SD-1022",
       "lat": 56.520375,
       "lng": 85.073584,
       "title": "1-комн. квартира, 30 м², 17/17 эт.",
@@ -299,7 +299,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "17/17 эт."
     },
     {
-      "id": "avito_8390399149",
+      "id": "SD-1023",
       "lat": 56.478525,
       "lng": 84.986075,
       "title": "1-к. квартира, 35 м², 14/17 эт.",
@@ -317,7 +317,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "14/17 эт."
     },
     {
-      "id": "avito_8413588654",
+      "id": "SD-1024",
       "lat": 56.484135,
       "lng": 84.98075,
       "title": "1-к. квартира, 34,7 м², 11/17 эт.",
@@ -335,7 +335,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "11/17 эт."
     },
     {
-      "id": "avito_7757232038",
+      "id": "SD-1025",
       "lat": 56.470725,
       "lng": 84.9789,
       "title": "2-к. квартира, 52,2 м², 12/17 эт.",
@@ -353,7 +353,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "12/17 эт."
     },
     {
-      "id": "avito_8316755836",
+      "id": "SD-1026",
       "lat": 56.429635,
       "lng": 85.0101,
       "title": "Квартира-студия, 31 м², 3/4 эт.",
@@ -371,7 +371,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "3/4 эт."
     },
     {
-      "id": "avito_7635851042",
+      "id": "SD-1027",
       "lat": 56.470755,
       "lng": 84.989875,
       "title": "2-к. квартира, 55 м², 2/9 эт.",
@@ -389,7 +389,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "2/9 эт."
     },
     {
-      "id": "avito_8435180251",
+      "id": "SD-1028",
       "lat": 56.42464,
       "lng": 85.00435,
       "title": "1-к. квартира, 36 м², 2/10 эт.",
@@ -407,7 +407,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "2/10 эт."
     },
     {
-      "id": "avito_7582850668",
+      "id": "SD-1029",
       "lat": 56.4798,
       "lng": 84.991125,
       "title": "3-к. квартира, 105,5 м², 2/4 эт.",
@@ -425,7 +425,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "2/4 эт."
     },
     {
-      "id": "avito_8338559078",
+      "id": "SD-1030",
       "lat": 56.47365,
       "lng": 84.973575,
       "title": "Квартира-студия, 34 м², 14/19 эт.",
@@ -443,7 +443,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "14/19 эт."
     },
     {
-      "id": "bezposr_196225",
+      "id": "SD-1031",
       "lat": 56.48265,
       "lng": 84.996725,
       "title": "2-к. квартира ⋅ 56 м² ⋅ 5/19 этаж",
@@ -461,7 +461,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "5/19 эт."
     },
     {
-      "id": "bezposr_198435",
+      "id": "SD-1032",
       "lat": 56.50371,
       "lng": 85.0286,
       "title": "2-к. квартира ⋅ 64.2 м² ⋅ 4/5 этаж",
@@ -479,7 +479,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "4/5 эт."
     },
     {
-      "id": "bezposr_199124",
+      "id": "SD-1033",
       "lat": 56.43031,
       "lng": 85.003075,
       "title": "2-к. квартира ⋅ 60 м² ⋅ 17/17 этаж",
@@ -497,7 +497,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "17/17 эт."
     },
     {
-      "id": "bezposr_199123",
+      "id": "SD-1034",
       "lat": 56.510095,
       "lng": 84.96875,
       "title": "3-к. квартира ⋅ 60 м² ⋅ 2/5 этаж",
@@ -515,7 +515,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "2/5 эт."
     },
     {
-      "id": "bezposr_199122",
+      "id": "SD-1035",
       "lat": 56.5117,
       "lng": 84.9619,
       "title": "3-к. квартира ⋅ 60 м² ⋅ 5/9 этаж",
@@ -533,7 +533,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "5/9 эт."
     },
     {
-      "id": "bezposr_199121",
+      "id": "SD-1036",
       "lat": 56.47584,
       "lng": 84.9925,
       "title": "2-к. квартира ⋅ 45.8 м² ⋅ 6/9 этаж",
@@ -551,7 +551,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "6/9 эт."
     },
     {
-      "id": "bezposr_199120",
+      "id": "SD-1037",
       "lat": 56.5126,
       "lng": 84.95755,
       "title": "1-к. квартира ⋅ 29 м² ⋅ 4/4 этаж",
@@ -569,7 +569,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "4/4 эт."
     },
     {
-      "id": "bezposr_187222",
+      "id": "SD-1038",
       "lat": 56.47335,
       "lng": 84.98675,
       "title": "2-к. квартира ⋅ 55 м² ⋅ 2/9 этаж",
@@ -587,7 +587,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "2/9 эт."
     },
     {
-      "id": "bezposr_194211",
+      "id": "SD-1039",
       "lat": 56.42191,
       "lng": 85.016,
       "title": "2-к. квартира ⋅ 52.5 м² ⋅ 1/9 этаж",
@@ -605,7 +605,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "1/9 эт."
     },
     {
-      "id": "bezposr_199119",
+      "id": "SD-1040",
       "lat": 56.51104,
       "lng": 84.948525,
       "title": "Студия ⋅ 40 м² ⋅ 13/16 этаж",
@@ -623,7 +623,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "13/16 эт."
     },
     {
-      "id": "bezposr_199118",
+      "id": "SD-1041",
       "lat": 56.506395,
       "lng": 85.0219,
       "title": "1-к. квартира ⋅ 25 м² ⋅ 2/2 этаж",
@@ -641,7 +641,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "2/2 эт."
     },
     {
-      "id": "bezposr_199117",
+      "id": "SD-1042",
       "lat": 56.422585,
       "lng": 85.004225,
       "title": "1-к. квартира ⋅ 50 м² ⋅ 5/5 этаж",
@@ -659,7 +659,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "5/5 эт."
     },
     {
-      "id": "bezposr_168158",
+      "id": "SD-1043",
       "lat": 56.515135,
       "lng": 84.951825,
       "title": "1-к. квартира ⋅ 50 м² ⋅ 4/9 этаж",
@@ -677,7 +677,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "4/9 эт."
     },
     {
-      "id": "bezposr_196162",
+      "id": "SD-1044",
       "lat": 56.4398813,
       "lng": 85.0336217,
       "title": "2-к. квартира ⋅ 41.2 м² ⋅ 12/17 этаж",
@@ -695,7 +695,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "12/17 эт."
     },
     {
-      "id": "bezposr_180231",
+      "id": "SD-1045",
       "lat": 56.516125,
       "lng": 84.958,
       "title": "1-к. квартира ⋅ 33 м² ⋅ 15/17 этаж",
@@ -713,7 +713,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "15/17 эт."
     },
     {
-      "id": "bezposr_195682",
+      "id": "SD-1046",
       "lat": 56.5137,
       "lng": 85.039075,
       "title": "1-к. квартира ⋅ 12 м² ⋅ 3/3 этаж",
@@ -731,7 +731,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "3/3 эт."
     },
     {
-      "id": "bezposr_197135",
+      "id": "SD-1047",
       "lat": 56.510895,
       "lng": 85.022275,
       "title": "3-к. квартира ⋅ 83.1 м² ⋅ 8/17 этаж",
@@ -749,7 +749,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "8/17 эт."
     },
     {
-      "id": "bezposr_199116",
+      "id": "SD-1048",
       "lat": 56.51544,
       "lng": 85.02305,
       "title": "1-к. квартира ⋅ 36.6 м² ⋅ 4/9 этаж",
@@ -767,7 +767,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "4/9 эт."
     },
     {
-      "id": "bezposr_168515",
+      "id": "SD-1049",
       "lat": 56.4615,
       "lng": 84.980475,
       "title": "1-к. квартира ⋅ 12 м² ⋅ 3/9 этаж",
@@ -785,7 +785,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "3/9 эт."
     },
     {
-      "id": "bezposr_186199",
+      "id": "SD-1050",
       "lat": 56.51509,
       "lng": 84.9642,
       "title": "1-к. квартира ⋅ 34.7 м² ⋅ 10/17 этаж",
@@ -803,7 +803,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "10/17 эт."
     },
     {
-      "id": "bezposr_185716",
+      "id": "SD-1051",
       "lat": 56.474535,
       "lng": 84.981525,
       "title": "1-к. квартира ⋅ 18 м² ⋅ 3/5 этаж",
@@ -821,7 +821,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "3/5 эт."
     },
     {
-      "id": "bezposr_187330",
+      "id": "SD-1052",
       "lat": 56.48052,
       "lng": 84.9906,
       "title": "Студия ⋅ 26 м² ⋅ 1/9 этаж",
@@ -839,7 +839,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "1/9 эт."
     },
     {
-      "id": "bezposr_189885",
+      "id": "SD-1053",
       "lat": 56.513625,
       "lng": 85.021925,
       "title": "1-к. квартира ⋅ 34 м² ⋅ 8/10 этаж",
@@ -857,7 +857,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "8/10 эт."
     },
     {
-      "id": "bezposr_184025",
+      "id": "SD-1054",
       "lat": 56.509425,
       "lng": 85.019475,
       "title": "1-к. квартира ⋅ 40 м² ⋅ 7/9 этаж",
@@ -875,7 +875,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "7/9 эт."
     },
     {
-      "id": "bezposr_182681",
+      "id": "SD-1055",
       "lat": 56.460435,
       "lng": 84.96745,
       "title": "Студия ⋅ 16 м² ⋅ 3/9 этаж",
@@ -893,7 +893,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "3/9 эт."
     },
     {
-      "id": "bezposr_198675",
+      "id": "SD-1056",
       "lat": 56.46219,
       "lng": 84.958275,
       "title": "1-к. квартира ⋅ 15 м² ⋅ 3/5 этаж",
@@ -911,7 +911,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "3/5 эт."
     },
     {
-      "id": "bezposr_196639",
+      "id": "SD-1057",
       "lat": 56.51406,
       "lng": 85.018325,
       "title": "2-к. квартира ⋅ 39.1 м² ⋅ 8/10 этаж",
@@ -929,7 +929,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "8/10 эт."
     },
     {
-      "id": "bezposr_197172",
+      "id": "SD-1058",
       "lat": 56.50743,
       "lng": 85.026275,
       "title": "3-к. квартира ⋅ 83.1 м² ⋅ 8/17 этаж",
@@ -947,7 +947,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "8/17 эт."
     },
     {
-      "id": "bezposr_193360",
+      "id": "SD-1059",
       "lat": 56.427895,
       "lng": 85.018625,
       "title": "1-к. квартира ⋅ 36.5 м² ⋅ 8/9 этаж",
@@ -965,7 +965,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "8/9 эт."
     },
     {
-      "id": "bezposr_199115",
+      "id": "SD-1060",
       "lat": 56.51175,
       "lng": 85.03995,
       "title": "1-к. квартира ⋅ 23 м² ⋅ 4/17 этаж",
@@ -983,7 +983,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "4/17 эт."
     },
     {
-      "id": "cian_335073195",
+      "id": "SD-1061",
       "lat": 56.481673,
       "lng": 84.984237,
       "title": "1-комн. квартира, 18 м², 3/5 эт.",
@@ -1001,7 +1001,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "3/5 эт."
     },
     {
-      "id": "cian_335017040",
+      "id": "SD-1062",
       "lat": 56.507601,
       "lng": 84.973457,
       "title": "1-комн. квартира, 29.8 м², 3/5 эт.",
@@ -1019,7 +1019,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "3/5 эт."
     },
     {
-      "id": "cian_334319160",
+      "id": "SD-1063",
       "lat": 56.492686,
       "lng": 85.05232,
       "title": "1-комн. квартира, 38 м², 5/10 эт.",
@@ -1037,7 +1037,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "5/10 эт."
     },
     {
-      "id": "cian_333808638",
+      "id": "SD-1064",
       "lat": 56.504039,
       "lng": 85.044766,
       "title": "1-комн. квартира, 38 м², 9/16 эт.",
@@ -1055,7 +1055,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "9/16 эт."
     },
     {
-      "id": "cian_335143766",
+      "id": "SD-1065",
       "lat": 56.521815,
       "lng": 84.973367,
       "title": "1-комн. квартира, 40 м², 13/16 эт.",
@@ -1073,7 +1073,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "13/16 эт."
     },
     {
-      "id": "cian_304034612",
+      "id": "SD-1066",
       "lat": 56.499215,
       "lng": 85.058582,
       "title": "1-комн. квартира, 24 м², 6/11 эт.",
@@ -1091,7 +1091,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "6/11 эт."
     },
     {
-      "id": "cian_334948919",
+      "id": "SD-1067",
       "lat": 56.517758,
       "lng": 84.926404,
       "title": "1-комн. квартира, 58 м², 17/17 эт.",
@@ -1109,7 +1109,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "17/17 эт."
     },
     {
-      "id": "cian_333456814",
+      "id": "SD-1068",
       "lat": 56.49373,
       "lng": 85.054054,
       "title": "1-комн. квартира, 52.9 м², 7/10 эт.",
@@ -1127,7 +1127,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "7/10 эт."
     },
     {
-      "id": "cian_334083942",
+      "id": "SD-1069",
       "lat": 56.507462,
       "lng": 85.046814,
       "title": "1-комн. квартира, 39 м², 2/10 эт.",
@@ -1145,7 +1145,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "2/10 эт."
     },
     {
-      "id": "cian_248821018",
+      "id": "SD-1070",
       "lat": 56.448613,
       "lng": 84.990849,
       "title": "1-комн. квартира, 62.4 м², 3/10 эт.",
@@ -1163,7 +1163,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "3/10 эт."
     },
     {
-      "id": "cian_335067999",
+      "id": "SD-1071",
       "lat": 56.440911,
       "lng": 85.028578,
       "title": "1-комн. квартира, 42.9 м², 8/10 эт.",
@@ -1181,7 +1181,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "8/10 эт."
     },
     {
-      "id": "cian_331297739",
+      "id": "SD-1072",
       "lat": 56.474808,
       "lng": 84.990894,
       "title": "1-комн. квартира, 10 м², 1/4 эт.",
@@ -1199,7 +1199,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "1/4 эт."
     },
     {
-      "id": "cian_334143106",
+      "id": "SD-1073",
       "lat": 56.479302,
       "lng": 84.988567,
       "title": "1-комн. квартира, 42.6 м², 3/10 эт.",
@@ -1217,7 +1217,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "3/10 эт."
     },
     {
-      "id": "cian_334461904",
+      "id": "SD-1074",
       "lat": 56.484332,
       "lng": 85.000595,
       "title": "1-комн. квартира, 56 м², 11/11 эт.",
@@ -1235,7 +1235,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "11/11 эт."
     },
     {
-      "id": "cian_335063984",
+      "id": "SD-1075",
       "lat": 58.312254,
       "lng": 82.877418,
       "title": "1-комн. квартира, 30 м², 2/3 эт.",
@@ -1253,7 +1253,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "2/3 эт."
     },
     {
-      "id": "cian_335064338",
+      "id": "SD-1076",
       "lat": 56.59719,
       "lng": 84.90329,
       "title": "1-комн. квартира, 41.3 м², 4/5 эт.",
@@ -1271,7 +1271,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "4/5 эт."
     },
     {
-      "id": "cian_335099816",
+      "id": "SD-1077",
       "lat": 56.524625,
       "lng": 84.940049,
       "title": "1-комн. квартира, 36.4 м², 6/10 эт.",
@@ -1289,7 +1289,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "6/10 эт."
     },
     {
-      "id": "cian_335110233",
+      "id": "SD-1078",
       "lat": 56.608714,
       "lng": 84.869244,
       "title": "1-комн. квартира, 30.1 м², 5/5 эт.",
@@ -1307,7 +1307,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "5/5 эт."
     },
     {
-      "id": "cian_318313805",
+      "id": "SD-1079",
       "lat": 56.445309,
       "lng": 84.91972,
       "title": "1-комн. квартира, 30 м², 2/8 эт.",
@@ -1325,7 +1325,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "2/8 эт."
     },
     {
-      "id": "cian_334189462",
+      "id": "SD-1080",
       "lat": 56.58642,
       "lng": 84.920726,
       "title": "1-комн. квартира, 47.8 м², 7/10 эт.",
@@ -1343,7 +1343,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "7/10 эт."
     },
     {
-      "id": "cian_335009721",
+      "id": "SD-1081",
       "lat": 56.524382,
       "lng": 84.948556,
       "title": "1-комн. квартира, 17 м², 1/3 эт.",
@@ -1361,7 +1361,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "1/3 эт."
     },
     {
-      "id": "cian_314084688",
+      "id": "SD-1082",
       "lat": 56.465191,
       "lng": 84.893534,
       "title": "1-комн. квартира, 50 м², 2/3 эт.",
@@ -1379,7 +1379,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "2/3 эт."
     },
     {
-      "id": "cian_334878887",
+      "id": "SD-1083",
       "lat": 56.521815,
       "lng": 84.973367,
       "title": "1-комн. квартира, 62 м², 13/17 эт.",
@@ -1397,7 +1397,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "13/17 эт."
     },
     {
-      "id": "cian_334886245",
+      "id": "SD-1084",
       "lat": 56.477577,
       "lng": 84.960872,
       "title": "1-комн. квартира, 13 м², 1/4 эт.",
@@ -1415,7 +1415,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "1/4 эт."
     },
     {
-      "id": "cian_334509510",
+      "id": "SD-1085",
       "lat": 56.457249,
       "lng": 84.983078,
       "title": "1-комн. квартира, 49.2 м², 16/18 эт.",
@@ -1433,7 +1433,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "16/18 эт."
     },
     {
-      "id": "cian_333424593",
+      "id": "SD-1086",
       "lat": 56.453991,
       "lng": 85.018184,
       "title": "1-комн. квартира, 42 м², 15/15 эт.",
@@ -1451,7 +1451,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "15/15 эт."
     },
     {
-      "id": "cian_335006222",
+      "id": "SD-1087",
       "lat": 56.519933,
       "lng": 85.07361,
       "title": "1-комн. квартира, 40 м², 5/15 эт.",
@@ -1469,7 +1469,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "5/15 эт."
     },
     {
-      "id": "cian_334862400",
+      "id": "SD-1088",
       "lat": 56.456095,
       "lng": 84.96407,
       "title": "1-комн. квартира, 36.9 м², 5/9 эт.",
@@ -1487,7 +1487,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "5/9 эт."
     },
     {
-      "id": "cian_330533625",
+      "id": "SD-1089",
       "lat": 56.506007,
       "lng": 84.946211,
       "title": "1-комн. квартира, 42 м², 7/9 эт.",
@@ -1505,7 +1505,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "7/9 эт."
     },
     {
-      "id": "cian_333117854",
+      "id": "SD-1090",
       "lat": 56.45308,
       "lng": 84.984668,
       "title": "1-комн. квартира, 64 м², 12/17 эт.",
@@ -1523,7 +1523,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "12/17 эт."
     },
     {
-      "id": "cian_281499631",
+      "id": "SD-1091",
       "lat": 56.517684,
       "lng": 85.046913,
       "title": "1-комн. квартира, 53 м², 4/5 эт.",
@@ -1541,7 +1541,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "4/5 эт."
     },
     {
-      "id": "cian_333587872",
+      "id": "SD-1092",
       "lat": 56.483865,
       "lng": 84.971086,
       "title": "1-комн. квартира, 66.2 м², 1/12 эт.",
@@ -1559,7 +1559,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "1/12 эт."
     },
     {
-      "id": "cian_335117867",
+      "id": "SD-1093",
       "lat": 56.405988,
       "lng": 85.022424,
       "title": "1-комн. квартира, 28 м², 1/3 эт.",
@@ -1577,7 +1577,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "1/3 эт."
     },
     {
-      "id": "cian_333250955",
+      "id": "SD-1094",
       "lat": 56.465574,
       "lng": 84.963226,
       "title": "1-комн. квартира, 50 м², 4/9 эт.",
@@ -1595,7 +1595,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "4/9 эт."
     },
     {
-      "id": "cian_335126089",
+      "id": "SD-1095",
       "lat": 56.504139,
       "lng": 85.040373,
       "title": "1-комн. квартира, 23 м², 4/17 эт.",
@@ -1613,7 +1613,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "4/17 эт."
     },
     {
-      "id": "cian_335073221",
+      "id": "SD-1096",
       "lat": 56.59543,
       "lng": 84.919522,
       "title": "1-комн. квартира, 53 м², 1/11 эт.",
@@ -1631,7 +1631,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "1/11 эт."
     },
     {
-      "id": "cian_333560082",
+      "id": "SD-1097",
       "lat": 56.489864,
       "lng": 84.976574,
       "title": "1-комн. квартира, 16 м², 1/4 эт.",
@@ -1649,7 +1649,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "1/4 эт."
     },
     {
-      "id": "cian_335110171",
+      "id": "SD-1098",
       "lat": 56.528245,
       "lng": 84.973691,
       "title": "1-комн. квартира, 17 м², 2/3 эт.",
@@ -1667,7 +1667,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "2/3 эт."
     },
     {
-      "id": "cian_261426413",
+      "id": "SD-1099",
       "lat": 56.4821,
       "lng": 84.977554,
       "title": "1-комн. квартира, 20 м², 1/9 эт.",
@@ -1685,7 +1685,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "1/9 эт."
     },
     {
-      "id": "cian_323183853",
+      "id": "SD-1100",
       "lat": 56.455299,
       "lng": 85.020233,
       "title": "1-комн. квартира, 40 м², 7/12 эт.",
@@ -1703,7 +1703,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "7/12 эт."
     },
     {
-      "id": "cian_334443422",
+      "id": "SD-1101",
       "lat": 56.465549,
       "lng": 84.938055,
       "title": "1-комн. квартира, 19 м², 3/3 эт.",
@@ -1721,7 +1721,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "3/3 эт."
     },
     {
-      "id": "cian_335099864",
+      "id": "SD-1102",
       "lat": 56.576668,
       "lng": 85.104369,
       "title": "1-комн. квартира, 36 м², 5/9 эт.",
@@ -1739,7 +1739,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "5/9 эт."
     },
     {
-      "id": "cian_335085972",
+      "id": "SD-1103",
       "lat": 56.520092,
       "lng": 84.98094,
       "title": "1-комн. квартира, 36 м², 6/10 эт.",
@@ -1757,7 +1757,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "6/10 эт."
     },
     {
-      "id": "cian_334319515",
+      "id": "SD-1104",
       "lat": 56.512449,
       "lng": 85.03156,
       "title": "1-комн. квартира, 13 м², 1/5 эт.",
@@ -1775,7 +1775,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "1/5 эт."
     },
     {
-      "id": "cian_330267136",
+      "id": "SD-1105",
       "lat": 56.525996,
       "lng": 84.936519,
       "title": "1-комн. квартира, 20 м², 1/2 эт.",
@@ -1793,7 +1793,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "1/2 эт."
     },
     {
-      "id": "cian_327803912",
+      "id": "SD-1106",
       "lat": 56.451882,
       "lng": 84.98889,
       "title": "1-комн. квартира, 14 м², 2/9 эт.",
@@ -1811,7 +1811,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "2/9 эт."
     },
     {
-      "id": "cian_335059377",
+      "id": "SD-1107",
       "lat": 56.590316,
       "lng": 84.924814,
       "title": "1-комн. квартира, 39.1 м², 5/10 эт.",
@@ -1829,7 +1829,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "5/10 эт."
     },
     {
-      "id": "cian_323375205",
+      "id": "SD-1108",
       "lat": 56.482747,
       "lng": 84.982512,
       "title": "1-комн. квартира, 35 м², 4/18 эт.",
@@ -1847,7 +1847,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "4/18 эт."
     },
     {
-      "id": "cian_331591084",
+      "id": "SD-1109",
       "lat": 56.604092,
       "lng": 84.883877,
       "title": "1-комн. квартира, 54 м², 1/5 эт.",
@@ -1865,7 +1865,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "1/5 эт."
     },
     {
-      "id": "cian_325534626",
+      "id": "SD-1110",
       "lat": 56.464371,
       "lng": 84.958393,
       "title": "1-комн. квартира, 16 м², 3/9 эт.",
@@ -1883,7 +1883,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "3/9 эт."
     },
     {
-      "id": "cian_320436493",
+      "id": "SD-1111",
       "lat": 56.453991,
       "lng": 85.018184,
       "title": "1-комн. квартира, 33 м², 7/10 эт.",
@@ -1901,7 +1901,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "7/10 эт."
     },
     {
-      "id": "cian_334958267",
+      "id": "SD-1112",
       "lat": 56.4821,
       "lng": 84.977554,
       "title": "1-комн. квартира, 20 м², 1/9 эт.",
@@ -1919,7 +1919,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "1/9 эт."
     },
     {
-      "id": "cian_331377355",
+      "id": "SD-1113",
       "lat": 56.499215,
       "lng": 85.058582,
       "title": "1-комн. квартира, 25 м², 2/11 эт.",
@@ -1937,7 +1937,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "2/11 эт."
     },
     {
-      "id": "cian_329255764",
+      "id": "SD-1114",
       "lat": 56.457706,
       "lng": 84.946202,
       "title": "1-комн. квартира, 12 м², 1/5 эт.",
@@ -1955,7 +1955,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "1/5 эт."
     },
     {
-      "id": "cian_327875809",
+      "id": "SD-1115",
       "lat": 56.493198,
       "lng": 85.053488,
       "title": "1-комн. квартира, 25.6 м², 1/10 эт.",
@@ -1973,7 +1973,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "1/10 эт."
     },
     {
-      "id": "cian_334552942",
+      "id": "SD-1116",
       "lat": 56.511535,
       "lng": 84.986303,
       "title": "1-комн. квартира, 56 м², 4/10 эт.",
@@ -1991,7 +1991,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "4/10 эт."
     },
     {
-      "id": "avito_8240330068",
+      "id": "SD-1117",
       "lat": 56.500515,
       "lng": 85.0411,
       "title": "3-к. квартира, 83,1 м², 8/17 эт.",
@@ -2009,7 +2009,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "8/17 эт."
     },
     {
-      "id": "avito_8511800164",
+      "id": "SD-1118",
       "lat": 56.513445,
       "lng": 85.021575,
       "title": "Апартаменты-студия, 17 м², 2/3 эт.",
@@ -2027,7 +2027,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "2/3 эт."
     },
     {
-      "id": "avito_5025829973",
+      "id": "SD-1119",
       "lat": 56.482635,
       "lng": 84.993275,
       "title": "Квартира-студия, 27 м², 7/18 эт.",
@@ -2045,7 +2045,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "7/18 эт."
     },
     {
-      "id": "avito_8512446281",
+      "id": "SD-1120",
       "lat": 56.47881,
       "lng": 84.994725,
       "title": "Квартира-студия, 18 м², 3/5 эт.",
@@ -2063,7 +2063,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "3/5 эт."
     },
     {
-      "id": "avito_8413463632",
+      "id": "SD-1121",
       "lat": 56.48361,
       "lng": 84.989925,
       "title": "1-к. квартира, 38 м², 7/9 эт.",
@@ -2081,7 +2081,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "7/9 эт."
     },
     {
-      "id": "avito_7336309398",
+      "id": "SD-1122",
       "lat": 56.475405,
       "lng": 84.992475,
       "title": "1-к. квартира, 36 м², 6/9 эт.",
@@ -2099,7 +2099,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "6/9 эт."
     },
     {
-      "id": "avito_8543416983",
+      "id": "SD-1123",
       "lat": 56.485035,
       "lng": 84.9881,
       "title": "1-к. квартира, 39,3 м², 6/10 эт.",
@@ -2117,7 +2117,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "6/10 эт."
     },
     {
-      "id": "avito_2431427042",
+      "id": "SD-1124",
       "lat": 56.472735,
       "lng": 84.97385,
       "title": "2-к. квартира, 62 м², 10/17 эт.",
@@ -2135,7 +2135,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "10/17 эт."
     },
     {
-      "id": "avito_8489116674",
+      "id": "SD-1125",
       "lat": 56.48337,
       "lng": 84.97695,
       "title": "3-к. квартира, 71 м², 3/9 эт.",
@@ -2153,7 +2153,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "3/9 эт."
     },
     {
-      "id": "avito_8368564920",
+      "id": "SD-1126",
       "lat": 56.475165,
       "lng": 84.980975,
       "title": "Квартира-студия, 18 м², 3/5 эт.",
@@ -2171,7 +2171,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "3/5 эт."
     },
     {
-      "id": "avito_8485540548",
+      "id": "SD-1127",
       "lat": 56.460735,
       "lng": 84.95805,
       "title": "1-к. квартира, 33 м², 7/9 эт.",
@@ -2189,7 +2189,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "7/9 эт."
     },
     {
-      "id": "avito_8369365604",
+      "id": "SD-1128",
       "lat": 56.51274,
       "lng": 85.028675,
       "title": "1-к. квартира, 40 м², 7/9 эт.",
@@ -2207,7 +2207,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "7/9 эт."
     },
     {
-      "id": "avito_8327404336",
+      "id": "SD-1129",
       "lat": 56.417965,
       "lng": 85.007625,
       "title": "Квартира-студия, 31,9 м², 7/9 эт.",
@@ -2225,7 +2225,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "7/9 эт."
     },
     {
-      "id": "avito_8545122479",
+      "id": "SD-1130",
       "lat": 56.45586,
       "lng": 84.9776,
       "title": "2-к. квартира, 52,5 м², 9/9 эт.",
@@ -2243,7 +2243,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "9/9 эт."
     },
     {
-      "id": "avito_8332469170",
+      "id": "SD-1131",
       "lat": 56.5156,
       "lng": 84.959725,
       "title": "2-к. квартира, 55,5 м², 9/17 эт.",
@@ -2261,7 +2261,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "9/17 эт."
     },
     {
-      "id": "avito_8339879121",
+      "id": "SD-1132",
       "lat": 56.45352,
       "lng": 84.979075,
       "title": "1-к. квартира, 25 м², 1/2 эт.",
@@ -2279,7 +2279,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "1/2 эт."
     },
     {
-      "id": "avito_8482783507",
+      "id": "SD-1133",
       "lat": 56.4807,
       "lng": 84.9946,
       "title": "1-к. квартира, 40 м², 4/9 эт.",
@@ -2297,7 +2297,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "4/9 эт."
     },
     {
-      "id": "avito_8512076578",
+      "id": "SD-1134",
       "lat": 56.4813,
       "lng": 84.9796,
       "title": "2-к. квартира, 63,1 м², 3/10 эт.",
@@ -2315,7 +2315,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "3/10 эт."
     },
     {
-      "id": "avito_3619081646",
+      "id": "SD-1135",
       "lat": 56.46183,
       "lng": 84.97345,
       "title": "1-к. квартира, 30,3 м², 4/5 эт.",
@@ -2333,7 +2333,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "4/5 эт."
     },
     {
-      "id": "avito_8419468448",
+      "id": "SD-1136",
       "lat": 56.47764,
       "lng": 84.9758,
       "title": "2-к. квартира, 68,6 м², 5/10 эт.",
@@ -2351,7 +2351,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "5/10 эт."
     },
     {
-      "id": "avito_8543260511",
+      "id": "SD-1137",
       "lat": 56.476965,
       "lng": 84.983975,
       "title": "Квартира-студия, 53 м², 1/5 эт.",
@@ -2369,7 +2369,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "1/5 эт."
     },
     {
-      "id": "avito_8451181794",
+      "id": "SD-1138",
       "lat": 56.47848,
       "lng": 84.979325,
       "title": "1-к. квартира, 28,8 м², 9/9 эт.",
@@ -2387,7 +2387,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "9/9 эт."
     },
     {
-      "id": "avito_8166605548",
+      "id": "SD-1139",
       "lat": 56.480595,
       "lng": 84.97415,
       "title": "3-к. квартира, 75 м², 11/15 эт.",
@@ -2405,7 +2405,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "11/15 эт."
     },
     {
-      "id": "avito_8145206361",
+      "id": "SD-1140",
       "lat": 56.423425,
       "lng": 85.0205,
       "title": "Квартира-студия, 30 м², 6/8 эт.",
@@ -2423,7 +2423,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "6/8 эт."
     },
     {
-      "id": "avito_4417891997",
+      "id": "SD-1141",
       "lat": 56.470815,
       "lng": 84.986475,
       "title": "1-к. квартира, 29,4 м², 2/2 эт.",
@@ -2441,7 +2441,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "2/2 эт."
     },
     {
-      "id": "avito_7495082779",
+      "id": "SD-1142",
       "lat": 56.454,
       "lng": 84.976775,
       "title": "2-к. квартира, 45 м², 1/3 эт.",
@@ -2459,7 +2459,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "1/3 эт."
     },
     {
-      "id": "avito_8525203306",
+      "id": "SD-1143",
       "lat": 56.45436,
       "lng": 84.962325,
       "title": "1-к. квартира, 31 м², 4/5 эт.",
@@ -2477,7 +2477,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "4/5 эт."
     },
     {
-      "id": "avito_8338179537",
+      "id": "SD-1144",
       "lat": 56.42188,
       "lng": 85.0057,
       "title": "Квартира-студия, 27 м², 5/8 эт.",
@@ -2495,7 +2495,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "5/8 эт."
     },
     {
-      "id": "avito_8344101913",
+      "id": "SD-1145",
       "lat": 56.425915,
       "lng": 85.00475,
       "title": "2-к. квартира, 60 м², 5/9 эт.",
@@ -2513,7 +2513,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "5/9 эт."
     },
     {
-      "id": "avito_8545776869",
+      "id": "SD-1146",
       "lat": 56.48313,
       "lng": 84.975975,
       "title": "1-к. квартира, 44,3 м², 1/10 эт.",
@@ -2531,7 +2531,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "1/10 эт."
     },
     {
-      "id": "avito_8300226780",
+      "id": "SD-1147",
       "lat": 56.513905,
       "lng": 84.9485,
       "title": "3-к. квартира, 59,3 м², 5/5 эт.",
@@ -2549,7 +2549,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "5/5 эт."
     },
     {
-      "id": "avito_8272830916",
+      "id": "SD-1148",
       "lat": 56.522395,
       "lng": 84.954225,
       "title": "2-к. квартира, 54 м², 8/10 эт.",
@@ -2567,7 +2567,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "8/10 эт."
     },
     {
-      "id": "avito_8140457275",
+      "id": "SD-1149",
       "lat": 56.47569,
       "lng": 84.981675,
       "title": "3-к. квартира, 71,2 м², 9/10 эт.",
@@ -2585,7 +2585,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "9/10 эт."
     },
     {
-      "id": "avito_7641590027",
+      "id": "SD-1150",
       "lat": 56.421295,
       "lng": 85.013925,
       "title": "2-к. квартира, 55 м², 4/14 эт.",
@@ -2603,7 +2603,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "4/14 эт."
     },
     {
-      "id": "avito_7806790898",
+      "id": "SD-1151",
       "lat": 56.47224,
       "lng": 84.979925,
       "title": "1-к. квартира, 31 м², 4/4 эт.",
@@ -2621,7 +2621,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "4/4 эт."
     },
     {
-      "id": "avito_2461285170",
+      "id": "SD-1152",
       "lat": 56.41753,
       "lng": 85.01795,
       "title": "Квартира-студия, 46,6 м², 1/4 эт.",
@@ -2639,7 +2639,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "1/4 эт."
     },
     {
-      "id": "avito_8480151359",
+      "id": "SD-1153",
       "lat": 56.501415,
       "lng": 85.0224,
       "title": "1-к. квартира, 40 м², 6/9 эт.",
@@ -2657,7 +2657,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "6/9 эт."
     },
     {
-      "id": "avito_3768829674",
+      "id": "SD-1154",
       "lat": 56.479455,
       "lng": 84.982475,
       "title": "1-к. квартира, 19 м², 2/5 эт.",
@@ -2675,7 +2675,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "2/5 эт."
     },
     {
-      "id": "avito_8482981139",
+      "id": "SD-1155",
       "lat": 56.47356,
       "lng": 84.98155,
       "title": "1-к. квартира, 25 м², 2/2 эт.",
@@ -2693,7 +2693,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "2/2 эт."
     },
     {
-      "id": "avito_8413503211",
+      "id": "SD-1156",
       "lat": 56.481135,
       "lng": 84.981475,
       "title": "2-к. квартира, 60 м², 7/8 эт.",
@@ -2711,7 +2711,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "7/8 эт."
     },
     {
-      "id": "avito_2706839770",
+      "id": "SD-1157",
       "lat": 56.481615,
       "lng": 84.975525,
       "title": "1-к. квартира, 38 м², 3/9 эт.",
@@ -2729,7 +2729,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "3/9 эт."
     },
     {
-      "id": "avito_3449339946",
+      "id": "SD-1158",
       "lat": 56.47989,
       "lng": 84.9933,
       "title": "1-к. квартира, 15 м², 2/5 эт.",
@@ -2747,7 +2747,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "2/5 эт."
     },
     {
-      "id": "avito_8382387712",
+      "id": "SD-1159",
       "lat": 56.48394,
       "lng": 84.997175,
       "title": "1-к. квартира, 25,9 м², 6/10 эт.",
@@ -2765,7 +2765,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "6/10 эт."
     },
     {
-      "id": "avito_758325405",
+      "id": "SD-1160",
       "lat": 56.47962,
       "lng": 84.98975,
       "title": "2-к. квартира, 59 м², 5/10 эт.",
@@ -2783,7 +2783,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "5/10 эт."
     },
     {
-      "id": "avito_8005413215",
+      "id": "SD-1161",
       "lat": 56.42947,
       "lng": 85.014225,
       "title": "2-к. квартира, 45 м², 5/9 эт.",
@@ -2801,7 +2801,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "5/9 эт."
     },
     {
-      "id": "avito_4216291253",
+      "id": "SD-1162",
       "lat": 56.482185,
       "lng": 84.993275,
       "title": "Квартира-студия, 40 м², 13/16 эт.",
@@ -2819,7 +2819,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "13/16 эт."
     },
     {
-      "id": "avito_4708990358",
+      "id": "SD-1163",
       "lat": 56.5168,
       "lng": 84.972175,
       "title": "2-к. квартира, 50 м², 2/3 эт.",
@@ -2837,7 +2837,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "2/3 эт."
     },
     {
-      "id": "avito_3153042140",
+      "id": "SD-1164",
       "lat": 56.48361,
       "lng": 84.98775,
       "title": "1-к. квартира, 41 м², 14/15 эт.",
@@ -2855,7 +2855,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "14/15 эт."
     },
     {
-      "id": "avito_8391397886",
+      "id": "SD-1165",
       "lat": 56.47782,
       "lng": 84.97975,
       "title": "1-к. квартира, 20,1 м², 1/3 эт.",
@@ -2873,7 +2873,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "1/3 эт."
     },
     {
-      "id": "avito_8322197699",
+      "id": "SD-1166",
       "lat": 56.50728,
       "lng": 85.02645,
       "title": "1-к. квартира, 48,5 м², 3/5 эт.",
@@ -2891,7 +2891,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "3/5 эт."
     },
     {
-      "id": "avito_8543405859",
+      "id": "SD-1167",
       "lat": 56.479605,
       "lng": 84.97775,
       "title": "1-к. квартира, 35 м², 3/10 эт.",
@@ -2909,7 +2909,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "3/10 эт."
     },
     {
-      "id": "avito_8378571075",
+      "id": "SD-1168",
       "lat": 56.47425,
       "lng": 84.9755,
       "title": "1-к. квартира, 14 м², 1/5 эт.",
@@ -2927,7 +2927,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "1/5 эт."
     },
     {
-      "id": "avito_8408854871",
+      "id": "SD-1169",
       "lat": 56.45904,
       "lng": 84.966075,
       "title": "1-к. квартира, 49,2 м², 16/18 эт.",
@@ -2945,7 +2945,7 @@ export const TOMSK_MAP_FALLBACK: {
       "floor_str": "16/18 эт."
     },
     {
-      "id": "avito_4326801484",
+      "id": "SD-1170",
       "lat": 56.47065,
       "lng": 84.98195,
       "title": "Квартира-студия, 14 м², 1/9 эт.",

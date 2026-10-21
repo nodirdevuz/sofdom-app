@@ -237,7 +237,10 @@ export const DetailPage: React.FC<DetailPageProps> = ({
           </svg>
           <span>Назад к объявлениям</span>
         </button>
-        <span className="joymee-detail-time">{offer.time_ago || 'Сегодня'}</span>
+        <div className="joymee-topbar-meta">
+          <span className="joymee-id-badge">№ {offer.id}</span>
+          <span className="joymee-detail-time">{offer.time_ago || 'Сегодня'}</span>
+        </div>
       </div>
 
       {/* 2-Column Joymee Layout */}
@@ -310,6 +313,18 @@ export const DetailPage: React.FC<DetailPageProps> = ({
                   }}
                 />
               ))}
+            </div>
+
+            {/* SofDom Photo Shield in bottom right corner */}
+            <div className="detail-photo-shield" onClick={() => onOpenLightbox(activePhotoIdx)}>
+              <div className="shield-top">
+                <span className="shield-dot" />
+                <span>SofDom • Проверено</span>
+              </div>
+              <div className="shield-sub">
+                <span>№ {offer.id}</span>
+                <span className="shield-tag">Оригинал</span>
+              </div>
             </div>
           </div>
 
@@ -387,7 +402,7 @@ export const DetailPage: React.FC<DetailPageProps> = ({
 
           {/* Price */}
           <div className="joymee-price">
-            {offer.price_display} {offer.price_unit}
+            {offer.price_display.includes('₽') ? offer.price_display : `${offer.price_display} ${offer.price_unit}`}
           </div>
 
           {/* Description */}

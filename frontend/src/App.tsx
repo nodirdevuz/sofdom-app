@@ -106,10 +106,14 @@ export const App: React.FC = () => {
     isOpen: boolean;
     photos: string[];
     currentIdx: number;
+    offerId?: string;
+    offerTitle?: string;
   }>({
     isOpen: false,
     photos: [],
-    currentIdx: 0
+    currentIdx: 0,
+    offerId: '',
+    offerTitle: ''
   });
 
   // Fetch live Tomsk apartments from backend API
@@ -373,12 +377,16 @@ export const App: React.FC = () => {
     });
   };
 
-  const openLightbox = (startIdx: number, photos?: string[]) => {
+  const openLightbox = (startIdx: number, photos?: string[], offerId?: string, offerTitle?: string) => {
     const list = photos || (selectedOffer ? selectedOffer.photos : []);
+    const id = offerId || (selectedOffer ? selectedOffer.id : 'SD-1001');
+    const title = offerTitle || (selectedOffer ? selectedOffer.title : 'Квартира в аренду');
     setLightbox({
       isOpen: true,
       photos: list,
-      currentIdx: startIdx
+      currentIdx: startIdx,
+      offerId: id,
+      offerTitle: title
     });
   };
 
@@ -521,6 +529,8 @@ export const App: React.FC = () => {
         isOpen={lightbox.isOpen}
         photos={lightbox.photos}
         currentIdx={lightbox.currentIdx}
+        offerId={lightbox.offerId}
+        offerTitle={lightbox.offerTitle}
         onClose={closeLightbox}
         onSelectIdx={(idx) => setLightbox((prev) => ({ ...prev, currentIdx: idx }))}
         onPrev={() =>

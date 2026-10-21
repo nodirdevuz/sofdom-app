@@ -2,40 +2,40 @@ import { Offer, VipOffer } from '../types';
 
 export const VIPS: VipOffer[] = [
   {
-    "id": "bezposr_186542",
-    "offer_ref": "bezposr_186542",
+    "id": "vip_1",
+    "offer_ref": "SD-1008",
     "title": "1-к. квартира ⋅ 52 м² ⋅ 4/7 эт.",
     "price": "32 000 ₽ / мес",
     "metro": "Советский район • ул. Фрунзе, 18",
     "photo": "https://tsk.s.bsps.ru/images/sobipro/galleries/98/186542/44d1174e.jpg"
   },
   {
-    "id": "bezposr_197869",
-    "offer_ref": "bezposr_197869",
+    "id": "vip_2",
+    "offer_ref": "SD-1006",
     "title": "3-к. квартира ⋅ 101 м² ⋅ 1/6 эт.",
     "price": "65 000 ₽ / мес",
     "metro": "Советский район • ул. Гоголя, 40",
     "photo": "https://tsk.s.bsps.ru/images/sobipro/galleries/4e/197869/3aa304.jpg"
   },
   {
-    "id": "bezposr_196225",
-    "offer_ref": "bezposr_196225",
+    "id": "vip_3",
+    "offer_ref": "SD-1031",
     "title": "2-к. квартира ⋅ 56 м² ⋅ 5/19 эт.",
     "price": "45 000 ₽ / мес",
     "metro": "Советский район • ул. Киевская, 1",
     "photo": "https://tsk.s.bsps.ru/images/sobipro/galleries/a8/196225/417ba2.jpg"
   },
   {
-    "id": "bezposr_175402",
-    "offer_ref": "bezposr_175402",
+    "id": "vip_4",
+    "offer_ref": "SD-1001",
     "title": "Студия ⋅ 27 м² ⋅ 5/9 эт.",
     "price": "28 000 ₽ / мес",
     "metro": "Кировский район • ул. Савиных, 4а",
     "photo": "https://tsk.s.bsps.ru/images/sobipro/galleries/4c/175402/04c1e31d.jpg"
   },
   {
-    "id": "bezposr_198241",
-    "offer_ref": "bezposr_198241",
+    "id": "vip_5",
+    "offer_ref": "SD-1019",
     "title": "2-к. квартира ⋅ 44.2 м² ⋅ 8/9 эт.",
     "price": "45 000 ₽ / мес",
     "metro": "Советский район • пр-кт Фрунзе, 102",
@@ -45,7 +45,7 @@ export const VIPS: VipOffer[] = [
 
 export const OFFERS: Offer[] = [
   {
-    "id": "bezposr_175402",
+    "id": "SD-1001",
     "title": "Студия ⋅ 27 м² ⋅ 5/9 эт.",
     "raw_title": "Студия, 27 м², 5/9 эт.",
     "price_display": "28 000 ₽ / мес",
@@ -79,10 +79,11 @@ export const OFFERS: Offer[] = [
       "Холодильник",
       "Интернет",
       "Кухонная мебель"
-    ]
+    ],
+    "external_ref": "bezposr_175402"
   },
   {
-    "id": "bezposr_198244",
+    "id": "SD-1002",
     "title": "1-к. квартира ⋅ 30 м² ⋅ 10/12 эт.",
     "raw_title": "1-к. квартира, 30 м², 10/12 эт.",
     "price_display": "30 000 ₽ / мес",
@@ -116,10 +117,11 @@ export const OFFERS: Offer[] = [
       "Холодильник",
       "Интернет",
       "Лоджия"
-    ]
+    ],
+    "external_ref": "bezposr_198244"
   },
   {
-    "id": "bezposr_179517",
+    "id": "SD-1003",
     "title": "1-к. квартира ⋅ 36 м² ⋅ 4/10 эт.",
     "raw_title": "1-к. квартира, 36 м², 4/10 эт.",
     "price_display": "24 000 ₽ / мес",
@@ -153,10 +155,11 @@ export const OFFERS: Offer[] = [
       "Холодильник",
       "Интернет",
       "Балкон"
-    ]
+    ],
+    "external_ref": "bezposr_179517"
   },
   {
-    "id": "bezposr_198594",
+    "id": "SD-1004",
     "title": "1-к. квартира ⋅ 18 м² ⋅ 5/5 эт.",
     "raw_title": "1-к. квартира, 18 м², 5/5 эт.",
     "price_display": "20 000 ₽ / мес",
@@ -189,10 +192,11 @@ export const OFFERS: Offer[] = [
       "Стиральная машина",
       "Холодильник",
       "Интернет"
-    ]
+    ],
+    "external_ref": "bezposr_198594"
   },
   {
-    "id": "bezposr_192989",
+    "id": "SD-1005",
     "title": "2-к. квартира ⋅ 56 м² ⋅ 4/5 эт.",
     "raw_title": "2-к. квартира, 56 м², 4/5 эт.",
     "price_display": "25 000 ₽ / мес",
@@ -227,10 +231,11 @@ export const OFFERS: Offer[] = [
       "Холодильник",
       "Кухонная плита",
       "Мебель на кухне"
-    ]
+    ],
+    "external_ref": "bezposr_192989"
   },
   {
-    "id": "bezposr_197869",
+    "id": "SD-1006",
     "title": "3-к. квартира ⋅ 101 м² ⋅ 1/6 эт.",
     "raw_title": "3-к. квартира, 101 м², 1/6 эт.",
     "price_display": "65 000 ₽ / мес",
@@ -266,10 +271,11 @@ export const OFFERS: Offer[] = [
       "Холодильник",
       "Кондиционер",
       "Телевизор"
-    ]
+    ],
+    "external_ref": "bezposr_197869"
   },
   {
-    "id": "bezposr_197177",
+    "id": "SD-1007",
     "title": "1-к. квартира ⋅ 21 м² ⋅ 2/3 эт.",
     "raw_title": "1-к. квартира, 21 м², 2/3 эт.",
     "price_display": "25 000 ₽ / мес",
@@ -303,10 +309,11 @@ export const OFFERS: Offer[] = [
       "Холодильник",
       "Интернет",
       "Кухонная мебель"
-    ]
+    ],
+    "external_ref": "bezposr_197177"
   },
   {
-    "id": "bezposr_186542",
+    "id": "SD-1008",
     "title": "1-к. квартира ⋅ 52 м² ⋅ 4/7 эт.",
     "raw_title": "1-к. квартира, 52 м², 4/7 эт.",
     "price_display": "32 000 ₽ / мес",
@@ -343,10 +350,11 @@ export const OFFERS: Offer[] = [
       "Интернет",
       "Телевизор",
       "Кондиционер"
-    ]
+    ],
+    "external_ref": "bezposr_186542"
   },
   {
-    "id": "avito_8167774294",
+    "id": "SD-1009",
     "title": "2-к. квартира, 36,9 м², 5/9 эт.",
     "raw_title": "2-к. квартира, 36,9 м², 5/9 эт.",
     "price_display": "49 000 ₽",
@@ -382,10 +390,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.4560544,
-    "lng": 84.9657342
+    "lng": 84.9657342,
+    "external_ref": "avito_8167774294"
   },
   {
-    "id": "avito_8341097858",
+    "id": "SD-1010",
     "title": "1-к. квартира, 39 м², 2/10 эт.",
     "raw_title": "1-к. квартира, 39 м², 2/10 эт.",
     "price_display": "50 000 ₽",
@@ -421,10 +430,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.4627011,
-    "lng": 84.9627261
+    "lng": 84.9627261,
+    "external_ref": "avito_8341097858"
   },
   {
-    "id": "avito_8308763680",
+    "id": "SD-1011",
     "title": "Квартира-студия, 18 м², 1/1 эт.",
     "raw_title": "Квартира-студия, 18 м², 1/1 эт.",
     "price_display": "20 000 ₽",
@@ -460,10 +470,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.5020943,
-    "lng": 85.0074898
+    "lng": 85.0074898,
+    "external_ref": "avito_8308763680"
   },
   {
-    "id": "avito_8483334034",
+    "id": "SD-1012",
     "title": "1-к. квартира, 38 м², 1/17 эт.",
     "raw_title": "1-к. квартира, 38 м², 1/17 эт.",
     "price_display": "25 000 ₽",
@@ -498,10 +509,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.4447333,
-    "lng": 85.0276743
+    "lng": 85.0276743,
+    "external_ref": "avito_8483334034"
   },
   {
-    "id": "bezposr_164418",
+    "id": "SD-1013",
     "title": "1-к. квартира ⋅ 47 м² ⋅ 2/6 этаж",
     "raw_title": "1-к. квартира ⋅ 47 м² ⋅ 2/6 этаж",
     "price_display": "35 000 ₽",
@@ -536,10 +548,11 @@ export const OFFERS: Offer[] = [
     "is_top": true,
     "time_ago": "7 ч назад",
     "lat": 56.4522799,
-    "lng": 84.9730081
+    "lng": 84.9730081,
+    "external_ref": "bezposr_164418"
   },
   {
-    "id": "bezposr_198736",
+    "id": "SD-1014",
     "title": "Студия ⋅ 18 м² ⋅ 1/1 этаж",
     "raw_title": "Студия ⋅ 18 м² ⋅ 1/1 этаж",
     "price_display": "20 000 ₽",
@@ -578,10 +591,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.5020943,
-    "lng": 85.0074898
+    "lng": 85.0074898,
+    "external_ref": "bezposr_198736"
   },
   {
-    "id": "bezposr_185962",
+    "id": "SD-1015",
     "title": "2-к. квартира ⋅ 50 м² ⋅ 3/5 этаж",
     "raw_title": "2-к. квартира ⋅ 50 м² ⋅ 3/5 этаж",
     "price_display": "20 000 ₽",
@@ -620,10 +634,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.5921515,
-    "lng": 84.9047438
+    "lng": 84.9047438,
+    "external_ref": "bezposr_185962"
   },
   {
-    "id": "bezposr_195091",
+    "id": "SD-1016",
     "title": "1-к. квартира ⋅ 33 м² ⋅ 4/5 этаж",
     "raw_title": "1-к. квартира ⋅ 33 м² ⋅ 4/5 этаж",
     "price_display": "22 000 ₽",
@@ -662,10 +677,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.4271481,
-    "lng": 85.021483
+    "lng": 85.021483,
+    "external_ref": "bezposr_195091"
   },
   {
-    "id": "bezposr_199126",
+    "id": "SD-1017",
     "title": "Студия ⋅ 20 м² ⋅ 7/10 этаж",
     "raw_title": "Студия ⋅ 20 м² ⋅ 7/10 этаж",
     "price_display": "20 000 ₽",
@@ -701,10 +717,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.4997712,
-    "lng": 85.0782652
+    "lng": 85.0782652,
+    "external_ref": "bezposr_199126"
   },
   {
-    "id": "bezposr_199125",
+    "id": "SD-1018",
     "title": "1-к. квартира ⋅ 38 м² ⋅ 1/17 этаж",
     "raw_title": "1-к. квартира ⋅ 38 м² ⋅ 1/17 этаж",
     "price_display": "25 000 ₽",
@@ -743,10 +760,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.4447333,
-    "lng": 85.0276743
+    "lng": 85.0276743,
+    "external_ref": "bezposr_199125"
   },
   {
-    "id": "bezposr_198241",
+    "id": "SD-1019",
     "title": "2-к. квартира ⋅ 44.2 м² ⋅ 8/9 этаж",
     "raw_title": "2-к. квартира ⋅ 44.2 м² ⋅ 8/9 этаж",
     "price_display": "45 000 ₽",
@@ -785,10 +803,11 @@ export const OFFERS: Offer[] = [
     "is_top": true,
     "time_ago": "7 ч назад",
     "lat": 56.4764164,
-    "lng": 84.9802782
+    "lng": 84.9802782,
+    "external_ref": "bezposr_198241"
   },
   {
-    "id": "bezposr_193282",
+    "id": "SD-1020",
     "title": "1-к. квартира ⋅ 19 м² ⋅ 5/5 этаж",
     "raw_title": "1-к. квартира ⋅ 19 м² ⋅ 5/5 этаж",
     "price_display": "22 000 ₽",
@@ -825,10 +844,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.4570593,
-    "lng": 84.9714106
+    "lng": 84.9714106,
+    "external_ref": "bezposr_193282"
   },
   {
-    "id": "bezposr_198550",
+    "id": "SD-1021",
     "title": "2-к. квартира ⋅ 67.6 м² ⋅ 8/9 этаж",
     "raw_title": "2-к. квартира ⋅ 67.6 м² ⋅ 8/9 этаж",
     "price_display": "35 000 ₽",
@@ -867,10 +887,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.4804209,
-    "lng": 84.9938439
+    "lng": 84.9938439,
+    "external_ref": "bezposr_198550"
   },
   {
-    "id": "cian_334986722",
+    "id": "SD-1022",
     "title": "1-комн. квартира, 30 м², 17/17 эт.",
     "raw_title": "1-комн. квартира, 30 м², 17/17 эт.",
     "price_display": "30 000 ₽",
@@ -909,10 +930,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.520375,
-    "lng": 85.073584
+    "lng": 85.073584,
+    "external_ref": "cian_334986722"
   },
   {
-    "id": "avito_8390399149",
+    "id": "SD-1023",
     "title": "1-к. квартира, 35 м², 14/17 эт.",
     "raw_title": "1-к. квартира, 35 м², 14/17 эт.",
     "price_display": "30 000 ₽",
@@ -946,10 +968,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.478525,
-    "lng": 84.986075
+    "lng": 84.986075,
+    "external_ref": "avito_8390399149"
   },
   {
-    "id": "avito_8413588654",
+    "id": "SD-1024",
     "title": "1-к. квартира, 34,7 м², 11/17 эт.",
     "raw_title": "1-к. квартира, 34,7 м², 11/17 эт.",
     "price_display": "29 000 ₽",
@@ -983,10 +1006,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.484135,
-    "lng": 84.98075
+    "lng": 84.98075,
+    "external_ref": "avito_8413588654"
   },
   {
-    "id": "avito_7757232038",
+    "id": "SD-1025",
     "title": "2-к. квартира, 52,2 м², 12/17 эт.",
     "raw_title": "2-к. квартира, 52,2 м², 12/17 эт.",
     "price_display": "38 000 ₽",
@@ -1022,10 +1046,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.470725,
-    "lng": 84.9789
+    "lng": 84.9789,
+    "external_ref": "avito_7757232038"
   },
   {
-    "id": "avito_8316755836",
+    "id": "SD-1026",
     "title": "Квартира-студия, 31 м², 3/4 эт.",
     "raw_title": "Квартира-студия, 31 м², 3/4 эт.",
     "price_display": "40 000 ₽",
@@ -1061,10 +1086,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.429635,
-    "lng": 85.0101
+    "lng": 85.0101,
+    "external_ref": "avito_8316755836"
   },
   {
-    "id": "avito_7635851042",
+    "id": "SD-1027",
     "title": "2-к. квартира, 55 м², 2/9 эт.",
     "raw_title": "2-к. квартира, 55 м², 2/9 эт.",
     "price_display": "30 000 ₽",
@@ -1100,10 +1126,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.470755,
-    "lng": 84.989875
+    "lng": 84.989875,
+    "external_ref": "avito_7635851042"
   },
   {
-    "id": "avito_8435180251",
+    "id": "SD-1028",
     "title": "1-к. квартира, 36 м², 2/10 эт.",
     "raw_title": "1-к. квартира, 36 м², 2/10 эт.",
     "price_display": "42 000 ₽",
@@ -1139,10 +1166,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.42464,
-    "lng": 85.00435
+    "lng": 85.00435,
+    "external_ref": "avito_8435180251"
   },
   {
-    "id": "avito_7582850668",
+    "id": "SD-1029",
     "title": "3-к. квартира, 105,5 м², 2/4 эт.",
     "raw_title": "3-к. квартира, 105,5 м², 2/4 эт.",
     "price_display": "130 000 ₽",
@@ -1178,10 +1206,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.4798,
-    "lng": 84.991125
+    "lng": 84.991125,
+    "external_ref": "avito_7582850668"
   },
   {
-    "id": "avito_8338559078",
+    "id": "SD-1030",
     "title": "Квартира-студия, 34 м², 14/19 эт.",
     "raw_title": "Квартира-студия, 34 м², 14/19 эт.",
     "price_display": "33 999 ₽",
@@ -1217,10 +1246,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.47365,
-    "lng": 84.973575
+    "lng": 84.973575,
+    "external_ref": "avito_8338559078"
   },
   {
-    "id": "bezposr_196225",
+    "id": "SD-1031",
     "title": "2-к. квартира ⋅ 56 м² ⋅ 5/19 этаж",
     "raw_title": "2-к. квартира ⋅ 56 м² ⋅ 5/19 этаж",
     "price_display": "45 000 ₽",
@@ -1259,10 +1289,11 @@ export const OFFERS: Offer[] = [
     "is_top": true,
     "time_ago": "7 ч назад",
     "lat": 56.48265,
-    "lng": 84.996725
+    "lng": 84.996725,
+    "external_ref": "bezposr_196225"
   },
   {
-    "id": "bezposr_198435",
+    "id": "SD-1032",
     "title": "2-к. квартира ⋅ 64.2 м² ⋅ 4/5 этаж",
     "raw_title": "2-к. квартира ⋅ 64.2 м² ⋅ 4/5 этаж",
     "price_display": "20 000 ₽",
@@ -1301,10 +1332,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.50371,
-    "lng": 85.0286
+    "lng": 85.0286,
+    "external_ref": "bezposr_198435"
   },
   {
-    "id": "bezposr_199124",
+    "id": "SD-1033",
     "title": "2-к. квартира ⋅ 60 м² ⋅ 17/17 этаж",
     "raw_title": "2-к. квартира ⋅ 60 м² ⋅ 17/17 этаж",
     "price_display": "30 000 ₽",
@@ -1343,10 +1375,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.43031,
-    "lng": 85.003075
+    "lng": 85.003075,
+    "external_ref": "bezposr_199124"
   },
   {
-    "id": "bezposr_199123",
+    "id": "SD-1034",
     "title": "3-к. квартира ⋅ 60 м² ⋅ 2/5 этаж",
     "raw_title": "3-к. квартира ⋅ 60 м² ⋅ 2/5 этаж",
     "price_display": "35 000 ₽",
@@ -1385,10 +1418,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.510095,
-    "lng": 84.96875
+    "lng": 84.96875,
+    "external_ref": "bezposr_199123"
   },
   {
-    "id": "bezposr_199122",
+    "id": "SD-1035",
     "title": "3-к. квартира ⋅ 60 м² ⋅ 5/9 этаж",
     "raw_title": "3-к. квартира ⋅ 60 м² ⋅ 5/9 этаж",
     "price_display": "20 000 ₽",
@@ -1426,10 +1460,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.5117,
-    "lng": 84.9619
+    "lng": 84.9619,
+    "external_ref": "bezposr_199122"
   },
   {
-    "id": "bezposr_199121",
+    "id": "SD-1036",
     "title": "2-к. квартира ⋅ 45.8 м² ⋅ 6/9 этаж",
     "raw_title": "2-к. квартира ⋅ 45.8 м² ⋅ 6/9 этаж",
     "price_display": "35 000 ₽",
@@ -1468,10 +1503,11 @@ export const OFFERS: Offer[] = [
     "is_top": true,
     "time_ago": "7 ч назад",
     "lat": 56.47584,
-    "lng": 84.9925
+    "lng": 84.9925,
+    "external_ref": "bezposr_199121"
   },
   {
-    "id": "bezposr_199120",
+    "id": "SD-1037",
     "title": "1-к. квартира ⋅ 29 м² ⋅ 4/4 этаж",
     "raw_title": "1-к. квартира ⋅ 29 м² ⋅ 4/4 этаж",
     "price_display": "24 000 ₽",
@@ -1510,10 +1546,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.5126,
-    "lng": 84.95755
+    "lng": 84.95755,
+    "external_ref": "bezposr_199120"
   },
   {
-    "id": "bezposr_187222",
+    "id": "SD-1038",
     "title": "2-к. квартира ⋅ 55 м² ⋅ 2/9 этаж",
     "raw_title": "2-к. квартира ⋅ 55 м² ⋅ 2/9 этаж",
     "price_display": "30 000 ₽",
@@ -1552,10 +1589,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.47335,
-    "lng": 84.98675
+    "lng": 84.98675,
+    "external_ref": "bezposr_187222"
   },
   {
-    "id": "bezposr_194211",
+    "id": "SD-1039",
     "title": "2-к. квартира ⋅ 52.5 м² ⋅ 1/9 этаж",
     "raw_title": "2-к. квартира ⋅ 52.5 м² ⋅ 1/9 этаж",
     "price_display": "22 000 ₽",
@@ -1594,10 +1632,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.42191,
-    "lng": 85.016
+    "lng": 85.016,
+    "external_ref": "bezposr_194211"
   },
   {
-    "id": "bezposr_199119",
+    "id": "SD-1040",
     "title": "Студия ⋅ 40 м² ⋅ 13/16 этаж",
     "raw_title": "Студия ⋅ 40 м² ⋅ 13/16 этаж",
     "price_display": "35 000 ₽",
@@ -1634,10 +1673,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.51104,
-    "lng": 84.948525
+    "lng": 84.948525,
+    "external_ref": "bezposr_199119"
   },
   {
-    "id": "bezposr_199118",
+    "id": "SD-1041",
     "title": "1-к. квартира ⋅ 25 м² ⋅ 2/2 этаж",
     "raw_title": "1-к. квартира ⋅ 25 м² ⋅ 2/2 этаж",
     "price_display": "25 000 ₽",
@@ -1676,10 +1716,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.506395,
-    "lng": 85.0219
+    "lng": 85.0219,
+    "external_ref": "bezposr_199118"
   },
   {
-    "id": "bezposr_199117",
+    "id": "SD-1042",
     "title": "1-к. квартира ⋅ 50 м² ⋅ 5/5 этаж",
     "raw_title": "1-к. квартира ⋅ 50 м² ⋅ 5/5 этаж",
     "price_display": "20 000 ₽",
@@ -1718,10 +1759,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.422585,
-    "lng": 85.004225
+    "lng": 85.004225,
+    "external_ref": "bezposr_199117"
   },
   {
-    "id": "bezposr_168158",
+    "id": "SD-1043",
     "title": "1-к. квартира ⋅ 50 м² ⋅ 4/9 этаж",
     "raw_title": "1-к. квартира ⋅ 50 м² ⋅ 4/9 этаж",
     "price_display": "40 000 ₽",
@@ -1760,10 +1802,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.515135,
-    "lng": 84.951825
+    "lng": 84.951825,
+    "external_ref": "bezposr_168158"
   },
   {
-    "id": "bezposr_196162",
+    "id": "SD-1044",
     "title": "2-к. квартира ⋅ 41.2 м² ⋅ 12/17 этаж",
     "raw_title": "2-к. квартира ⋅ 41.2 м² ⋅ 12/17 этаж",
     "price_display": "28 000 ₽",
@@ -1802,10 +1845,11 @@ export const OFFERS: Offer[] = [
     "is_top": true,
     "time_ago": "7 ч назад",
     "lat": 56.4398813,
-    "lng": 85.0336217
+    "lng": 85.0336217,
+    "external_ref": "bezposr_196162"
   },
   {
-    "id": "bezposr_180231",
+    "id": "SD-1045",
     "title": "1-к. квартира ⋅ 33 м² ⋅ 15/17 этаж",
     "raw_title": "1-к. квартира ⋅ 33 м² ⋅ 15/17 этаж",
     "price_display": "20 000 ₽",
@@ -1844,10 +1888,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.516125,
-    "lng": 84.958
+    "lng": 84.958,
+    "external_ref": "bezposr_180231"
   },
   {
-    "id": "bezposr_195682",
+    "id": "SD-1046",
     "title": "1-к. квартира ⋅ 12 м² ⋅ 3/3 этаж",
     "raw_title": "1-к. квартира ⋅ 12 м² ⋅ 3/3 этаж",
     "price_display": "13 000 ₽",
@@ -1886,10 +1931,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.5137,
-    "lng": 85.039075
+    "lng": 85.039075,
+    "external_ref": "bezposr_195682"
   },
   {
-    "id": "bezposr_197135",
+    "id": "SD-1047",
     "title": "3-к. квартира ⋅ 83.1 м² ⋅ 8/17 этаж",
     "raw_title": "3-к. квартира ⋅ 83.1 м² ⋅ 8/17 этаж",
     "price_display": "38 000 ₽",
@@ -1928,10 +1974,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.510895,
-    "lng": 85.022275
+    "lng": 85.022275,
+    "external_ref": "bezposr_197135"
   },
   {
-    "id": "bezposr_199116",
+    "id": "SD-1048",
     "title": "1-к. квартира ⋅ 36.6 м² ⋅ 4/9 этаж",
     "raw_title": "1-к. квартира ⋅ 36.6 м² ⋅ 4/9 этаж",
     "price_display": "30 000 ₽",
@@ -1970,10 +2017,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.51544,
-    "lng": 85.02305
+    "lng": 85.02305,
+    "external_ref": "bezposr_199116"
   },
   {
-    "id": "bezposr_168515",
+    "id": "SD-1049",
     "title": "1-к. квартира ⋅ 12 м² ⋅ 3/9 этаж",
     "raw_title": "1-к. квартира ⋅ 12 м² ⋅ 3/9 этаж",
     "price_display": "16 000 ₽",
@@ -2012,10 +2060,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.4615,
-    "lng": 84.980475
+    "lng": 84.980475,
+    "external_ref": "bezposr_168515"
   },
   {
-    "id": "bezposr_186199",
+    "id": "SD-1050",
     "title": "1-к. квартира ⋅ 34.7 м² ⋅ 10/17 этаж",
     "raw_title": "1-к. квартира ⋅ 34.7 м² ⋅ 10/17 этаж",
     "price_display": "27 000 ₽",
@@ -2054,10 +2103,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.51509,
-    "lng": 84.9642
+    "lng": 84.9642,
+    "external_ref": "bezposr_186199"
   },
   {
-    "id": "bezposr_185716",
+    "id": "SD-1051",
     "title": "1-к. квартира ⋅ 18 м² ⋅ 3/5 этаж",
     "raw_title": "1-к. квартира ⋅ 18 м² ⋅ 3/5 этаж",
     "price_display": "20 000 ₽",
@@ -2093,10 +2143,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.474535,
-    "lng": 84.981525
+    "lng": 84.981525,
+    "external_ref": "bezposr_185716"
   },
   {
-    "id": "bezposr_187330",
+    "id": "SD-1052",
     "title": "Студия ⋅ 26 м² ⋅ 1/9 этаж",
     "raw_title": "Студия ⋅ 26 м² ⋅ 1/9 этаж",
     "price_display": "30 000 ₽",
@@ -2134,10 +2185,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.48052,
-    "lng": 84.9906
+    "lng": 84.9906,
+    "external_ref": "bezposr_187330"
   },
   {
-    "id": "bezposr_189885",
+    "id": "SD-1053",
     "title": "1-к. квартира ⋅ 34 м² ⋅ 8/10 этаж",
     "raw_title": "1-к. квартира ⋅ 34 м² ⋅ 8/10 этаж",
     "price_display": "27 000 ₽",
@@ -2176,10 +2228,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.513625,
-    "lng": 85.021925
+    "lng": 85.021925,
+    "external_ref": "bezposr_189885"
   },
   {
-    "id": "bezposr_184025",
+    "id": "SD-1054",
     "title": "1-к. квартира ⋅ 40 м² ⋅ 7/9 этаж",
     "raw_title": "1-к. квартира ⋅ 40 м² ⋅ 7/9 этаж",
     "price_display": "30 000 ₽",
@@ -2218,10 +2271,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.509425,
-    "lng": 85.019475
+    "lng": 85.019475,
+    "external_ref": "bezposr_184025"
   },
   {
-    "id": "bezposr_182681",
+    "id": "SD-1055",
     "title": "Студия ⋅ 16 м² ⋅ 3/9 этаж",
     "raw_title": "Студия ⋅ 16 м² ⋅ 3/9 этаж",
     "price_display": "16 000 ₽",
@@ -2260,10 +2314,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.460435,
-    "lng": 84.96745
+    "lng": 84.96745,
+    "external_ref": "bezposr_182681"
   },
   {
-    "id": "bezposr_198675",
+    "id": "SD-1056",
     "title": "1-к. квартира ⋅ 15 м² ⋅ 3/5 этаж",
     "raw_title": "1-к. квартира ⋅ 15 м² ⋅ 3/5 этаж",
     "price_display": "25 000 ₽",
@@ -2301,10 +2356,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.46219,
-    "lng": 84.958275
+    "lng": 84.958275,
+    "external_ref": "bezposr_198675"
   },
   {
-    "id": "bezposr_196639",
+    "id": "SD-1057",
     "title": "2-к. квартира ⋅ 39.1 м² ⋅ 8/10 этаж",
     "raw_title": "2-к. квартира ⋅ 39.1 м² ⋅ 8/10 этаж",
     "price_display": "35 000 ₽",
@@ -2343,10 +2399,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.51406,
-    "lng": 85.018325
+    "lng": 85.018325,
+    "external_ref": "bezposr_196639"
   },
   {
-    "id": "bezposr_197172",
+    "id": "SD-1058",
     "title": "3-к. квартира ⋅ 83.1 м² ⋅ 8/17 этаж",
     "raw_title": "3-к. квартира ⋅ 83.1 м² ⋅ 8/17 этаж",
     "price_display": "38 000 ₽",
@@ -2385,10 +2442,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.50743,
-    "lng": 85.026275
+    "lng": 85.026275,
+    "external_ref": "bezposr_197172"
   },
   {
-    "id": "bezposr_193360",
+    "id": "SD-1059",
     "title": "1-к. квартира ⋅ 36.5 м² ⋅ 8/9 этаж",
     "raw_title": "1-к. квартира ⋅ 36.5 м² ⋅ 8/9 этаж",
     "price_display": "18 000 ₽",
@@ -2427,10 +2485,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.427895,
-    "lng": 85.018625
+    "lng": 85.018625,
+    "external_ref": "bezposr_193360"
   },
   {
-    "id": "bezposr_199115",
+    "id": "SD-1060",
     "title": "1-к. квартира ⋅ 23 м² ⋅ 4/17 этаж",
     "raw_title": "1-к. квартира ⋅ 23 м² ⋅ 4/17 этаж",
     "price_display": "23 000 ₽",
@@ -2467,10 +2526,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.51175,
-    "lng": 85.03995
+    "lng": 85.03995,
+    "external_ref": "bezposr_199115"
   },
   {
-    "id": "cian_335073195",
+    "id": "SD-1061",
     "title": "1-комн. квартира, 18 м², 3/5 эт.",
     "raw_title": "1-комн. квартира, 18 м², 3/5 эт.",
     "price_display": "22 000 ₽",
@@ -2508,10 +2568,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.481673,
-    "lng": 84.984237
+    "lng": 84.984237,
+    "external_ref": "cian_335073195"
   },
   {
-    "id": "cian_335017040",
+    "id": "SD-1062",
     "title": "1-комн. квартира, 29.8 м², 3/5 эт.",
     "raw_title": "1-комн. квартира, 29.8 м², 3/5 эт.",
     "price_display": "25 000 ₽",
@@ -2548,10 +2609,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.507601,
-    "lng": 84.973457
+    "lng": 84.973457,
+    "external_ref": "cian_335017040"
   },
   {
-    "id": "cian_334319160",
+    "id": "SD-1063",
     "title": "1-комн. квартира, 38 м², 5/10 эт.",
     "raw_title": "1-комн. квартира, 38 м², 5/10 эт.",
     "price_display": "18 000 ₽",
@@ -2587,10 +2649,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.492686,
-    "lng": 85.05232
+    "lng": 85.05232,
+    "external_ref": "cian_334319160"
   },
   {
-    "id": "cian_333808638",
+    "id": "SD-1064",
     "title": "1-комн. квартира, 38 м², 9/16 эт.",
     "raw_title": "1-комн. квартира, 38 м², 9/16 эт.",
     "price_display": "25 000 ₽",
@@ -2629,10 +2692,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.504039,
-    "lng": 85.044766
+    "lng": 85.044766,
+    "external_ref": "cian_333808638"
   },
   {
-    "id": "cian_335143766",
+    "id": "SD-1065",
     "title": "1-комн. квартира, 40 м², 13/16 эт.",
     "raw_title": "1-комн. квартира, 40 м², 13/16 эт.",
     "price_display": "35 000 ₽",
@@ -2669,10 +2733,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.521815,
-    "lng": 84.973367
+    "lng": 84.973367,
+    "external_ref": "cian_335143766"
   },
   {
-    "id": "cian_304034612",
+    "id": "SD-1066",
     "title": "1-комн. квартира, 24 м², 6/11 эт.",
     "raw_title": "1-комн. квартира, 24 м², 6/11 эт.",
     "price_display": "20 000 ₽",
@@ -2711,10 +2776,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.499215,
-    "lng": 85.058582
+    "lng": 85.058582,
+    "external_ref": "cian_304034612"
   },
   {
-    "id": "cian_334948919",
+    "id": "SD-1067",
     "title": "1-комн. квартира, 58 м², 17/17 эт.",
     "raw_title": "1-комн. квартира, 58 м², 17/17 эт.",
     "price_display": "36 000 ₽",
@@ -2753,10 +2819,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.517758,
-    "lng": 84.926404
+    "lng": 84.926404,
+    "external_ref": "cian_334948919"
   },
   {
-    "id": "cian_333456814",
+    "id": "SD-1068",
     "title": "1-комн. квартира, 52.9 м², 7/10 эт.",
     "raw_title": "1-комн. квартира, 52.9 м², 7/10 эт.",
     "price_display": "28 000 ₽",
@@ -2795,10 +2862,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.49373,
-    "lng": 85.054054
+    "lng": 85.054054,
+    "external_ref": "cian_333456814"
   },
   {
-    "id": "cian_334083942",
+    "id": "SD-1069",
     "title": "1-комн. квартира, 39 м², 2/10 эт.",
     "raw_title": "1-комн. квартира, 39 м², 2/10 эт.",
     "price_display": "30 000 ₽",
@@ -2835,10 +2903,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.507462,
-    "lng": 85.046814
+    "lng": 85.046814,
+    "external_ref": "cian_334083942"
   },
   {
-    "id": "cian_248821018",
+    "id": "SD-1070",
     "title": "1-комн. квартира, 62.4 м², 3/10 эт.",
     "raw_title": "1-комн. квартира, 62.4 м², 3/10 эт.",
     "price_display": "40 000 ₽",
@@ -2877,10 +2946,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.448613,
-    "lng": 84.990849
+    "lng": 84.990849,
+    "external_ref": "cian_248821018"
   },
   {
-    "id": "cian_335067999",
+    "id": "SD-1071",
     "title": "1-комн. квартира, 42.9 м², 8/10 эт.",
     "raw_title": "1-комн. квартира, 42.9 м², 8/10 эт.",
     "price_display": "25 000 ₽",
@@ -2919,10 +2989,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.440911,
-    "lng": 85.028578
+    "lng": 85.028578,
+    "external_ref": "cian_335067999"
   },
   {
-    "id": "cian_331297739",
+    "id": "SD-1072",
     "title": "1-комн. квартира, 10 м², 1/4 эт.",
     "raw_title": "1-комн. квартира, 10 м², 1/4 эт.",
     "price_display": "12 000 ₽",
@@ -2959,10 +3030,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.474808,
-    "lng": 84.990894
+    "lng": 84.990894,
+    "external_ref": "cian_331297739"
   },
   {
-    "id": "cian_334143106",
+    "id": "SD-1073",
     "title": "1-комн. квартира, 42.6 м², 3/10 эт.",
     "raw_title": "1-комн. квартира, 42.6 м², 3/10 эт.",
     "price_display": "32 000 ₽",
@@ -3001,10 +3073,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.479302,
-    "lng": 84.988567
+    "lng": 84.988567,
+    "external_ref": "cian_334143106"
   },
   {
-    "id": "cian_334461904",
+    "id": "SD-1074",
     "title": "1-комн. квартира, 56 м², 11/11 эт.",
     "raw_title": "1-комн. квартира, 56 м², 11/11 эт.",
     "price_display": "35 000 ₽",
@@ -3043,10 +3116,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.484332,
-    "lng": 85.000595
+    "lng": 85.000595,
+    "external_ref": "cian_334461904"
   },
   {
-    "id": "cian_335063984",
+    "id": "SD-1075",
     "title": "1-комн. квартира, 30 м², 2/3 эт.",
     "raw_title": "1-комн. квартира, 30 м², 2/3 эт.",
     "price_display": "13 000 ₽",
@@ -3085,10 +3159,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 58.312254,
-    "lng": 82.877418
+    "lng": 82.877418,
+    "external_ref": "cian_335063984"
   },
   {
-    "id": "cian_335064338",
+    "id": "SD-1076",
     "title": "1-комн. квартира, 41.3 м², 4/5 эт.",
     "raw_title": "1-комн. квартира, 41.3 м², 4/5 эт.",
     "price_display": "15 000 ₽",
@@ -3127,10 +3202,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.59719,
-    "lng": 84.90329
+    "lng": 84.90329,
+    "external_ref": "cian_335064338"
   },
   {
-    "id": "cian_335099816",
+    "id": "SD-1077",
     "title": "1-комн. квартира, 36.4 м², 6/10 эт.",
     "raw_title": "1-комн. квартира, 36.4 м², 6/10 эт.",
     "price_display": "22 000 ₽",
@@ -3169,10 +3245,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.524625,
-    "lng": 84.940049
+    "lng": 84.940049,
+    "external_ref": "cian_335099816"
   },
   {
-    "id": "cian_335110233",
+    "id": "SD-1078",
     "title": "1-комн. квартира, 30.1 м², 5/5 эт.",
     "raw_title": "1-комн. квартира, 30.1 м², 5/5 эт.",
     "price_display": "15 000 ₽",
@@ -3211,10 +3288,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.608714,
-    "lng": 84.869244
+    "lng": 84.869244,
+    "external_ref": "cian_335110233"
   },
   {
-    "id": "cian_318313805",
+    "id": "SD-1079",
     "title": "1-комн. квартира, 30 м², 2/8 эт.",
     "raw_title": "1-комн. квартира, 30 м², 2/8 эт.",
     "price_display": "28 000 ₽",
@@ -3253,10 +3331,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.445309,
-    "lng": 84.91972
+    "lng": 84.91972,
+    "external_ref": "cian_318313805"
   },
   {
-    "id": "cian_334189462",
+    "id": "SD-1080",
     "title": "1-комн. квартира, 47.8 м², 7/10 эт.",
     "raw_title": "1-комн. квартира, 47.8 м², 7/10 эт.",
     "price_display": "25 000 ₽",
@@ -3295,10 +3374,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.58642,
-    "lng": 84.920726
+    "lng": 84.920726,
+    "external_ref": "cian_334189462"
   },
   {
-    "id": "cian_335009721",
+    "id": "SD-1081",
     "title": "1-комн. квартира, 17 м², 1/3 эт.",
     "raw_title": "1-комн. квартира, 17 м², 1/3 эт.",
     "price_display": "15 000 ₽",
@@ -3335,10 +3415,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.524382,
-    "lng": 84.948556
+    "lng": 84.948556,
+    "external_ref": "cian_335009721"
   },
   {
-    "id": "cian_314084688",
+    "id": "SD-1082",
     "title": "1-комн. квартира, 50 м², 2/3 эт.",
     "raw_title": "1-комн. квартира, 50 м², 2/3 эт.",
     "price_display": "27 000 ₽",
@@ -3377,10 +3458,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.465191,
-    "lng": 84.893534
+    "lng": 84.893534,
+    "external_ref": "cian_314084688"
   },
   {
-    "id": "cian_334878887",
+    "id": "SD-1083",
     "title": "1-комн. квартира, 62 м², 13/17 эт.",
     "raw_title": "1-комн. квартира, 62 м², 13/17 эт.",
     "price_display": "33 000 ₽",
@@ -3419,10 +3501,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.521815,
-    "lng": 84.973367
+    "lng": 84.973367,
+    "external_ref": "cian_334878887"
   },
   {
-    "id": "cian_334886245",
+    "id": "SD-1084",
     "title": "1-комн. квартира, 13 м², 1/4 эт.",
     "raw_title": "1-комн. квартира, 13 м², 1/4 эт.",
     "price_display": "18 000 ₽",
@@ -3458,10 +3541,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.477577,
-    "lng": 84.960872
+    "lng": 84.960872,
+    "external_ref": "cian_334886245"
   },
   {
-    "id": "cian_334509510",
+    "id": "SD-1085",
     "title": "1-комн. квартира, 49.2 м², 16/18 эт.",
     "raw_title": "1-комн. квартира, 49.2 м², 16/18 эт.",
     "price_display": "40 000 ₽",
@@ -3500,10 +3584,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.457249,
-    "lng": 84.983078
+    "lng": 84.983078,
+    "external_ref": "cian_334509510"
   },
   {
-    "id": "cian_333424593",
+    "id": "SD-1086",
     "title": "1-комн. квартира, 42 м², 15/15 эт.",
     "raw_title": "1-комн. квартира, 42 м², 15/15 эт.",
     "price_display": "26 000 ₽",
@@ -3542,10 +3627,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.453991,
-    "lng": 85.018184
+    "lng": 85.018184,
+    "external_ref": "cian_333424593"
   },
   {
-    "id": "cian_335006222",
+    "id": "SD-1087",
     "title": "1-комн. квартира, 40 м², 5/15 эт.",
     "raw_title": "1-комн. квартира, 40 м², 5/15 эт.",
     "price_display": "23 000 ₽",
@@ -3584,10 +3670,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.519933,
-    "lng": 85.07361
+    "lng": 85.07361,
+    "external_ref": "cian_335006222"
   },
   {
-    "id": "cian_334862400",
+    "id": "SD-1088",
     "title": "1-комн. квартира, 36.9 м², 5/9 эт.",
     "raw_title": "1-комн. квартира, 36.9 м², 5/9 эт.",
     "price_display": "49 000 ₽",
@@ -3626,10 +3713,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.456095,
-    "lng": 84.96407
+    "lng": 84.96407,
+    "external_ref": "cian_334862400"
   },
   {
-    "id": "cian_330533625",
+    "id": "SD-1089",
     "title": "1-комн. квартира, 42 м², 7/9 эт.",
     "raw_title": "1-комн. квартира, 42 м², 7/9 эт.",
     "price_display": "35 000 ₽",
@@ -3668,10 +3756,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.506007,
-    "lng": 84.946211
+    "lng": 84.946211,
+    "external_ref": "cian_330533625"
   },
   {
-    "id": "cian_333117854",
+    "id": "SD-1090",
     "title": "1-комн. квартира, 64 м², 12/17 эт.",
     "raw_title": "1-комн. квартира, 64 м², 12/17 эт.",
     "price_display": "27 000 ₽",
@@ -3709,10 +3798,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.45308,
-    "lng": 84.984668
+    "lng": 84.984668,
+    "external_ref": "cian_333117854"
   },
   {
-    "id": "cian_281499631",
+    "id": "SD-1091",
     "title": "1-комн. квартира, 53 м², 4/5 эт.",
     "raw_title": "1-комн. квартира, 53 м², 4/5 эт.",
     "price_display": "35 000 ₽",
@@ -3750,10 +3840,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.517684,
-    "lng": 85.046913
+    "lng": 85.046913,
+    "external_ref": "cian_281499631"
   },
   {
-    "id": "cian_333587872",
+    "id": "SD-1092",
     "title": "1-комн. квартира, 66.2 м², 1/12 эт.",
     "raw_title": "1-комн. квартира, 66.2 м², 1/12 эт.",
     "price_display": "45 000 ₽",
@@ -3792,10 +3883,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.483865,
-    "lng": 84.971086
+    "lng": 84.971086,
+    "external_ref": "cian_333587872"
   },
   {
-    "id": "cian_335117867",
+    "id": "SD-1093",
     "title": "1-комн. квартира, 28 м², 1/3 эт.",
     "raw_title": "1-комн. квартира, 28 м², 1/3 эт.",
     "price_display": "17 000 ₽",
@@ -3831,10 +3923,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.405988,
-    "lng": 85.022424
+    "lng": 85.022424,
+    "external_ref": "cian_335117867"
   },
   {
-    "id": "cian_333250955",
+    "id": "SD-1094",
     "title": "1-комн. квартира, 50 м², 4/9 эт.",
     "raw_title": "1-комн. квартира, 50 м², 4/9 эт.",
     "price_display": "37 000 ₽",
@@ -3869,10 +3962,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.465574,
-    "lng": 84.963226
+    "lng": 84.963226,
+    "external_ref": "cian_333250955"
   },
   {
-    "id": "cian_335126089",
+    "id": "SD-1095",
     "title": "1-комн. квартира, 23 м², 4/17 эт.",
     "raw_title": "1-комн. квартира, 23 м², 4/17 эт.",
     "price_display": "23 000 ₽",
@@ -3909,10 +4003,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.504139,
-    "lng": 85.040373
+    "lng": 85.040373,
+    "external_ref": "cian_335126089"
   },
   {
-    "id": "cian_335073221",
+    "id": "SD-1096",
     "title": "1-комн. квартира, 53 м², 1/11 эт.",
     "raw_title": "1-комн. квартира, 53 м², 1/11 эт.",
     "price_display": "23 000 ₽",
@@ -3951,10 +4046,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.59543,
-    "lng": 84.919522
+    "lng": 84.919522,
+    "external_ref": "cian_335073221"
   },
   {
-    "id": "cian_333560082",
+    "id": "SD-1097",
     "title": "1-комн. квартира, 16 м², 1/4 эт.",
     "raw_title": "1-комн. квартира, 16 м², 1/4 эт.",
     "price_display": "15 000 ₽",
@@ -3991,10 +4087,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.489864,
-    "lng": 84.976574
+    "lng": 84.976574,
+    "external_ref": "cian_333560082"
   },
   {
-    "id": "cian_335110171",
+    "id": "SD-1098",
     "title": "1-комн. квартира, 17 м², 2/3 эт.",
     "raw_title": "1-комн. квартира, 17 м², 2/3 эт.",
     "price_display": "16 000 ₽",
@@ -4033,10 +4130,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.528245,
-    "lng": 84.973691
+    "lng": 84.973691,
+    "external_ref": "cian_335110171"
   },
   {
-    "id": "cian_261426413",
+    "id": "SD-1099",
     "title": "1-комн. квартира, 20 м², 1/9 эт.",
     "raw_title": "1-комн. квартира, 20 м², 1/9 эт.",
     "price_display": "22 000 ₽",
@@ -4072,10 +4170,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.4821,
-    "lng": 84.977554
+    "lng": 84.977554,
+    "external_ref": "cian_261426413"
   },
   {
-    "id": "cian_323183853",
+    "id": "SD-1100",
     "title": "1-комн. квартира, 40 м², 7/12 эт.",
     "raw_title": "1-комн. квартира, 40 м², 7/12 эт.",
     "price_display": "20 000 ₽",
@@ -4111,10 +4210,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.455299,
-    "lng": 85.020233
+    "lng": 85.020233,
+    "external_ref": "cian_323183853"
   },
   {
-    "id": "cian_334443422",
+    "id": "SD-1101",
     "title": "1-комн. квартира, 19 м², 3/3 эт.",
     "raw_title": "1-комн. квартира, 19 м², 3/3 эт.",
     "price_display": "20 000 ₽",
@@ -4153,10 +4253,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.465549,
-    "lng": 84.938055
+    "lng": 84.938055,
+    "external_ref": "cian_334443422"
   },
   {
-    "id": "cian_335099864",
+    "id": "SD-1102",
     "title": "1-комн. квартира, 36 м², 5/9 эт.",
     "raw_title": "1-комн. квартира, 36 м², 5/9 эт.",
     "price_display": "22 000 ₽",
@@ -4195,10 +4296,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.576668,
-    "lng": 85.104369
+    "lng": 85.104369,
+    "external_ref": "cian_335099864"
   },
   {
-    "id": "cian_335085972",
+    "id": "SD-1103",
     "title": "1-комн. квартира, 36 м², 6/10 эт.",
     "raw_title": "1-комн. квартира, 36 м², 6/10 эт.",
     "price_display": "20 000 ₽",
@@ -4234,10 +4336,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.520092,
-    "lng": 84.98094
+    "lng": 84.98094,
+    "external_ref": "cian_335085972"
   },
   {
-    "id": "cian_334319515",
+    "id": "SD-1104",
     "title": "1-комн. квартира, 13 м², 1/5 эт.",
     "raw_title": "1-комн. квартира, 13 м², 1/5 эт.",
     "price_display": "20 000 ₽",
@@ -4276,10 +4379,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.512449,
-    "lng": 85.03156
+    "lng": 85.03156,
+    "external_ref": "cian_334319515"
   },
   {
-    "id": "cian_330267136",
+    "id": "SD-1105",
     "title": "1-комн. квартира, 20 м², 1/2 эт.",
     "raw_title": "1-комн. квартира, 20 м², 1/2 эт.",
     "price_display": "16 000 ₽",
@@ -4316,10 +4420,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.525996,
-    "lng": 84.936519
+    "lng": 84.936519,
+    "external_ref": "cian_330267136"
   },
   {
-    "id": "cian_327803912",
+    "id": "SD-1106",
     "title": "1-комн. квартира, 14 м², 2/9 эт.",
     "raw_title": "1-комн. квартира, 14 м², 2/9 эт.",
     "price_display": "16 500 ₽",
@@ -4358,10 +4463,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.451882,
-    "lng": 84.98889
+    "lng": 84.98889,
+    "external_ref": "cian_327803912"
   },
   {
-    "id": "cian_335059377",
+    "id": "SD-1107",
     "title": "1-комн. квартира, 39.1 м², 5/10 эт.",
     "raw_title": "1-комн. квартира, 39.1 м², 5/10 эт.",
     "price_display": "18 000 ₽",
@@ -4400,10 +4506,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.590316,
-    "lng": 84.924814
+    "lng": 84.924814,
+    "external_ref": "cian_335059377"
   },
   {
-    "id": "cian_323375205",
+    "id": "SD-1108",
     "title": "1-комн. квартира, 35 м², 4/18 эт.",
     "raw_title": "1-комн. квартира, 35 м², 4/18 эт.",
     "price_display": "29 000 ₽",
@@ -4442,10 +4549,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.482747,
-    "lng": 84.982512
+    "lng": 84.982512,
+    "external_ref": "cian_323375205"
   },
   {
-    "id": "cian_331591084",
+    "id": "SD-1109",
     "title": "1-комн. квартира, 54 м², 1/5 эт.",
     "raw_title": "1-комн. квартира, 54 м², 1/5 эт.",
     "price_display": "12 000 ₽",
@@ -4484,10 +4592,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.604092,
-    "lng": 84.883877
+    "lng": 84.883877,
+    "external_ref": "cian_331591084"
   },
   {
-    "id": "cian_325534626",
+    "id": "SD-1110",
     "title": "1-комн. квартира, 16 м², 3/9 эт.",
     "raw_title": "1-комн. квартира, 16 м², 3/9 эт.",
     "price_display": "16 000 ₽",
@@ -4526,10 +4635,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.464371,
-    "lng": 84.958393
+    "lng": 84.958393,
+    "external_ref": "cian_325534626"
   },
   {
-    "id": "cian_320436493",
+    "id": "SD-1111",
     "title": "1-комн. квартира, 33 м², 7/10 эт.",
     "raw_title": "1-комн. квартира, 33 м², 7/10 эт.",
     "price_display": "25 000 ₽",
@@ -4565,10 +4675,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.453991,
-    "lng": 85.018184
+    "lng": 85.018184,
+    "external_ref": "cian_320436493"
   },
   {
-    "id": "cian_334958267",
+    "id": "SD-1112",
     "title": "1-комн. квартира, 20 м², 1/9 эт.",
     "raw_title": "1-комн. квартира, 20 м², 1/9 эт.",
     "price_display": "27 000 ₽",
@@ -4607,10 +4718,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.4821,
-    "lng": 84.977554
+    "lng": 84.977554,
+    "external_ref": "cian_334958267"
   },
   {
-    "id": "cian_331377355",
+    "id": "SD-1113",
     "title": "1-комн. квартира, 25 м², 2/11 эт.",
     "raw_title": "1-комн. квартира, 25 м², 2/11 эт.",
     "price_display": "25 000 ₽",
@@ -4648,10 +4760,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.499215,
-    "lng": 85.058582
+    "lng": 85.058582,
+    "external_ref": "cian_331377355"
   },
   {
-    "id": "cian_329255764",
+    "id": "SD-1114",
     "title": "1-комн. квартира, 12 м², 1/5 эт.",
     "raw_title": "1-комн. квартира, 12 м², 1/5 эт.",
     "price_display": "18 000 ₽",
@@ -4690,10 +4803,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.457706,
-    "lng": 84.946202
+    "lng": 84.946202,
+    "external_ref": "cian_329255764"
   },
   {
-    "id": "cian_327875809",
+    "id": "SD-1115",
     "title": "1-комн. квартира, 25.6 м², 1/10 эт.",
     "raw_title": "1-комн. квартира, 25.6 м², 1/10 эт.",
     "price_display": "25 000 ₽",
@@ -4732,10 +4846,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.493198,
-    "lng": 85.053488
+    "lng": 85.053488,
+    "external_ref": "cian_327875809"
   },
   {
-    "id": "cian_334552942",
+    "id": "SD-1116",
     "title": "1-комн. квартира, 56 м², 4/10 эт.",
     "raw_title": "1-комн. квартира, 56 м², 4/10 эт.",
     "price_display": "35 000 ₽",
@@ -4774,10 +4889,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.511535,
-    "lng": 84.986303
+    "lng": 84.986303,
+    "external_ref": "cian_334552942"
   },
   {
-    "id": "avito_8240330068",
+    "id": "SD-1117",
     "title": "3-к. квартира, 83,1 м², 8/17 эт.",
     "raw_title": "3-к. квартира, 83,1 м², 8/17 эт.",
     "price_display": "38 000 ₽",
@@ -4813,10 +4929,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.500515,
-    "lng": 85.0411
+    "lng": 85.0411,
+    "external_ref": "avito_8240330068"
   },
   {
-    "id": "avito_8511800164",
+    "id": "SD-1118",
     "title": "Апартаменты-студия, 17 м², 2/3 эт.",
     "raw_title": "Апартаменты-студия, 17 м², 2/3 эт.",
     "price_display": "7 000 ₽",
@@ -4852,10 +4969,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.513445,
-    "lng": 85.021575
+    "lng": 85.021575,
+    "external_ref": "avito_8511800164"
   },
   {
-    "id": "avito_5025829973",
+    "id": "SD-1119",
     "title": "Квартира-студия, 27 м², 7/18 эт.",
     "raw_title": "Квартира-студия, 27 м², 7/18 эт.",
     "price_display": "29 000 ₽",
@@ -4891,10 +5009,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.482635,
-    "lng": 84.993275
+    "lng": 84.993275,
+    "external_ref": "avito_5025829973"
   },
   {
-    "id": "avito_8512446281",
+    "id": "SD-1120",
     "title": "Квартира-студия, 18 м², 3/5 эт.",
     "raw_title": "Квартира-студия, 18 м², 3/5 эт.",
     "price_display": "22 000 ₽",
@@ -4928,10 +5047,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.47881,
-    "lng": 84.994725
+    "lng": 84.994725,
+    "external_ref": "avito_8512446281"
   },
   {
-    "id": "avito_8413463632",
+    "id": "SD-1121",
     "title": "1-к. квартира, 38 м², 7/9 эт.",
     "raw_title": "1-к. квартира, 38 м², 7/9 эт.",
     "price_display": "24 000 ₽",
@@ -4965,10 +5085,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.48361,
-    "lng": 84.989925
+    "lng": 84.989925,
+    "external_ref": "avito_8413463632"
   },
   {
-    "id": "avito_7336309398",
+    "id": "SD-1122",
     "title": "1-к. квартира, 36 м², 6/9 эт.",
     "raw_title": "1-к. квартира, 36 м², 6/9 эт.",
     "price_display": "25 000 ₽",
@@ -5002,10 +5123,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.475405,
-    "lng": 84.992475
+    "lng": 84.992475,
+    "external_ref": "avito_7336309398"
   },
   {
-    "id": "avito_8543416983",
+    "id": "SD-1123",
     "title": "1-к. квартира, 39,3 м², 6/10 эт.",
     "raw_title": "1-к. квартира, 39,3 м², 6/10 эт.",
     "price_display": "30 000 ₽",
@@ -5039,10 +5161,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.485035,
-    "lng": 84.9881
+    "lng": 84.9881,
+    "external_ref": "avito_8543416983"
   },
   {
-    "id": "avito_2431427042",
+    "id": "SD-1124",
     "title": "2-к. квартира, 62 м², 10/17 эт.",
     "raw_title": "2-к. квартира, 62 м², 10/17 эт.",
     "price_display": "37 000 ₽",
@@ -5076,10 +5199,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.472735,
-    "lng": 84.97385
+    "lng": 84.97385,
+    "external_ref": "avito_2431427042"
   },
   {
-    "id": "avito_8489116674",
+    "id": "SD-1125",
     "title": "3-к. квартира, 71 м², 3/9 эт.",
     "raw_title": "3-к. квартира, 71 м², 3/9 эт.",
     "price_display": "65 000 ₽",
@@ -5113,10 +5237,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.48337,
-    "lng": 84.97695
+    "lng": 84.97695,
+    "external_ref": "avito_8489116674"
   },
   {
-    "id": "avito_8368564920",
+    "id": "SD-1126",
     "title": "Квартира-студия, 18 м², 3/5 эт.",
     "raw_title": "Квартира-студия, 18 м², 3/5 эт.",
     "price_display": "22 000 ₽",
@@ -5152,10 +5277,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.475165,
-    "lng": 84.980975
+    "lng": 84.980975,
+    "external_ref": "avito_8368564920"
   },
   {
-    "id": "avito_8485540548",
+    "id": "SD-1127",
     "title": "1-к. квартира, 33 м², 7/9 эт.",
     "raw_title": "1-к. квартира, 33 м², 7/9 эт.",
     "price_display": "30 000 ₽",
@@ -5191,10 +5317,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.460735,
-    "lng": 84.95805
+    "lng": 84.95805,
+    "external_ref": "avito_8485540548"
   },
   {
-    "id": "avito_8369365604",
+    "id": "SD-1128",
     "title": "1-к. квартира, 40 м², 7/9 эт.",
     "raw_title": "1-к. квартира, 40 м², 7/9 эт.",
     "price_display": "25 000 ₽",
@@ -5230,10 +5357,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.51274,
-    "lng": 85.028675
+    "lng": 85.028675,
+    "external_ref": "avito_8369365604"
   },
   {
-    "id": "avito_8327404336",
+    "id": "SD-1129",
     "title": "Квартира-студия, 31,9 м², 7/9 эт.",
     "raw_title": "Квартира-студия, 31,9 м², 7/9 эт.",
     "price_display": "40 000 ₽",
@@ -5269,10 +5397,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.417965,
-    "lng": 85.007625
+    "lng": 85.007625,
+    "external_ref": "avito_8327404336"
   },
   {
-    "id": "avito_8545122479",
+    "id": "SD-1130",
     "title": "2-к. квартира, 52,5 м², 9/9 эт.",
     "raw_title": "2-к. квартира, 52,5 м², 9/9 эт.",
     "price_display": "35 000 ₽",
@@ -5308,10 +5437,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.45586,
-    "lng": 84.9776
+    "lng": 84.9776,
+    "external_ref": "avito_8545122479"
   },
   {
-    "id": "avito_8332469170",
+    "id": "SD-1131",
     "title": "2-к. квартира, 55,5 м², 9/17 эт.",
     "raw_title": "2-к. квартира, 55,5 м², 9/17 эт.",
     "price_display": "45 000 ₽",
@@ -5347,10 +5477,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.5156,
-    "lng": 84.959725
+    "lng": 84.959725,
+    "external_ref": "avito_8332469170"
   },
   {
-    "id": "avito_8339879121",
+    "id": "SD-1132",
     "title": "1-к. квартира, 25 м², 1/2 эт.",
     "raw_title": "1-к. квартира, 25 м², 1/2 эт.",
     "price_display": "23 000 ₽",
@@ -5386,10 +5517,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.45352,
-    "lng": 84.979075
+    "lng": 84.979075,
+    "external_ref": "avito_8339879121"
   },
   {
-    "id": "avito_8482783507",
+    "id": "SD-1133",
     "title": "1-к. квартира, 40 м², 4/9 эт.",
     "raw_title": "1-к. квартира, 40 м², 4/9 эт.",
     "price_display": "30 000 ₽",
@@ -5421,10 +5553,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.4807,
-    "lng": 84.9946
+    "lng": 84.9946,
+    "external_ref": "avito_8482783507"
   },
   {
-    "id": "avito_8512076578",
+    "id": "SD-1134",
     "title": "2-к. квартира, 63,1 м², 3/10 эт.",
     "raw_title": "2-к. квартира, 63,1 м², 3/10 эт.",
     "price_display": "40 000 ₽",
@@ -5460,10 +5593,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.4813,
-    "lng": 84.9796
+    "lng": 84.9796,
+    "external_ref": "avito_8512076578"
   },
   {
-    "id": "avito_3619081646",
+    "id": "SD-1135",
     "title": "1-к. квартира, 30,3 м², 4/5 эт.",
     "raw_title": "1-к. квартира, 30,3 м², 4/5 эт.",
     "price_display": "32 000 ₽",
@@ -5499,10 +5633,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.46183,
-    "lng": 84.97345
+    "lng": 84.97345,
+    "external_ref": "avito_3619081646"
   },
   {
-    "id": "avito_8419468448",
+    "id": "SD-1136",
     "title": "2-к. квартира, 68,6 м², 5/10 эт.",
     "raw_title": "2-к. квартира, 68,6 м², 5/10 эт.",
     "price_display": "40 000 ₽",
@@ -5538,10 +5673,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.47764,
-    "lng": 84.9758
+    "lng": 84.9758,
+    "external_ref": "avito_8419468448"
   },
   {
-    "id": "avito_8543260511",
+    "id": "SD-1137",
     "title": "Квартира-студия, 53 м², 1/5 эт.",
     "raw_title": "Квартира-студия, 53 м², 1/5 эт.",
     "price_display": "35 000 ₽",
@@ -5577,10 +5713,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.476965,
-    "lng": 84.983975
+    "lng": 84.983975,
+    "external_ref": "avito_8543260511"
   },
   {
-    "id": "avito_8451181794",
+    "id": "SD-1138",
     "title": "1-к. квартира, 28,8 м², 9/9 эт.",
     "raw_title": "1-к. квартира, 28,8 м², 9/9 эт.",
     "price_display": "20 000 ₽",
@@ -5616,10 +5753,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.47848,
-    "lng": 84.979325
+    "lng": 84.979325,
+    "external_ref": "avito_8451181794"
   },
   {
-    "id": "avito_8166605548",
+    "id": "SD-1139",
     "title": "3-к. квартира, 75 м², 11/15 эт.",
     "raw_title": "3-к. квартира, 75 м², 11/15 эт.",
     "price_display": "50 000 ₽",
@@ -5655,10 +5793,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.480595,
-    "lng": 84.97415
+    "lng": 84.97415,
+    "external_ref": "avito_8166605548"
   },
   {
-    "id": "avito_8145206361",
+    "id": "SD-1140",
     "title": "Квартира-студия, 30 м², 6/8 эт.",
     "raw_title": "Квартира-студия, 30 м², 6/8 эт.",
     "price_display": "35 000 ₽",
@@ -5694,10 +5833,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.423425,
-    "lng": 85.0205
+    "lng": 85.0205,
+    "external_ref": "avito_8145206361"
   },
   {
-    "id": "avito_4417891997",
+    "id": "SD-1141",
     "title": "1-к. квартира, 29,4 м², 2/2 эт.",
     "raw_title": "1-к. квартира, 29,4 м², 2/2 эт.",
     "price_display": "14 000 ₽",
@@ -5733,10 +5873,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.470815,
-    "lng": 84.986475
+    "lng": 84.986475,
+    "external_ref": "avito_4417891997"
   },
   {
-    "id": "avito_7495082779",
+    "id": "SD-1142",
     "title": "2-к. квартира, 45 м², 1/3 эт.",
     "raw_title": "2-к. квартира, 45 м², 1/3 эт.",
     "price_display": "35 000 ₽",
@@ -5772,10 +5913,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.454,
-    "lng": 84.976775
+    "lng": 84.976775,
+    "external_ref": "avito_7495082779"
   },
   {
-    "id": "avito_8525203306",
+    "id": "SD-1143",
     "title": "1-к. квартира, 31 м², 4/5 эт.",
     "raw_title": "1-к. квартира, 31 м², 4/5 эт.",
     "price_display": "38 000 ₽",
@@ -5811,10 +5953,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.45436,
-    "lng": 84.962325
+    "lng": 84.962325,
+    "external_ref": "avito_8525203306"
   },
   {
-    "id": "avito_8338179537",
+    "id": "SD-1144",
     "title": "Квартира-студия, 27 м², 5/8 эт.",
     "raw_title": "Квартира-студия, 27 м², 5/8 эт.",
     "price_display": "32 000 ₽",
@@ -5850,10 +5993,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.42188,
-    "lng": 85.0057
+    "lng": 85.0057,
+    "external_ref": "avito_8338179537"
   },
   {
-    "id": "avito_8344101913",
+    "id": "SD-1145",
     "title": "2-к. квартира, 60 м², 5/9 эт.",
     "raw_title": "2-к. квартира, 60 м², 5/9 эт.",
     "price_display": "41 000 ₽",
@@ -5889,10 +6033,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.425915,
-    "lng": 85.00475
+    "lng": 85.00475,
+    "external_ref": "avito_8344101913"
   },
   {
-    "id": "avito_8545776869",
+    "id": "SD-1146",
     "title": "1-к. квартира, 44,3 м², 1/10 эт.",
     "raw_title": "1-к. квартира, 44,3 м², 1/10 эт.",
     "price_display": "30 000 ₽",
@@ -5928,10 +6073,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.48313,
-    "lng": 84.975975
+    "lng": 84.975975,
+    "external_ref": "avito_8545776869"
   },
   {
-    "id": "avito_8300226780",
+    "id": "SD-1147",
     "title": "3-к. квартира, 59,3 м², 5/5 эт.",
     "raw_title": "3-к. квартира, 59,3 м², 5/5 эт.",
     "price_display": "35 000 ₽",
@@ -5967,10 +6113,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.513905,
-    "lng": 84.9485
+    "lng": 84.9485,
+    "external_ref": "avito_8300226780"
   },
   {
-    "id": "avito_8272830916",
+    "id": "SD-1148",
     "title": "2-к. квартира, 54 м², 8/10 эт.",
     "raw_title": "2-к. квартира, 54 м², 8/10 эт.",
     "price_display": "45 000 ₽",
@@ -6006,10 +6153,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.522395,
-    "lng": 84.954225
+    "lng": 84.954225,
+    "external_ref": "avito_8272830916"
   },
   {
-    "id": "avito_8140457275",
+    "id": "SD-1149",
     "title": "3-к. квартира, 71,2 м², 9/10 эт.",
     "raw_title": "3-к. квартира, 71,2 м², 9/10 эт.",
     "price_display": "57 000 ₽",
@@ -6045,10 +6193,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.47569,
-    "lng": 84.981675
+    "lng": 84.981675,
+    "external_ref": "avito_8140457275"
   },
   {
-    "id": "avito_7641590027",
+    "id": "SD-1150",
     "title": "2-к. квартира, 55 м², 4/14 эт.",
     "raw_title": "2-к. квартира, 55 м², 4/14 эт.",
     "price_display": "60 000 ₽",
@@ -6084,10 +6233,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.421295,
-    "lng": 85.013925
+    "lng": 85.013925,
+    "external_ref": "avito_7641590027"
   },
   {
-    "id": "avito_7806790898",
+    "id": "SD-1151",
     "title": "1-к. квартира, 31 м², 4/4 эт.",
     "raw_title": "1-к. квартира, 31 м², 4/4 эт.",
     "price_display": "44 000 ₽",
@@ -6123,10 +6273,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.47224,
-    "lng": 84.979925
+    "lng": 84.979925,
+    "external_ref": "avito_7806790898"
   },
   {
-    "id": "avito_2461285170",
+    "id": "SD-1152",
     "title": "Квартира-студия, 46,6 м², 1/4 эт.",
     "raw_title": "Квартира-студия, 46,6 м², 1/4 эт.",
     "price_display": "30 000 ₽",
@@ -6162,10 +6313,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.41753,
-    "lng": 85.01795
+    "lng": 85.01795,
+    "external_ref": "avito_2461285170"
   },
   {
-    "id": "avito_8480151359",
+    "id": "SD-1153",
     "title": "1-к. квартира, 40 м², 6/9 эт.",
     "raw_title": "1-к. квартира, 40 м², 6/9 эт.",
     "price_display": "25 000 ₽",
@@ -6201,10 +6353,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.501415,
-    "lng": 85.0224
+    "lng": 85.0224,
+    "external_ref": "avito_8480151359"
   },
   {
-    "id": "avito_3768829674",
+    "id": "SD-1154",
     "title": "1-к. квартира, 19 м², 2/5 эт.",
     "raw_title": "1-к. квартира, 19 м², 2/5 эт.",
     "price_display": "18 000 ₽",
@@ -6240,10 +6393,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.479455,
-    "lng": 84.982475
+    "lng": 84.982475,
+    "external_ref": "avito_3768829674"
   },
   {
-    "id": "avito_8482981139",
+    "id": "SD-1155",
     "title": "1-к. квартира, 25 м², 2/2 эт.",
     "raw_title": "1-к. квартира, 25 м², 2/2 эт.",
     "price_display": "25 000 ₽",
@@ -6279,10 +6433,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.47356,
-    "lng": 84.98155
+    "lng": 84.98155,
+    "external_ref": "avito_8482981139"
   },
   {
-    "id": "avito_8413503211",
+    "id": "SD-1156",
     "title": "2-к. квартира, 60 м², 7/8 эт.",
     "raw_title": "2-к. квартира, 60 м², 7/8 эт.",
     "price_display": "60 000 ₽",
@@ -6318,10 +6473,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.481135,
-    "lng": 84.981475
+    "lng": 84.981475,
+    "external_ref": "avito_8413503211"
   },
   {
-    "id": "avito_2706839770",
+    "id": "SD-1157",
     "title": "1-к. квартира, 38 м², 3/9 эт.",
     "raw_title": "1-к. квартира, 38 м², 3/9 эт.",
     "price_display": "25 000 ₽",
@@ -6357,10 +6513,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.481615,
-    "lng": 84.975525
+    "lng": 84.975525,
+    "external_ref": "avito_2706839770"
   },
   {
-    "id": "avito_3449339946",
+    "id": "SD-1158",
     "title": "1-к. квартира, 15 м², 2/5 эт.",
     "raw_title": "1-к. квартира, 15 м², 2/5 эт.",
     "price_display": "18 000 ₽",
@@ -6395,10 +6552,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.47989,
-    "lng": 84.9933
+    "lng": 84.9933,
+    "external_ref": "avito_3449339946"
   },
   {
-    "id": "avito_8382387712",
+    "id": "SD-1159",
     "title": "1-к. квартира, 25,9 м², 6/10 эт.",
     "raw_title": "1-к. квартира, 25,9 м², 6/10 эт.",
     "price_display": "22 000 ₽",
@@ -6434,10 +6592,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.48394,
-    "lng": 84.997175
+    "lng": 84.997175,
+    "external_ref": "avito_8382387712"
   },
   {
-    "id": "avito_758325405",
+    "id": "SD-1160",
     "title": "2-к. квартира, 59 м², 5/10 эт.",
     "raw_title": "2-к. квартира, 59 м², 5/10 эт.",
     "price_display": "27 000 ₽",
@@ -6474,10 +6633,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.47962,
-    "lng": 84.98975
+    "lng": 84.98975,
+    "external_ref": "avito_758325405"
   },
   {
-    "id": "avito_8005413215",
+    "id": "SD-1161",
     "title": "2-к. квартира, 45 м², 5/9 эт.",
     "raw_title": "2-к. квартира, 45 м², 5/9 эт.",
     "price_display": "50 000 ₽",
@@ -6513,10 +6673,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.42947,
-    "lng": 85.014225
+    "lng": 85.014225,
+    "external_ref": "avito_8005413215"
   },
   {
-    "id": "avito_4216291253",
+    "id": "SD-1162",
     "title": "Квартира-студия, 40 м², 13/16 эт.",
     "raw_title": "Квартира-студия, 40 м², 13/16 эт.",
     "price_display": "35 000 ₽",
@@ -6552,10 +6713,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.482185,
-    "lng": 84.993275
+    "lng": 84.993275,
+    "external_ref": "avito_4216291253"
   },
   {
-    "id": "avito_4708990358",
+    "id": "SD-1163",
     "title": "2-к. квартира, 50 м², 2/3 эт.",
     "raw_title": "2-к. квартира, 50 м², 2/3 эт.",
     "price_display": "27 000 ₽",
@@ -6591,10 +6753,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.5168,
-    "lng": 84.972175
+    "lng": 84.972175,
+    "external_ref": "avito_4708990358"
   },
   {
-    "id": "avito_3153042140",
+    "id": "SD-1164",
     "title": "1-к. квартира, 41 м², 14/15 эт.",
     "raw_title": "1-к. квартира, 41 м², 14/15 эт.",
     "price_display": "24 000 ₽",
@@ -6630,10 +6793,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.48361,
-    "lng": 84.98775
+    "lng": 84.98775,
+    "external_ref": "avito_3153042140"
   },
   {
-    "id": "avito_8391397886",
+    "id": "SD-1165",
     "title": "1-к. квартира, 20,1 м², 1/3 эт.",
     "raw_title": "1-к. квартира, 20,1 м², 1/3 эт.",
     "price_display": "16 000 ₽",
@@ -6667,10 +6831,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.47782,
-    "lng": 84.97975
+    "lng": 84.97975,
+    "external_ref": "avito_8391397886"
   },
   {
-    "id": "avito_8322197699",
+    "id": "SD-1166",
     "title": "1-к. квартира, 48,5 м², 3/5 эт.",
     "raw_title": "1-к. квартира, 48,5 м², 3/5 эт.",
     "price_display": "30 000 ₽",
@@ -6706,10 +6871,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.50728,
-    "lng": 85.02645
+    "lng": 85.02645,
+    "external_ref": "avito_8322197699"
   },
   {
-    "id": "avito_8543405859",
+    "id": "SD-1167",
     "title": "1-к. квартира, 35 м², 3/10 эт.",
     "raw_title": "1-к. квартира, 35 м², 3/10 эт.",
     "price_display": "32 000 ₽",
@@ -6744,10 +6910,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.479605,
-    "lng": 84.97775
+    "lng": 84.97775,
+    "external_ref": "avito_8543405859"
   },
   {
-    "id": "avito_8378571075",
+    "id": "SD-1168",
     "title": "1-к. квартира, 14 м², 1/5 эт.",
     "raw_title": "1-к. квартира, 14 м², 1/5 эт.",
     "price_display": "20 000 ₽",
@@ -6783,10 +6950,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.47425,
-    "lng": 84.9755
+    "lng": 84.9755,
+    "external_ref": "avito_8378571075"
   },
   {
-    "id": "avito_8408854871",
+    "id": "SD-1169",
     "title": "1-к. квартира, 49,2 м², 16/18 эт.",
     "raw_title": "1-к. квартира, 49,2 м², 16/18 эт.",
     "price_display": "40 000 ₽",
@@ -6822,10 +6990,11 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.45904,
-    "lng": 84.966075
+    "lng": 84.966075,
+    "external_ref": "avito_8408854871"
   },
   {
-    "id": "avito_4326801484",
+    "id": "SD-1170",
     "title": "Квартира-студия, 14 м², 1/9 эт.",
     "raw_title": "Квартира-студия, 14 м², 1/9 эт.",
     "price_display": "22 000 ₽",
@@ -6859,6 +7028,7 @@ export const OFFERS: Offer[] = [
     "is_top": false,
     "time_ago": "7 ч назад",
     "lat": 56.47065,
-    "lng": 84.98195
+    "lng": 84.98195,
+    "external_ref": "avito_4326801484"
   }
 ];

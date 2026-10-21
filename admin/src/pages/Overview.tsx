@@ -32,13 +32,14 @@ export default function Overview() {
 
     offers.forEach((o) => {
       totalSum += o.price_val || 0;
-      const src = (o.source || o.id || '').toLowerCase();
+      const src = (o.external_ref || o.source || o.id || '').toLowerCase();
       if (src.includes('avito')) avitoCount++;
       else if (src.includes('cian')) cianCount++;
       else bezposrCount++;
 
-      const d = o.metro_name || 'Советский';
-      districts[d] = (districts[d] || 0) + 1;
+      const d = o.district || (o.metro_name ? o.metro_name.replace(' район', '') : 'Советский');
+      const cleanD = d.includes('Совет') ? 'Советский' : d.includes('Киров') ? 'Кировский' : d.includes('Ленин') ? 'Ленинский' : 'Октябрьский';
+      districts[cleanD] = (districts[cleanD] || 0) + 1;
     });
 
     const avgPrice = Math.round(totalSum / (offers.length || 1));
@@ -81,21 +82,21 @@ export default function Overview() {
           onClick={() => setSourceFilter('avito')}
           className={chipClass(sourceFilter === 'avito')}
         >
-          Авито ({stats.avito})
+          ⚡ Ранний доступ ({stats.avito})
         </button>
         <button
           type="button"
           onClick={() => setSourceFilter('cian')}
           className={chipClass(sourceFilter === 'cian')}
         >
-          ЦИАН ({stats.cian})
+          🛡️ Модерация SofDom ({stats.cian})
         </button>
         <button
           type="button"
           onClick={() => setSourceFilter('bezposr')}
           className={chipClass(sourceFilter === 'bezposr')}
         >
-          БезПосредников ({stats.bezposr})
+          📍 Томск Локал ({stats.bezposr})
         </button>
       </div>
 
@@ -148,7 +149,7 @@ export default function Overview() {
           <div className="space-y-4">
             <div>
               <div className="flex justify-between text-[13.5px] font-medium text-[#111418] mb-1.5">
-                <span>Авито Недвижимость</span>
+                <span>⚡ Ранний доступ (Партнёр А)</span>
                 <span className="text-[#5b6b7a] tabular-nums">{stats.avito} кв. ({Math.round((stats.avito / stats.total) * 100)}%)</span>
               </div>
               <div className="w-full h-2 bg-[#f1f2f4] rounded-full overflow-hidden">
@@ -161,7 +162,7 @@ export default function Overview() {
 
             <div>
               <div className="flex justify-between text-[13.5px] font-medium text-[#111418] mb-1.5">
-                <span>ЦИАН (Собственники)</span>
+                <span>🛡️ Модерация SofDom (Партнёр Ц)</span>
                 <span className="text-[#5b6b7a] tabular-nums">{stats.cian} кв. ({Math.round((stats.cian / stats.total) * 100)}%)</span>
               </div>
               <div className="w-full h-2 bg-[#f1f2f4] rounded-full overflow-hidden">
@@ -174,7 +175,7 @@ export default function Overview() {
 
             <div>
               <div className="flex justify-between text-[13.5px] font-medium text-[#111418] mb-1.5">
-                <span>БезПосредников.ру</span>
+                <span>📍 Прямой собственник (Томск Локал)</span>
                 <span className="text-[#5b6b7a] tabular-nums">{stats.bezposr} кв. ({Math.round((stats.bezposr / stats.total) * 100)}%)</span>
               </div>
               <div className="w-full h-2 bg-[#f1f2f4] rounded-full overflow-hidden">
