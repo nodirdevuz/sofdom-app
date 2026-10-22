@@ -74,20 +74,27 @@ class TestSourceCoordinatesPreserved(unittest.TestCase):
         self.assertEqual(clean_lng, 84.9698)
         self.assertEqual(precision, "unknown")
 
-    def test_cian_coordinates_with_confirmed_accuracy_classified_as_exact(self):
-        """При наличии accuracy='exact'/'house' координаты Циан помечаются exact."""
+    def test_cian_coordinates_safely_marked_unknown_without_house_guarantee(self):
+        """
+        Даже если в сырых данных переданы accuracy='exact'/'house'/'дом',
+        координаты Циан без подтверждённого источника провайдера не заявляют точность до дома
+        и безопасно классифицируются как precision='unknown'.
+        """
         for acc in ("exact", "house", "exact_house", "building", "address", "точно", "дом"):
             clean_lat, clean_lng, precision = classify_coordinates(
                 56.4789, 84.9698, city="Томск", source="cian", accuracy=acc
             )
             self.assertEqual(clean_lat, 56.4789)
             self.assertEqual(clean_lng, 84.9698)
-            self.assertEqual(precision, "exact", f"Точность {acc} должна давать precision='exact'")
+            self.assertEqual(precision, "unknown", f"Координаты Циан должны быть unknown, а не exact")
 
     def test_verified_source_coordinates_classified_as_exact(self):
-        """Проверенные модератором координаты всегда получают статус exact."""
-        clean_lat, clean_lng, precision = classify_coordinates(56.4789, 84.9698, city="Томск", source="verified")
-        self.assertEqual(precision, "exact")
+        """Проверенные модератором/тестами координаты всегда получают статус exact."""
+        for src in ("verified", "test_verified"):
+            clean_lat, clean_lng, precision = classify_coordinates(56.4789, 84.9698, city="Томск", source=src)
+            self.assertEqual(precision, "exact")
+            self.assertEqual(clean_lat, 56.4789)
+            self.assertEqual(clean_lng, 84.9698)
 
     def test_upsert_preserves_valid_exact_coordinates(self):
         with tempfile.NamedTemporaryFile(suffix=".db", delete=False) as tf:
@@ -96,8 +103,8 @@ class TestSourceCoordinatesPreserved(unittest.TestCase):
         try:
             db.init_db(db_path=temp_db)
             item = {
-                "id": "cian_test_1",
-                "source": "cian",
+                "id": "verified_test_1",
+                "source": "test_verified",
                 "title": "2-к. квартира",
                 "price": 30000,
                 "address": "г. Томск, ул. Фрунзе, 102",
@@ -105,17 +112,16 @@ class TestSourceCoordinatesPreserved(unittest.TestCase):
                 "district": "Советский район",
                 "lat": 56.478912,
                 "lng": 84.969845,
-                "geo_accuracy": "house",
                 "geo_precision": "exact",
-                "geo_source": "cian"
+                "geo_source": "test_verified"
             }
             db.upsert_apartment(item, db_path=temp_db)
-            apt = db.get_apartment_by_id("cian_test_1", db_path=temp_db)
+            apt = db.get_apartment_by_id("verified_test_1", db_path=temp_db)
             self.assertIsNotNone(apt)
             self.assertEqual(apt["lat"], 56.478912)
             self.assertEqual(apt["lng"], 84.969845)
             self.assertEqual(apt["geo_precision"], "exact")
-            self.assertEqual(apt["geo_source"], "cian")
+            self.assertEqual(apt["geo_source"], "test_verified")
         finally:
             if os.path.exists(temp_db):
                 os.remove(temp_db)
@@ -288,7 +294,7 @@ class TestApiAndMapBehavior(unittest.TestCase):
         # 1. Точная точка (в центре Кировского района)
         db.upsert_apartment({
             "id": "apt_exact",
-            "source": "cian",
+            "source": "test_verified",
             "title": "Точная квартира",
             "price": 25000,
             "address": "г. Томск, ул. Усова, 15",
@@ -296,9 +302,8 @@ class TestApiAndMapBehavior(unittest.TestCase):
             "district": "Кировский район",
             "lat": 56.4600,
             "lng": 84.9700,
-            "geo_accuracy": "exact",
             "geo_precision": "exact",
-            "geo_source": "cian"
+            "geo_source": "test_verified"
         }, db_path=self.temp_db)
 
         # 2. Приблизительная точка (центроид района)
@@ -482,16 +487,15 @@ class TestOrchestratorProvenanceRegressions(unittest.TestCase):
         # 1. Вставка точной точки
         item_exact = {
             "id": apt_id,
-            "source": "cian",
+            "source": "test_verified",
             "title": "Квартира с точной точкой",
             "price": 30000,
             "address": "г. Томск, ул. Кирова, 10",
             "city": "Томск",
             "lat": 56.4800,
             "lng": 84.9700,
-            "geo_accuracy": "exact",
             "geo_precision": "exact",
-            "geo_source": "cian",
+            "geo_source": "test_verified",
             "geo_observed_at": "2026-10-22 19:00:00"
         }
         db.upsert_apartment(item_exact, db_path=self.temp_db)
@@ -499,7 +503,7 @@ class TestOrchestratorProvenanceRegressions(unittest.TestCase):
         self.assertEqual(apt1["lat"], 56.4800)
         self.assertEqual(apt1["lng"], 84.9700)
         self.assertEqual(apt1["geo_precision"], "exact")
-        self.assertEqual(apt1["geo_source"], "cian")
+        self.assertEqual(apt1["geo_source"], "test_verified")
         self.assertEqual(apt1.get("geo_observed_at"), "2026-10-22 19:00:00")
 
         # 2. Обновление того же ID с lat=None, lng=None
@@ -618,32 +622,30 @@ class TestSpatialPreFilterAndRadiusSearch(unittest.TestCase):
         for i in range(10):
             db.upsert_apartment({
                 "id": f"distant_cheap_{i}",
-                "source": "cian",
+                "source": "test_verified",
                 "title": f"Далёкая дешёвая квартира {i}",
                 "price": 10000 + i * 100,
                 "address": "г. Томск, окраина",
                 "city": "Томск",
                 "lat": 56.5700,
                 "lng": 84.9700,
-                "geo_accuracy": "house",
                 "geo_precision": "exact",
-                "geo_source": "cian"
+                "geo_source": "test_verified"
             }, db_path=self.temp_db)
 
         # Вставляем 2 более дорогие квартиры прямо в центре (~100 м, цена 40 000 руб)
         for i in range(2):
             db.upsert_apartment({
                 "id": f"nearby_expensive_{i}",
-                "source": "cian",
+                "source": "test_verified",
                 "title": f"Близкая квартира {i}",
                 "price": 40000 + i * 500,
                 "address": "г. Томск, центр",
                 "city": "Томск",
                 "lat": 56.4605 + i * 0.0002,
                 "lng": 84.9705,
-                "geo_accuracy": "house",
                 "geo_precision": "exact",
-                "geo_source": "cian"
+                "geo_source": "test_verified"
             }, db_path=self.temp_db)
 
         # Запрашиваем радиус 1.0 км с limit=5
@@ -730,16 +732,15 @@ class TestSpatialPreFilterAndRadiusSearch(unittest.TestCase):
         for i in range(260):
             db.upsert_apartment({
                 "id": f"corner_cheap_{i}",
-                "source": "cian",
+                "source": "test_verified",
                 "title": f"Угловая точка вне круга {i}",
                 "price": 1000 + i * 5,
                 "address": "г. Томск, угол bbox",
                 "city": "Томск",
                 "lat": corner_lat,
                 "lng": corner_lng,
-                "geo_accuracy": "house",
                 "geo_precision": "exact",
-                "geo_source": "cian"
+                "geo_source": "test_verified"
             }, db_path=self.temp_db)
 
         # Вставляем 1 подходящую точку прямо в центре (цена 50 000 руб, расстояние ~15 м)
@@ -750,16 +751,15 @@ class TestSpatialPreFilterAndRadiusSearch(unittest.TestCase):
 
         db.upsert_apartment({
             "id": "suitable_target",
-            "source": "cian",
+            "source": "test_verified",
             "title": "Подходящая квартира в центре радиуса",
             "price": 50000,
             "address": "г. Томск, центр круга",
             "city": "Томск",
             "lat": target_lat,
             "lng": target_lng,
-            "geo_accuracy": "house",
             "geo_precision": "exact",
-            "geo_source": "cian"
+            "geo_source": "test_verified"
         }, db_path=self.temp_db)
 
         # Выполняем поиск с limit=1
@@ -833,7 +833,8 @@ if (!htmlUnknown.includes("unverified-pin") || !htmlUnknown.includes("?")) {
         Регрессионный тест:
         Координаты Циан без подтверждения точности до дома маркируются unknown
         и не заявляют exact без подтверждающих метаданных.
-        При наличии accuracy='exact'/'house' они получают exact.
+        Даже при наличии accuracy='house' они остаются unknown.
+        Только проверенные источники (verified / test_verified) получают exact.
         """
         clean_lat, clean_lng, precision = classify_coordinates(56.4800, 84.9700, city="Томск", source="cian")
         self.assertEqual(precision, "unknown")
@@ -843,16 +844,20 @@ if (!htmlUnknown.includes("unverified-pin") || !htmlUnknown.includes("?")) {
         clean_lat_h, clean_lng_h, precision_h = classify_coordinates(
             56.4800, 84.9700, city="Томск", source="cian", accuracy="house"
         )
-        self.assertEqual(precision_h, "exact")
+        self.assertEqual(precision_h, "unknown", "Cian координаты без доказанной точности дома не должны получать exact")
 
-        # Проверяем, что в scraper.py извлекается geo_accuracy из geo-объекта Циан и передаётся в classify_coordinates
+        clean_lat_v, clean_lng_v, precision_v = classify_coordinates(
+            56.4800, 84.9700, city="Томск", source="test_verified"
+        )
+        self.assertEqual(precision_v, "exact")
+
+        # Проверяем, что в scraper.py координаты Циан классифицируются через classify_coordinates
         scraper_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "scraper.py")
         with open(scraper_file, encoding="utf-8") as f:
             code = f.read()
 
-        self.assertIn("geo_accuracy", code)
-        self.assertIn("geo.get('accuracy')", code)
-        self.assertIn("accuracy=geo_accuracy", code)
+        self.assertIn("classify_coordinates", code)
+        self.assertIn("source='cian'", code)
 
 
 class TestGeoObservedAtPolicy(unittest.TestCase):
@@ -976,6 +981,103 @@ class TestGeoObservedAtPolicy(unittest.TestCase):
         apt3 = db.get_apartment_by_id("obs_live_1", db_path=self.temp_db)
         self.assertIsNone(apt3["lat"])
         self.assertIsNone(apt3["geo_observed_at"], "При сбросе координат geo_observed_at обязан сбрасываться в NULL")
+
+    def test_coordinate_change_without_new_timestamp_resets_geo_observed_at_to_null(self):
+        """
+        Регрессионный тест замечания оркестратора 2:
+        Если координаты меняются (новые lat/lng), но новый geo_observed_at не передан,
+        он строго сбрасывается в NULL, а не сохраняет старую метку чужих координат.
+        Старый geo_observed_at сохраняется ТОЛЬКО при неизменных координатах.
+        """
+        live_ts = "2026-10-22 18:00:00"
+        item = {
+            "id": "coord_change_test",
+            "source": "test_verified",
+            "title": "Квартира с исходными гео",
+            "price": 28000,
+            "address": "г. Томск, ул. Усова, 5",
+            "city": "Томск",
+            "lat": 56.4600,
+            "lng": 84.9700,
+            "geo_precision": "exact",
+            "geo_source": "test_verified",
+            "geo_observed_at": live_ts
+        }
+        db.upsert_apartment(item, db_path=self.temp_db)
+
+        apt1 = db.get_apartment_by_id("coord_change_test", db_path=self.temp_db)
+        self.assertEqual(apt1["geo_observed_at"], live_ts)
+
+        # 1. Обновление цены без изменения координат (координаты те же) -> geo_observed_at сохраняется
+        db.upsert_apartment({
+            "id": "coord_change_test",
+            "source": "test_verified",
+            "title": "Квартира с обновлённой ценой",
+            "price": 29000,
+            "address": "г. Томск, ул. Усова, 5",
+            "city": "Томск",
+            "lat": 56.4600,
+            "lng": 84.9700,
+            "geo_precision": "exact",
+            "geo_source": "test_verified"
+            # geo_observed_at не передан
+        }, db_path=self.temp_db)
+        apt2 = db.get_apartment_by_id("coord_change_test", db_path=self.temp_db)
+        self.assertEqual(apt2["price"], 29000)
+        self.assertEqual(apt2["geo_observed_at"], live_ts,
+                         "При неизменных координатах старый geo_observed_at сохраняется")
+
+        # 2. Изменение координат без передачи нового geo_observed_at -> сбрасывается в NULL
+        db.upsert_apartment({
+            "id": "coord_change_test",
+            "source": "test_verified",
+            "title": "Квартира с новыми координатами",
+            "price": 29000,
+            "address": "г. Томск, ул. Кирова, 12",
+            "city": "Томск",
+            "lat": 56.4750,
+            "lng": 84.9850,
+            "geo_precision": "exact",
+            "geo_source": "test_verified"
+            # geo_observed_at не передан
+        }, db_path=self.temp_db)
+        apt3 = db.get_apartment_by_id("coord_change_test", db_path=self.temp_db)
+        self.assertEqual(apt3["lat"], 56.4750)
+        self.assertIsNone(apt3["geo_observed_at"],
+                          "При смене координат без передачи таймстемпа geo_observed_at обязан сброситься в NULL")
+
+        # 3. Передача свежего наблюдения с новыми координатами -> обновляется
+        new_ts = "2026-10-22 21:00:00"
+        db.upsert_apartment({
+            "id": "coord_change_test",
+            "source": "test_verified",
+            "title": "Квартира с подтверждёнными новыми координатами",
+            "price": 29000,
+            "address": "г. Томск, ул. Кирова, 12",
+            "city": "Томск",
+            "lat": 56.4750,
+            "lng": 84.9850,
+            "geo_precision": "exact",
+            "geo_source": "test_verified",
+            "geo_observed_at": new_ts
+        }, db_path=self.temp_db)
+        apt4 = db.get_apartment_by_id("coord_change_test", db_path=self.temp_db)
+        self.assertEqual(apt4["geo_observed_at"], new_ts)
+
+        # 4. Сброс координат в NULL -> geo_observed_at сбрасывается в NULL
+        db.upsert_apartment({
+            "id": "coord_change_test",
+            "source": "test_verified",
+            "title": "Квартира без координат",
+            "price": 29000,
+            "address": "г. Томск",
+            "city": "Томск",
+            "lat": None,
+            "lng": None
+        }, db_path=self.temp_db)
+        apt5 = db.get_apartment_by_id("coord_change_test", db_path=self.temp_db)
+        self.assertIsNone(apt5["lat"])
+        self.assertIsNone(apt5["geo_observed_at"])
 
 
 class TestRadiusParameterValidation(unittest.TestCase):
@@ -1137,32 +1239,30 @@ class TestRadiusCandidateChunking(unittest.TestCase):
         for i in range(545):
             db.upsert_apartment({
                 "id": f"chunk_corner_{i}",
-                "source": "cian",
+                "source": "test_verified",
                 "title": f"Угловая точка {i}",
                 "price": 1000 + i,
                 "address": "г. Томск, угол",
                 "city": "Томск",
                 "lat": corner_lat,
                 "lng": corner_lng,
-                "geo_accuracy": "house",
                 "geo_precision": "exact",
-                "geo_source": "cian"
+                "geo_source": "test_verified"
             }, db_path=self.temp_db)
 
         # 5 подходящих точек внутри радиуса (~200 м от центра)
         for i in range(5):
             db.upsert_apartment({
                 "id": f"chunk_inside_{i}",
-                "source": "cian",
+                "source": "test_verified",
                 "title": f"Подходящая точка {i}",
                 "price": 40000 + i * 100,
                 "address": "г. Томск, центр",
                 "city": "Томск",
                 "lat": center_lat + 0.001 * (i + 1),
                 "lng": center_lng + 0.001 * (i + 1),
-                "geo_accuracy": "house",
                 "geo_precision": "exact",
-                "geo_source": "cian"
+                "geo_source": "test_verified"
             }, db_path=self.temp_db)
 
         res = db.list_apartments_geo(
@@ -1177,6 +1277,156 @@ class TestRadiusCandidateChunking(unittest.TestCase):
         self.assertEqual(len(returned_ids), 5, "Все 5 подходящих точек должны быть найдены через пакетное чтение")
         for i in range(5):
             self.assertIn(f"chunk_inside_{i}", returned_ids)
+
+    def test_radius_search_with_over_5000_bbox_corner_points_finds_inside_point_with_limit_1(self):
+        """
+        Регрессионный тест замечания оркестратора 1:
+        5000 дешёвых точек внутри spatial bbox, но вне окружности радиуса,
+        плюс 1 подходящая точка около центра внутри круга, но дороже.
+        Радиусный поиск обязан найти подходящую точку и вернуть её при limit=1,
+        не отбрасывая из-за искусственного потолка в 5000 записей.
+        """
+        center_lat = 56.4600
+        center_lng = 84.9700
+        radius_km = 2.0
+
+        min_lat, max_lat, min_lng, max_lng = calc_radius_bbox(center_lat, center_lng, radius_km)
+        corner_lat = max_lat - 0.0001
+        corner_lng = max_lng - 0.0001
+        corner_dist = haversine_distance(center_lat, center_lng, corner_lat, corner_lng)
+        self.assertGreater(corner_dist, radius_km, "Угловая точка должна быть вне круга радиуса")
+
+        rows = []
+        # 5049 дешёвых точек в углу bbox (цена 1000..6048 руб)
+        for i in range(5049):
+            rows.append((
+                f"bbox_outside_{i}", "test_verified", 0, None, f"Точка вне круга {i}",
+                1000 + i, 0, 0, "Томск, угол bbox", "Томск", "Кировский район",
+                "1-комн", 30.0, 1, 5, corner_lat, corner_lng,
+                "", "", "[]", "", "", "exact", "test_verified", None
+            ))
+
+        # 1 подходящая точка внутри радиуса (~200 м от центра), но с более высокой ценой (50 000 руб)
+        target_lat = center_lat + 0.001
+        target_lng = center_lng + 0.001
+        target_dist = haversine_distance(center_lat, center_lng, target_lat, target_lng)
+        self.assertLess(target_dist, radius_km)
+
+        rows.append((
+            "bbox_target_inside", "test_verified", 0, None, "Подходящая квартира в центре",
+            50000, 0, 0, "Томск, центр", "Томск", "Кировский район",
+            "2-комн", 50.0, 3, 9, target_lat, target_lng,
+            "", "", "[]", "", "", "exact", "test_verified", None
+        ))
+
+        with db.get_connection(self.temp_db) as conn:
+            conn.executemany("""
+            INSERT INTO apartments (
+                id, source, is_secret_early_access, secret_until, title,
+                price, deposit, commission, address, city, district,
+                rooms, area, floor, total_floors, lat, lng,
+                phone, owner_name, photos_json, description, url,
+                geo_precision, geo_source, geo_observed_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """, rows)
+            conn.commit()
+
+        # Запрос с limit=1 обязан вернуть именно подходящую точку из центра, несмотря на 5049 дешёвых угловых точек
+        res = db.list_apartments_geo(
+            center_lat=center_lat,
+            center_lng=center_lng,
+            radius_km=radius_km,
+            limit=1,
+            db_path=self.temp_db
+        )
+
+        self.assertEqual(res["count"], 1, "Должна быть возвращена ровно 1 подходящая точка")
+        self.assertEqual(res["apartments"][0]["id"], "bbox_target_inside")
+        self.assertEqual(res["apartments"][0]["price"], 50000)
+        self.assertAlmostEqual(res["apartments"][0]["distance_km"], target_dist, places=2)
+
+    def test_unmigrated_db_record_with_coords_defaults_to_unknown_not_exact(self):
+        """
+        Регрессионный тест замечания оркестратора 3:
+        Старые записи в БД со значением geo_precision=NULL в list_apartments_geo
+        отдаются как geo_precision='unknown' и is_approximate=True, а не fallback 'exact'.
+        """
+        with db.get_connection(self.temp_db) as conn:
+            conn.execute("""
+            INSERT INTO apartments (
+                id, source, title, price, address, city, district, lat, lng,
+                geo_precision, geo_source
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """, (
+                "legacy_null_precision", "cian", "Старое объявление без миграции", 25000,
+                "г. Томск, ул. Кирова, 15", "Томск", "Кировский район",
+                56.4600, 84.9700, None, "cian"
+            ))
+            conn.commit()
+
+        res = db.list_apartments_geo(db_path=self.temp_db)
+        apts = {a["id"]: a for a in res["apartments"]}
+        self.assertIn("legacy_null_precision", apts)
+        self.assertEqual(apts["legacy_null_precision"]["geo_precision"], "unknown")
+        self.assertTrue(apts["legacy_null_precision"]["is_approximate"])
+
+    def test_radius_search_bounded_heap_tie_breaking_order(self):
+        """
+        Проверка порядка сортировки bounded max-heap:
+        1. Сначала минимальное расстояние distance_km ASC;
+        2. При равном расстоянии — ранний доступ is_secret_early_access DESC;
+        3. При равном раннем доступе — цена price ASC;
+        4. Bounded heap строго отсекает худшие объекты по лимиту.
+        """
+        center_lat = 56.4600
+        center_lng = 84.9700
+        radius_km = 2.0
+
+        # Точка на расстоянии 0.5 км (секретная, дешёвая 30 000)
+        p_close_secret = (center_lat + 0.003, center_lng + 0.003)
+        # Точка на том же расстоянии 0.5 км (обычная, дешёвая 30 000)
+        p_close_regular = (center_lat + 0.003, center_lng + 0.003)
+        # Точка на том же расстоянии 0.5 км (обычная, дорогая 40 000)
+        p_close_expensive = (center_lat + 0.003, center_lng + 0.003)
+        # Точка дальше: 1.5 км (секретная, очень дешёвая 15 000)
+        p_far = (center_lat + 0.010, center_lng + 0.010)
+
+        pts = [
+            ("pt_far", 1, 15000, p_far[0], p_far[1]),
+            ("pt_close_expensive", 0, 40000, p_close_expensive[0], p_close_expensive[1]),
+            ("pt_close_regular", 0, 30000, p_close_regular[0], p_close_regular[1]),
+            ("pt_close_secret", 1, 30000, p_close_secret[0], p_close_secret[1]),
+        ]
+
+        for pid, is_sec, price, lat, lng in pts:
+            db.upsert_apartment({
+                "id": pid,
+                "source": "test_verified",
+                "title": pid,
+                "price": price,
+                "is_secret_early_access": is_sec,
+                "address": "г. Томск",
+                "city": "Томск",
+                "lat": lat,
+                "lng": lng,
+                "geo_precision": "exact",
+                "geo_source": "test_verified"
+            }, db_path=self.temp_db)
+
+        res = db.list_apartments_geo(
+            center_lat=center_lat,
+            center_lng=center_lng,
+            radius_km=radius_km,
+            limit=3,
+            db_path=self.temp_db
+        )
+
+        returned_ids = [a["id"] for a in res["apartments"]]
+        self.assertEqual(len(returned_ids), 3)
+        # 3 ближайшие точки на расстоянии ~0.45 км должны победить далёкую точку (1.5 км),
+        # а между собой они должны отсортироваться: secret=1 (30k) -> secret=0 (30k) -> secret=0 (40k)
+        self.assertEqual(returned_ids, ["pt_close_secret", "pt_close_regular", "pt_close_expensive"])
+        self.assertNotIn("pt_far", returned_ids)
 
 
 if __name__ == "__main__":

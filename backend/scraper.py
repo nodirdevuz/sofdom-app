@@ -130,7 +130,9 @@ class RealtyScraper:
                         lng=c_lng,
                         current_district=raw_district
                     ) or ''
-                    # Проверяем наличие метаданных точности от источника Циан (accuracy / precision / geoType)
+                    # Координаты Циан: источник предоставляет числовые lat/lng,
+                    # но в текущем открытом API Циан отсутствует подтверждённый провайдером флаг точности дома.
+                    # Координаты сохраняются для карты и маркируются как 'unknown' (знак '?' на клиенте).
                     geo_accuracy = str(geo.get('accuracy') or geo.get('precision') or geo.get('geoType') or '')
 
                     valid_lat, valid_lng, precision = classify_coordinates(

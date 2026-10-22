@@ -250,12 +250,12 @@ def classify_coordinates(
 ) -> Tuple[Optional[float], Optional[float], str]:
     """
     Классифицирует координаты и определяет уровень их точности (provenance):
-      - 'exact': числовые координаты получены от источника (Циан/verified) с подтверждённым
-        признаком точности до адреса/дома (accuracy='exact'/'house'/'building'/'address').
+      - 'exact': числовые координаты получены от источников с подтверждённой точностью
+        до адреса/дома (источники: 'verified', 'test_verified').
       - 'unknown': валидные числовые координаты получены от источника (Циан), но точный уровень
-        привязки (до дома vs до улицы) не подтверждён явными метаданными источника.
+        привязки (до дома vs до улицы/района) не подтверждён провайдером в открытых метаданных.
         Сохраняются для отображения на карте с предупреждающей меткой '?', но исключаются
-        из строгого поиска по радиусу.
+        из строгого поиска по радиусу во избежание ложной точности.
       - 'approximate': центроид района или населённого пункта (поддерживается на уровне
         модели данных/API/UI, но текущие продакшен-сборщики его НЕ генерируют);
       - 'none': координаты отсутствуют, невалидны, являются заглушкой центра или
@@ -292,31 +292,22 @@ def classify_coordinates(
     if source in ("avito", "bezposrednikov", "legacy"):
         return None, None, "none"
 
-    # Проверенные источники (Циан, проверенные модератором / тестами)
-    verified_sources = ("cian", "verified", "test_verified")
-    if source in verified_sources or source.startswith("cian"):
-        # Проверка географической согласованности с заявленным городом:
-        # если город заявлен как Томск, но координаты заведомо за пределами конверта Томска
-        # (например, Колпашево 58.31 N при city='Томск'), то они не могут считаться точкой Томска.
+    # Проверенные модерацией или тестами источники с подтверждённой точностью до дома
+    if source in ("verified", "test_verified"):
         if city == "Томск" and not is_in_tomsk_envelope(f_lat, f_lng):
             return None, None, "none"
+        return round(f_lat, 6), round(f_lng, 6), "exact"
 
-        # Прямо проверенные источники модерации или тестов
-        if source in ("verified", "test_verified"):
-            return round(f_lat, 6), round(f_lng, 6), "exact"
-
-        # Для Циан: статус 'exact' присваивается ТОЛЬКО при наличии подтверждённого признака
-        # точности до дома/адреса от источника (accuracy / precision / geoType).
-        acc_str = str(accuracy or "").strip().lower()
-        if acc_str in ("exact", "house", "exact_house", "building", "address", "точно", "дом"):
-            return round(f_lat, 6), round(f_lng, 6), "exact"
-        elif acc_str in ("approximate", "district", "centroid", "locality"):
-            return round(f_lat, 6), round(f_lng, 6), "approximate"
-        else:
-            # Координаты от Циан валидны, но их точность до дома не подтверждена.
-            # Сохраняем для карты как 'unknown' с визуальным предупреждением,
-            # исключая из строгого радиусного поиска.
-            return round(f_lat, 6), round(f_lng, 6), "unknown"
+    # Источник Циан: в публичных поисковых выдачах Циан координаты присутствуют,
+    # но признак гарантированной точности до дома (а не улицы/района) провайдером
+    # в текущем открытом API не подтверждён фикстурами.
+    # Поэтому координаты Циан сохраняются для отображения на карте, но строго
+    # маркируются как 'unknown' (с бейджем '?' на клиенте) и не допускаются
+    # в строгий поиск по радиусу во избежание ложной точности.
+    if source == "cian" or source.startswith("cian"):
+        if city == "Томск" and not is_in_tomsk_envelope(f_lat, f_lng):
+            return None, None, "none"
+        return round(f_lat, 6), round(f_lng, 6), "unknown"
 
     if source in ("approximate", "district_centroid"):
         return round(f_lat, 6), round(f_lng, 6), "approximate"

@@ -10,6 +10,7 @@ import sqlite3
 import json
 import os
 import math
+import heapq
 from datetime import datetime, date, timedelta
 
 from geo_utils import (
@@ -495,7 +496,11 @@ def upsert_apartment(item: dict, db_path=DB_PATH):
             geo_observed_at = CASE
                 WHEN excluded.lat IS NULL THEN NULL
                 WHEN excluded.geo_observed_at IS NOT NULL THEN excluded.geo_observed_at
-                ELSE apartments.geo_observed_at
+                WHEN (apartments.lat IS NOT NULL AND apartments.lng IS NOT NULL
+                      AND abs(excluded.lat - apartments.lat) < 1e-6
+                      AND abs(excluded.lng - apartments.lng) < 1e-6)
+                    THEN apartments.geo_observed_at
+                ELSE NULL
             END
         """, {
             "id": str(item["id"]),
@@ -809,11 +814,11 @@ def list_apartments_geo(
     - center_lat / center_lng: конечные числа в диапазонах [-90..90] и [-180..180];
     - bbox: 4 конечных числа min_lat,min_lng,max_lat,max_lng с проверкой min <= max.
 
-    Безопасность чтения из БД:
+    Безопасность и полнота чтения из БД:
     - При радиусном поиске SQL spatial pre-filter сужает выборку до bounding box.
-    - Кандидаты считываются пакетами по 250 (fetchmany) с потолком MAX_CANDIDATES = 5000,
-      что предотвращает неконтролируемый объём памяти при этом гарантируя точность
-      внутри радиуса.
+    - Все кандидаты считываются потоково пакетами (cursor.fetchmany), гарантируя,
+      что ни одно подходящее объявление не теряется независимо от общего числа записей.
+    - Память строго ограничена размером limit через bounded max-heap (O(limit) по памяти).
     """
     # 1. Валидация limit
     if not isinstance(limit, int) or isinstance(limit, bool) or limit < 1 or limit > 1000:
@@ -915,7 +920,6 @@ def list_apartments_geo(
             params.extend([r_min_lat, r_max_lat, r_min_lng, r_max_lng])
             if has_precision:
                 query += " AND geo_precision = 'exact'"
-            query += " ORDER BY is_secret_early_access DESC, price ASC"
         else:
             query += " ORDER BY is_secret_early_access DESC, price ASC LIMIT ?"
             params.append(limit)
@@ -924,18 +928,21 @@ def list_apartments_geo(
 
         points = []
         if has_radius_filter:
-            # Читаем кандидатов пакетами по 250, чтобы защитить память от неконтролируемого объёма,
-            # с ограничением MAX_CANDIDATES = 5000 (в Томске активный рынок < 2000 объявлений).
-            MAX_CANDIDATES = 5000
-            CHUNK_SIZE = 250
-            total_read = 0
+            # Читаем всех кандидатов пространственного bounding box порциями (cursor.fetchmany),
+            # гарантируя полноту выборки без искусственного потолка в 5000 записей.
+            # Для сохранения строгой границы памяти O(limit) используем bounded max-heap:
+            # в куче поддерживаются не более limit наилучших кандидатов.
+            # Поскольку heapq в Python является min-heap, инвертируем ключ оценки:
+            # худший из limit лучших кандидатов находится в heap[0] и вытесняется при обнаружении лучшего.
+            CHUNK_SIZE = 500
+            heap = []
+            entry_counter = 0
 
-            while total_read < MAX_CANDIDATES:
+            while True:
                 batch = cursor.fetchmany(CHUNK_SIZE)
                 if not batch:
                     break
                 for r in batch:
-                    total_read += 1
                     apt = dict(r)
                     a_lat, a_lng = apt["lat"], apt["lng"]
                     if is_center_placeholder(a_lat, a_lng):
@@ -955,13 +962,16 @@ def list_apartments_geo(
                         first_photo = ""
                         photos_count = 0
 
-                    points.append({
+                    is_sec = 1 if apt.get("is_secret_early_access") else 0
+                    price_val = apt.get("price") or 0
+
+                    point = {
                         "id": apt["id"],
                         "lat": a_lat,
                         "lng": a_lng,
                         "title": apt["title"],
-                        "price": apt["price"],
-                        "price_badge": f"{apt['price']:,}".replace(",", " ") + " ₽",
+                        "price": price_val,
+                        "price_badge": f"{price_val:,}".replace(",", " ") + " ₽",
                         "deposit": apt["deposit"],
                         "rooms": apt["rooms"],
                         "area": apt["area"],
@@ -970,11 +980,26 @@ def list_apartments_geo(
                         "district": apt["district"] or "Томск",
                         "photo": first_photo,
                         "photos_count": photos_count,
-                        "is_secret": bool(apt["is_secret_early_access"]),
+                        "is_secret": bool(is_sec),
                         "distance_km": dist_km,
                         "geo_precision": geo_prec,
                         "is_approximate": False
-                    })
+                    }
+
+                    # Ключ: больший heap_key = лучший объект.
+                    # 1. Меньше расстояние (-dist_km)
+                    # 2. Приоритет раннего доступа (+is_sec)
+                    # 3. Меньше цена (-price_val)
+                    heap_key = (-dist_km, is_sec, -price_val)
+                    entry_counter += 1
+
+                    if len(heap) < limit:
+                        heapq.heappush(heap, (heap_key, entry_counter, point))
+                    elif heap_key > heap[0][0]:
+                        heapq.heapreplace(heap, (heap_key, entry_counter, point))
+
+            points = [item[2] for item in heap]
+            points.sort(key=lambda p: (p["distance_km"], -int(p["is_secret"]), p["price"]))
         else:
             rows = cursor.fetchall()
             for r in rows:
@@ -984,7 +1009,7 @@ def list_apartments_geo(
                 if is_center_placeholder(a_lat, a_lng):
                     continue
 
-                geo_prec = apt.get("geo_precision") or ("exact" if (a_lat and a_lng and not is_center_placeholder(a_lat, a_lng)) else "none")
+                geo_prec = apt.get("geo_precision") or ("unknown" if (a_lat and a_lng and not is_center_placeholder(a_lat, a_lng)) else "none")
                 if geo_prec == "none":
                     continue
 
