@@ -1578,10 +1578,73 @@ class TestCityProfileArchitectureAndExtensibility(unittest.TestCase):
             c_lat_p, _, prec_p = classify_coordinates(50.5000, 80.5000, city="Тестоград", source="cian")
             self.assertEqual(prec_p, "none")
             self.assertIsNone(c_lat_p)
+
+            # 6. Распознавание населённых пунктов нового города работает через общую функцию detect_city
+            self.assertEqual(detect_city("ул. Главная, посёлок", default_city="Тестоград"), "Посёлок")
+            # Чужие (томские) населённые пункты не влияют на новый профиль
+            self.assertEqual(detect_city("Северский проезд, 5", default_city="Тестоград"), "Тестоград")
         finally:
             # Очищаем реестр, возвращая к строго единственному профилю Томска
             CITY_REGISTRY.pop("тестоград", None)
             CITY_REGISTRY.pop("testograd", None)
+
+    def test_unknown_city_detect_city_does_not_leak_tomsk_settlements(self):
+        """
+        Неизвестный город (например, default_city='Красноярск') не использует справочники Томской области.
+        Текст 'Северский проезд' или 'Колпашевская улица' в Красноярске не превращает город в Северск или Колпашево.
+        """
+        # 1. Северский проезд в Красноярске
+        self.assertEqual(
+            detect_city("Красноярск, Северский проезд, 5", raw_city="Красноярск", default_city="Красноярск"),
+            "Красноярск"
+        )
+        self.assertEqual(
+            detect_city("г. Красноярск, Северский проезд, 10", default_city="Красноярск"),
+            "Красноярск"
+        )
+
+        # 2. Другие населённые пункты Томской области (Колпашево, Асино, Стрежевой)
+        self.assertEqual(
+            detect_city("г. Красноярск, ул. Колпашевская, 2", default_city="Красноярск"),
+            "Красноярск"
+        )
+        self.assertEqual(
+            detect_city("г. Красноярск, Асиновский тракт, 10", raw_city="Красноярск"),
+            "Красноярск"
+        )
+
+    def test_unknown_city_detect_city_does_not_apply_kolpashevo_coordinate_heuristic(self):
+        """
+        Для города без профиля координатная эвристика севера Томской области
+        (lat > 57.5, lng < 84.0 + 'нефтеразведчик') категорически не применяется.
+        """
+        res = detect_city(
+            "Красноярск, ул. Нефтеразведчиков, 1",
+            lat=58.31,
+            lng=82.90,
+            raw_city="Красноярск",
+            default_city="Красноярск"
+        )
+        self.assertEqual(res, "Красноярск")
+
+    def test_tomsk_city_detection_preserves_all_settlements_and_heuristics(self):
+        """Для Томска сохраняются все правила обнаружения городов области и координатная эвристика SD-1075."""
+        # 1. Прямое упоминание Северска
+        self.assertEqual(detect_city("г. Северск, ул. Победы, 1"), "Северск")
+
+        # 2. Населённые пункты из non_city_settlements
+        self.assertEqual(detect_city("г. Колпашево, ул. Ленина, 10"), "Колпашево")
+        self.assertEqual(detect_city("г. Асино, ул. Чехова, 5"), "Асино")
+        self.assertEqual(detect_city("г. Стрежевой, мкр 2, д. 20"), "Стрежевой")
+
+        # 3. Региональная координатная эвристика Колпашево (SD-1075)
+        self.assertEqual(
+            detect_city("Томская область, р-н Колпашевский, ул Нефтеразведчиков", lat=58.31, lng=82.90),
+            "Колпашево"
+        )
+
+        # 4. Обычный адрес Томска
+        self.assertEqual(detect_city("г. Томск, ул. Кирова, 15"), "Томск")
 
     def test_tomsk_existing_geo_behavior_fully_preserved(self):
         """Все существующие инварианты Томска сохраняются в неизменном виде."""

@@ -9,9 +9,9 @@ geo_utils.py
 Архитектура:
 Поддержка профилей городов (CityProfile) через реестр (CityRegistry).
 В текущей продуктовой фазе активен и валидирован профиль Томска (TOMSK_PROFILE).
-Общая геологика (валидация координат, районирование, радиусный поиск) отделена
-от городских справочников и конвертов, позволяя расширять список городов через
-регистрацию профилей без модификации алгоритмического ядра.
+Общая геологика (валидация координат, районирование, распознавание городов, радиусный поиск)
+полностью отделена от специфичных городских справочников и конвертов, позволяя расширять
+список городов через регистрацию профилей без модификации алгоритмического ядра.
 """
 
 import math
@@ -31,10 +31,27 @@ class DistrictRule(NamedTuple):
 
 
 @dataclass
+class RegionalCoordinateHeuristic:
+    """
+    Эвристика выявления удалённого населённого пункта региона
+    по географическим координатам и ключевым словам адреса.
+    """
+    settlement_name: str
+    min_lat: float
+    max_lng: float
+    keywords: Tuple[str, ...]
+
+    def matches(self, addr_lower: str, lat: float, lng: float) -> bool:
+        if lat > self.min_lat and lng < self.max_lng:
+            return any(kw in addr_lower for kw in self.keywords)
+        return False
+
+
+@dataclass
 class CityProfile:
     """
     Профиль города: инкапсулирует границы, центроиды, заглушки центра,
-    районы и локальные правила районирования/распознавания населённых пунктов.
+    районы, правила районирования и распознавания населённых пунктов региона.
     """
     name: str
     aliases: Tuple[str, ...]
@@ -45,6 +62,8 @@ class CityProfile:
     districts: Set[str]
     district_rules: List[DistrictRule]
     non_city_settlements: Dict[str, str] = field(default_factory=dict)
+    regional_heuristics: List[RegionalCoordinateHeuristic] = field(default_factory=list)
+    unverified_district_fallbacks: Dict[str, Tuple[str, ...]] = field(default_factory=dict)
     suburbs: Tuple[str, ...] = ("Пригород",)
 
     def is_in_envelope(self, lat: Optional[float], lng: Optional[float]) -> bool:
@@ -73,6 +92,37 @@ class CityProfile:
         except (ValueError, TypeError):
             return False
 
+    def detect_settlement(
+        self,
+        address: Optional[str],
+        lat: Optional[float] = None,
+        lng: Optional[float] = None
+    ) -> Optional[str]:
+        """
+        Проверяет, относится ли адрес к другому населённому пункту региона
+        по словарю региональных пунктов или координатным эвристикам профиля.
+        Возвращает название населённого пункта (например, 'Колпашево', 'Северск') или None.
+        """
+        addr_clean = (address or "").lower()
+
+        # 1. Поиск по ключевым словам населённых пунктов региона
+        for pattern, settlement_name in self.non_city_settlements.items():
+            if pattern in addr_clean:
+                return settlement_name
+
+        # 2. Поиск по координатным региональным эвристикам
+        if lat is not None and lng is not None and self.regional_heuristics:
+            try:
+                f_lat = float(lat)
+                f_lng = float(lng)
+                for heuristic in self.regional_heuristics:
+                    if heuristic.matches(addr_clean, f_lat, f_lng):
+                        return heuristic.settlement_name
+            except (ValueError, TypeError):
+                pass
+
+        return None
+
     def detect_district(
         self,
         address: Optional[str],
@@ -98,12 +148,10 @@ class CityProfile:
 
         # 2. Если уже был район из проверенного источника и он входит в официальные районы города
         if current_district and current_district in self.districts:
-            # Для Томска: отсекаем исторический синтетический fallback 'Советский район' без оснований в тексте
-            if current_district == "Советский район" and self.name == "Томск":
-                soviet_kws = ["фрунзе", "комсомольск", "сибирск", "алтайск", "нечевск",
-                              "никитин", "шевченко", "герцен", "кулагин", "тверск",
-                              "гогол", "крылов", "чкалов", "советский"]
-                if any(kw in text_lower for kw in soviet_kws):
+            # Если для района задана фильтрация ложного fallback — требуем ключевые слова
+            if current_district in self.unverified_district_fallbacks:
+                required_kws = self.unverified_district_fallbacks[current_district]
+                if any(kw in text_lower for kw in required_kws):
                     return current_district
                 return None
             return current_district
@@ -181,6 +229,23 @@ TOMSK_DISTRICT_RULES: List[DistrictRule] = [
     ))
 ]
 
+TOMSK_REGIONAL_HEURISTICS: List[RegionalCoordinateHeuristic] = [
+    RegionalCoordinateHeuristic(
+        settlement_name="Колпашево",
+        min_lat=57.5,
+        max_lng=84.0,
+        keywords=("колпашев", "нефтеразведчик")
+    )
+]
+
+TOMSK_UNVERIFIED_DISTRICT_FALLBACKS: Dict[str, Tuple[str, ...]] = {
+    "Советский район": (
+        "фрунзе", "комсомольск", "сибирск", "алтайск", "нечевск",
+        "никитин", "шевченко", "герцен", "кулагин", "тверск",
+        "гогол", "крылов", "чкалов", "советский"
+    )
+}
+
 TOMSK_PROFILE = CityProfile(
     name="Томск",
     aliases=("томск", "tomsk", "г. томск", "город томск", "г.томск"),
@@ -191,6 +256,8 @@ TOMSK_PROFILE = CityProfile(
     districts=TOMSK_CITY_DISTRICTS,
     district_rules=TOMSK_DISTRICT_RULES,
     non_city_settlements=KNOWN_NON_TOMSK_SETTLEMENTS,
+    regional_heuristics=TOMSK_REGIONAL_HEURISTICS,
+    unverified_district_fallbacks=TOMSK_UNVERIFIED_DISTRICT_FALLBACKS,
     suburbs=("Пригород",)
 )
 
@@ -268,19 +335,22 @@ def calc_radius_bbox(
 def is_center_placeholder(
     lat: Optional[float],
     lng: Optional[float],
-    city: Optional[str] = "Томск"
+    city: Optional[str] = None
 ) -> bool:
     """
     Проверяет, являются ли координаты синтетической заглушкой центра.
-    Если профиль города найден — проверяет по его placeholder_centers.
-    Если профиль не найден или city не передан — проверяет по заглушкам всех
-    зарегистрированных профилей (для безопасного отсева фиктивных точек).
+    Если указан city: проверяет по placeholder_centers соответствующего профиля.
+    Для неизвестного города заглушки других городов не применяются.
+    Если city не указан: проверяет по заглушкам всех зарегистрированных профилей.
     """
     if lat is None or lng is None:
         return False
-    profile = get_city_profile(city) if city else None
-    if profile:
-        return profile.is_placeholder(lat, lng)
+    if city:
+        profile = get_city_profile(city)
+        if profile:
+            return profile.is_placeholder(lat, lng)
+        return False
+
     seen = set()
     for p in CITY_REGISTRY.values():
         if p.name not in seen:
@@ -320,38 +390,23 @@ def detect_city(
 ) -> str:
     """
     Определяет реальный населённый пункт объявления по адресу, сырому городу и координатам.
-    Предотвращает запись 'Томск' для объектов из других городов области (Колпашево, Северск и т.д.).
-    Если raw_city явно указан и не является дефолтным (например, другой город) — возвращает его.
+    Использует зарегистрированный CityProfile:
+    - Если для города (raw_city или default_city) профиль найден, вызывается profile.detect_settlement(...).
+    - Если профиль не найден (неизвестный/будущий город) — возвращается исходный город,
+      без применения справочников Томской области или других чужих городов.
     """
-    addr_clean = (address or "").lower()
+    target_city = raw_city.strip() if (raw_city and raw_city.strip()) else default_city
 
-    # 1. Если указан raw_city и он не является дефолтным городом и не пустой
-    if raw_city and raw_city.strip() and raw_city.strip() != default_city:
-        return raw_city.strip()
+    profile = get_city_profile(target_city)
+    if profile is None:
+        # Для неизвестного города чужие профили и региональные словари НЕ применяются
+        return target_city
 
-    # 2. Проверка по населённым пунктам профиля по умолчанию (для Томска — населённые пункты Томской области)
-    profile = get_city_profile(default_city)
-    non_city = profile.non_city_settlements if profile else KNOWN_NON_TOMSK_SETTLEMENTS
-    for pattern, city_name in non_city.items():
-        if pattern in addr_clean:
-            return city_name
+    settlement = profile.detect_settlement(address=address, lat=lat, lng=lng)
+    if settlement:
+        return settlement
 
-    # 3. Если адрес прямо содержит 'Северск'
-    if "северск" in addr_clean:
-        return "Северск"
-
-    # 4. Если координаты заведомо далеко за пределами Томска (например, Колпашево ~58.3°)
-    if profile and profile.name == "Томск" and lat is not None and lng is not None:
-        try:
-            f_lat = float(lat)
-            f_lng = float(lng)
-            if f_lat > 57.5 and f_lng < 84.0:
-                if "колпашев" in addr_clean or "нефтеразведчик" in addr_clean:
-                    return "Колпашево"
-        except (ValueError, TypeError):
-            pass
-
-    return default_city
+    return profile.name
 
 
 def detect_district(
@@ -369,10 +424,13 @@ def detect_district(
     """
     profile = get_city_profile(city)
     if profile is None:
-        # Для пригорода Томска пробуем профиль Томска
-        if city and city in TOMSK_PROFILE.suburbs:
-            profile = TOMSK_PROFILE
-        else:
+        if city:
+            c_clean = city.strip()
+            for p in CITY_REGISTRY.values():
+                if c_clean in p.suburbs:
+                    profile = p
+                    break
+        if profile is None:
             return None
 
     return profile.detect_district(
@@ -469,11 +527,11 @@ def classify_coordinates(
     # Источник Циан: координаты сохраняются для карты с меткой '?',
     # но строго маркируются как 'unknown' и исключаются из строгого радиусного поиска
     if source == "cian" or source.startswith("cian"):
-        # Если профиль зарегистрирован (Томск) — проверяем согласованность с конвертом города
+        # Если профиль зарегистрирован — проверяем согласованность с конвертом города
         if profile is not None:
             if not profile.is_in_envelope(f_lat, f_lng):
                 return None, None, "none"
-        # Для неизвестного города координаты Циан не проверяются по конверту Томска,
+        # Для неизвестного города координаты Циан не проверяются по конверту зарегистрированного города,
         # но строго остаются 'unknown' (отсутствие профиля не даёт exact)
         return round(f_lat, 6), round(f_lng, 6), "unknown"
 

@@ -8,6 +8,7 @@ import hashlib
 import json
 import os
 import plistlib
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -24,6 +25,8 @@ LABEL = "com.sofdom.notion-report-watcher"
 POLL_INTERVAL_SECONDS = 480
 STATE_DIR = Path.home() / "Library" / "Application Support" / "SofDom" / "NotionReportWatcher"
 STATE_PATH = STATE_DIR / "state.json"
+APP_DIR = STATE_DIR / "app"
+DEPLOYED_SCRIPT_PATH = APP_DIR / "notion_report_watcher.py"
 LOG_DIR = Path.home() / "Library" / "Logs" / "SofDom"
 PLIST_PATH = Path.home() / "Library" / "LaunchAgents" / f"{LABEL}.plist"
 REPORT_MARKERS = ("Отчёт исполнителя", "Отчет исполнителя")
@@ -208,16 +211,20 @@ def install() -> None:
         raise ValueError("Notion bridge не нашёл учётные данные; установка отменена.")
 
     STATE_DIR.mkdir(parents=True, exist_ok=True, mode=0o700)
+    APP_DIR.mkdir(parents=True, exist_ok=True, mode=0o700)
     LOG_DIR.mkdir(parents=True, exist_ok=True, mode=0o700)
     PLIST_PATH.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(Path(__file__).resolve(), DEPLOYED_SCRIPT_PATH)
+    shutil.copy2(Path(notion_bridge.__file__).resolve(), APP_DIR / "notion_bridge.py")
     configuration = {
         "Label": LABEL,
         "ProgramArguments": [
             sys.executable,
-            str(Path(__file__).resolve()),
+            "-u",
+            str(DEPLOYED_SCRIPT_PATH),
             "poll",
         ],
-        "WorkingDirectory": str(Path(__file__).resolve().parents[1]),
+        "WorkingDirectory": str(APP_DIR),
         "RunAtLoad": True,
         "StartInterval": POLL_INTERVAL_SECONDS,
         "StandardOutPath": str(LOG_DIR / "notion-report-watcher.log"),
@@ -243,6 +250,8 @@ def uninstall() -> None:
     if result.returncode and "Could not find specified service" not in result.stderr:
         raise RuntimeError(f"launchctl bootout failed: {result.stderr.strip()}")
     PLIST_PATH.unlink()
+    DEPLOYED_SCRIPT_PATH.unlink(missing_ok=True)
+    (APP_DIR / "notion_bridge.py").unlink(missing_ok=True)
     print("LaunchAgent удалён. История контрольных сумм и логи сохранены.")
 
 
