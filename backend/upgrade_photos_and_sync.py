@@ -373,6 +373,65 @@ def prepare_vips() -> list:
     ]
 
 
+def sanitize_partner_listing(lot: dict) -> dict:
+    """Возвращает поверхностную копию партнёрского объявления с очищенной галереей.
+
+    Поле `photos` фильтруется через `own_gallery_photos`, сохраняя только фото
+    из собственной галереи источника (совпадение sid в пути URL).
+    Поле `photos_count` синхронизируется с фактической длиной очищенной галереи.
+    Исходный объект не мутирует.
+    """
+    cleaned = dict(lot)
+    lot_photos = own_gallery_photos(lot.get("photos", []), lot["id"])
+    cleaned["photos"] = lot_photos
+    cleaned["photos_count"] = len(lot_photos)
+    return cleaned
+
+
+def prepare_partner_listings(listings: list = None) -> list:
+    """Возвращает копии партнёрских объявлений с очищенными галереями фото.
+
+    Для каждой записи NEW_PARTNER_LISTINGS (или переданного списка)
+    создаётся копия с отфильтрованными фото и пересчитанным photos_count.
+    Исходные структуры констант не мутируют.
+    """
+    source = NEW_PARTNER_LISTINGS if listings is None else listings
+    return [sanitize_partner_listing(lot) for lot in source]
+
+
+def partner_db_params(lot: dict) -> tuple:
+    """Собирает параметры SQL-вставки партнёрского объявления в таблицу apartments.
+
+    Функция чистая: не открывает и не меняет SQLite, не пишет файлы.
+    В `photos_json` сериализуются уже очищенные фото `lot['photos']`.
+    """
+    now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    return (
+        lot["id"],
+        "bezposrednikov",
+        0,
+        lot["title"],
+        lot["price_val"],
+        10000,
+        0,
+        lot["address"],
+        "Томск",
+        lot["district"],
+        lot["rooms"],
+        lot["area"],
+        4,
+        7,
+        lot["lat"],
+        lot["lng"],
+        lot["phone"],
+        "Собственник",
+        json.dumps(lot["photos"], ensure_ascii=False),
+        lot["desc_short"],
+        now,
+        now,
+    )
+
+
 def main():
     offers_path = '/Users/macbookairm5/Desktop/Проекты/SofDom/frontend/src/data/offers.ts'
     with open(offers_path, 'r', encoding='utf-8') as f:
@@ -386,17 +445,16 @@ def main():
     print(f'Initial offers count: {len(offers)}')
 
     # Add new partner listings. Фото берутся только из своей галереи источника;
-    # чужое назначение между объявлениями отключено.
-    existing_ids = {o['id'] for o in offers}
+    # чужое назначение между объявлениями отключено. Один и тот же очищенный
+    # набор используется и для каталога offers, и для SQLite — второго пути
+    # с нефильтрованными фото больше нет.
+    partner_listings = prepare_partner_listings()
+    existing_ids = {o["id"] for o in offers}
     added_count = 0
-    for new_lot in NEW_PARTNER_LISTINGS:
-        if new_lot['id'] not in existing_ids:
-            lot_photos = own_gallery_photos(new_lot.get('photos', []), new_lot['id'])
-            new_lot = dict(new_lot)
-            new_lot['photos'] = lot_photos
-            new_lot['photos_count'] = len(lot_photos)
-            offers.insert(0, new_lot)
-            existing_ids.add(new_lot['id'])
+    for lot in partner_listings:
+        if lot["id"] not in existing_ids:
+            offers.insert(0, lot)
+            existing_ids.add(lot["id"])
             added_count += 1
 
     print(f'Added {added_count} brand-new partner listings. Total offers now: {len(offers)}')
@@ -430,19 +488,14 @@ export const OFFERS: Offer[] = {json.dumps(offers, ensure_ascii=False, indent=2)
     db_path = '/Users/macbookairm5/Desktop/Проекты/SofDom/backend/realty.db'
     conn = sqlite3.connect(db_path)
     c = conn.cursor()
-    for lot in NEW_PARTNER_LISTINGS:
+    for lot in partner_listings:
         c.execute('''
             INSERT OR REPLACE INTO apartments (
                 id, source, is_secret_early_access, title, price, deposit, commission,
                 address, city, district, rooms, area, floor, total_floors,
                 lat, lng, phone, owner_name, photos_json, description, created_at, updated_at
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        ''', (
-            lot['id'], 'bezposrednikov', 0, lot['title'], lot['price_val'], 10000, 0,
-            lot['address'], 'Томск', lot['district'], lot['rooms'], lot['area'], 4, 7,
-            lot['lat'], lot['lng'], lot['phone'], 'Собственник', json.dumps(lot['photos']),
-            lot['desc_short'], datetime.now().strftime('%Y-%m-%d %H:%M:%S'), datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        ))
+        ''', partner_db_params(lot))
     conn.commit()
     conn.close()
     print('SQLite database successfully updated!')

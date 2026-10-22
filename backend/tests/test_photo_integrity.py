@@ -20,6 +20,9 @@ from upgrade_photos_and_sync import (
     vip_photo_for,
     prepare_vips,
     NEW_PARTNER_LISTINGS,
+    sanitize_partner_listing,
+    prepare_partner_listings,
+    partner_db_params,
 )
 
 SCRAPER_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "scraper.py")
@@ -254,6 +257,157 @@ class TestVipCatalogReferences(unittest.TestCase):
             "",
             "bezposr_175402 не должен получать фото из чужой галереи 196162",
         )
+
+
+class TestPartnerListingsSync(unittest.TestCase):
+    """Синхронизация партнёрских объявлений между каталогом offers и SQLite apartments.
+
+    Гарантирует, что и каталог, и база получают один и тот же очищенный набор
+    данных, где сохранены только проверенные фото из собственной галереи,
+    а сырые нефильтрованные данные из NEW_PARTNER_LISTINGS не попадают в БД.
+    """
+
+    CONFIRMED_UNVERIFIED_IDS = [
+        "bezposr_192989",
+        "bezposr_198594",
+        "bezposr_179517",
+        "bezposr_198244",
+        "bezposr_175402",
+    ]
+
+    def test_prepare_partner_listings_keeps_only_own_photos(self):
+        """prepare_partner_listings оставляет в каждом объявлении только фото своей галереи."""
+        prepared = prepare_partner_listings()
+        self.assertGreater(len(prepared), 0)
+        for lot in prepared:
+            sid = listing_source_sid(lot["id"])
+            for photo in lot["photos"]:
+                self.assertIn(
+                    f"/{sid}/",
+                    photo,
+                    f"Объявление {lot['id']} содержит чужое фото: {photo}",
+                )
+            self.assertEqual(
+                lot["photos_count"],
+                len(lot["photos"]),
+                f"photos_count для {lot['id']} не синхронизирован с длиной галереи",
+            )
+
+    def test_unverified_partner_listings_have_empty_photos(self):
+        """Для подтверждённых 5 объявлений с чужими URL галерея и photos_count пусты."""
+        raw_by_id = {lot["id"]: lot for lot in NEW_PARTNER_LISTINGS}
+        prepared_by_id = {lot["id"]: lot for lot in prepare_partner_listings()}
+
+        for lot_id in self.CONFIRMED_UNVERIFIED_IDS:
+            self.assertIn(lot_id, prepared_by_id, f"{lot_id} отсутствует в подготовленных")
+            # Проверяем, что в сырых данных было непустое поле photos (исходный дефект)
+            self.assertGreater(
+                len(raw_by_id[lot_id].get("photos", [])),
+                0,
+                f"В исходном {lot_id} ожидалось наличие сырых фото для теста фильтрации",
+            )
+            # В подготовленном списке фото полностью очищены
+            self.assertEqual(
+                prepared_by_id[lot_id]["photos"],
+                [],
+                f"{lot_id} должен иметь пустой список фото",
+            )
+            self.assertEqual(
+                prepared_by_id[lot_id]["photos_count"],
+                0,
+                f"{lot_id} должен иметь photos_count == 0",
+            )
+
+    def test_confirmed_valid_galleries_retain_photos_with_matching_sid(self):
+        """Для подтверждённых галерей фото не пустое и содержит sid своей записи."""
+        expected_own = {
+            "bezposr_186542": 6,
+            "bezposr_197177": 4,
+            "bezposr_197869": 5,
+        }
+        prepared_by_id = {lot["id"]: lot for lot in prepare_partner_listings()}
+        for lot_id, expected_count in expected_own.items():
+            self.assertIn(lot_id, prepared_by_id)
+            lot = prepared_by_id[lot_id]
+            photos = lot["photos"]
+            self.assertEqual(
+                len(photos),
+                expected_count,
+                f"Объявление {lot_id} должно иметь ровно {expected_count} собственных фото",
+            )
+            self.assertEqual(lot["photos_count"], expected_count)
+            sid = listing_source_sid(lot_id)
+            for photo in photos:
+                self.assertIn(
+                    f"/{sid}/",
+                    photo,
+                    f"Фото {photo} не принадлежит галерее {sid} объявления {lot_id}",
+                )
+
+    def test_db_payload_helper_does_not_use_raw_partner_listings(self):
+        """helper partner_db_params сериализует очищенный объект, а не сырой NEW_PARTNER_LISTINGS."""
+        raw_by_id = {lot["id"]: lot for lot in NEW_PARTNER_LISTINGS}
+        prepared = prepare_partner_listings()
+        prepared_by_id = {lot["id"]: lot for lot in prepared}
+
+        # 1. Для объявлений без подтверждённых фото photos_json в DB payload должен быть "[]",
+        # а НЕ сырой список чужих фото из NEW_PARTNER_LISTINGS.
+        for lot_id in self.CONFIRMED_UNVERIFIED_IDS:
+            prepared_lot = prepared_by_id[lot_id]
+            params = partner_db_params(prepared_lot)
+            # Индекс 18 в SQL INSERT — photos_json
+            photos_json = params[18]
+            self.assertEqual(
+                json.loads(photos_json),
+                [],
+                f"В DB payload для {lot_id} попали фото, хотя должны быть пустые",
+            )
+            # Убеждаемся, что DB payload отличается от сырых данных NEW_PARTNER_LISTINGS
+            raw_photos_json = json.dumps(raw_by_id[lot_id]["photos"], ensure_ascii=False)
+            self.assertNotEqual(
+                photos_json,
+                raw_photos_json,
+                f"DB payload для {lot_id} совпадает с сырыми нефильтрованными данными",
+            )
+
+        # 2. Для валидных объявлений в DB payload попадают именно проверенные фото
+        for lot_id in ["bezposr_186542", "bezposr_197177", "bezposr_197869"]:
+            params = partner_db_params(prepared_by_id[lot_id])
+            photos = json.loads(params[18])
+            self.assertGreater(len(photos), 0)
+            sid = listing_source_sid(lot_id)
+            for photo in photos:
+                self.assertIn(f"/{sid}/", photo)
+
+        # 3. Исходный массив NEW_PARTNER_LISTINGS не мутирует
+        for raw_lot in NEW_PARTNER_LISTINGS:
+            lot_id = raw_lot["id"]
+            if lot_id in self.CONFIRMED_UNVERIFIED_IDS:
+                # В исходной константе сырые данные не должны затираться мутацией
+                self.assertGreater(len(raw_lot["photos"]), 0)
+
+    def test_sanitize_partner_listing_creates_safe_copy(self):
+        """sanitize_partner_listing не мутирует переданный словарь и обновляет photos_count."""
+        dummy = {
+            "id": "bezposr_999999",
+            "title": "Тестовая",
+            "photos": [
+                "https://tsk.s.bsps.ru/images/sobipro/galleries/98/186542/foreign.jpg",
+                "https://tsk.s.bsps.ru/images/sobipro/galleries/99/999999/own.jpg",
+            ],
+            "photos_count": 2,
+        }
+        original_photos = list(dummy["photos"])
+        cleaned = sanitize_partner_listing(dummy)
+
+        self.assertIsNot(cleaned, dummy)
+        self.assertEqual(
+            cleaned["photos"],
+            ["https://tsk.s.bsps.ru/images/sobipro/galleries/99/999999/own.jpg"],
+        )
+        self.assertEqual(cleaned["photos_count"], 1)
+        self.assertEqual(dummy["photos"], original_photos)
+        self.assertEqual(dummy["photos_count"], 2)
 
 
 if __name__ == "__main__":
