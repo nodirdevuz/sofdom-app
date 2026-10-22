@@ -8,6 +8,21 @@ interface VipSectionProps {
 }
 
 export const VipSection: React.FC<VipSectionProps> = ({ vips, onSelectVip }) => {
+  const getVipDistrict = (metro: string) => {
+    const cleaned = metro
+      .replace(/г\.?\s*Томск/gi, '')
+      .replace(/Томск/gi, '')
+      .replace(/р-н|район/gi, '')
+      .replace(/•.*$/g, '')
+      .trim();
+    return `Томск, р-н ${cleaned || 'Советский'}`;
+  };
+
+  const formatVipPrice = (priceStr: string) => {
+    let clean = priceStr.replace(/\/.*$/, '').replace(/₽/g, '').trim();
+    return `${clean} ₽ / мес.`;
+  };
+
   return (
     <section className="vip-section">
       <div className="section-title-wrap">
@@ -35,12 +50,12 @@ export const VipSection: React.FC<VipSectionProps> = ({ vips, onSelectVip }) => 
               <span className="card-badge-owner">VIP</span>
             </div>
             <div className="vip-card-body">
-              <div className="vip-price">{vip.price}</div>
+              {/* Шаг 1: Название квартиры (не жирное, обычными словами) */}
               <div className="vip-title">{vip.title}</div>
-              <div className="vip-metro">
-                <span className="metro-dot"></span>
-                <span>{vip.metro}</span>
-              </div>
+              {/* Шаг 2: Цена на одной строке (чуть-чуть жирное) */}
+              <div className="vip-price">{formatVipPrice(vip.price)}</div>
+              {/* Шаг 3: Район (на сером, незаметными: Томск, р-н ...) */}
+              <div className="vip-metro">{getVipDistrict(vip.metro)}</div>
             </div>
           </div>
         ))}

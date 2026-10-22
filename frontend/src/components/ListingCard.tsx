@@ -34,7 +34,22 @@ export const ListingCard: React.FC<ListingCardProps> = ({
     }
   };
 
-  const district = offer.metro_name || (offer.address ? offer.address.split(',')[1]?.trim() : 'Советский р-н');
+  const getDistrictText = () => {
+    const raw = offer.metro_name || offer.district || (offer.address ? offer.address.split(',')[1]?.trim() : '') || 'Советский';
+    const cleaned = raw
+      .replace(/г\.?\s*Томск/gi, '')
+      .replace(/Томск/gi, '')
+      .replace(/р-н|район/gi, '')
+      .replace(/•.*$/g, '')
+      .trim();
+    return `Томск, р-н ${cleaned || 'Советский'}`;
+  };
+
+  const districtText = getDistrictText();
+
+  const formattedPrice = offer.price_val
+    ? `${offer.price_val.toLocaleString('ru-RU')} ₽ / мес.`
+    : `${offer.price_display.replace(/\/.*$/, '').replace(/₽/g, '').trim()} ₽ / мес.`;
 
   const handleOpen = () => {
     telemetry.track('listing_view', 3, { offerId: offer.id, title: offer.title, price: offer.price_val });
@@ -147,21 +162,16 @@ export const ListingCard: React.FC<ListingCardProps> = ({
         </div>
       </div>
 
-      {/* 4. Mobile 2-Tile Body (Avito 1-to-1 Exact Hierarchy) */}
+      {/* 4. Mobile 2-Tile Body (Avito Exact Hierarchy: Photo -> Title -> Price -> District) */}
       <div className="card-mobile-body">
-        <div className="card-mobile-price-row">
-          <span className="card-mobile-price">
-            {offer.price_val ? `${offer.price_val.toLocaleString('ru-RU')} ₽` : offer.price_display.replace(/\/.*$/, '').replace(/₽/g, '').trim() + ' ₽'}
-          </span>
-          <span className="card-mobile-period">/мес.</span>
-        </div>
-        <h2 className="card-mobile-title">{offer.title}</h2>
-        <div className="card-mobile-location">
-          <span>Томск, {district}</span>
-        </div>
-        <div className="card-mobile-time">
-          {offer.time_ago || 'Сегодня'}
-        </div>
+        {/* Шаг 1: Название квартиры (не жирное, обычными аккуратными словами) */}
+        <h3 className="card-mobile-title">{offer.title}</h3>
+
+        {/* Шаг 2: Цена на одной строке (чуть-чуть жирное) */}
+        <div className="card-mobile-price">{formattedPrice}</div>
+
+        {/* Шаг 3: Район (на сером, незаметными: Томск, р-н ...) */}
+        <div className="card-mobile-location">{districtText}</div>
       </div>
     </article>
   );

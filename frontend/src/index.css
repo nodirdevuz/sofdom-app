@@ -531,26 +531,27 @@
       display: none;
     }
 
-    /* VIP CARD */
+    /* VIP CARD (Crisp Avito Geometry) */
     .vip-card {
-      min-width: 250px;
-      max-width: 255px;
+      min-width: 215px;
+      max-width: 225px;
       flex-shrink: 0;
-      background: var(--bg-card);
-      border: 1px solid rgba(15, 23, 42, 0.08);
-      border-radius: 14px;
+      background: #ffffff;
+      border: 1px solid var(--border-light, #e8eaed);
+      border-radius: 6px;
       overflow: hidden;
-      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.03), 0 4px 12px rgba(15, 23, 42, 0.02);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
       display: flex;
       flex-direction: column;
       cursor: pointer;
-      transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
     }
     .vip-card:hover {
       transform: translateY(-2px);
-      box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
     }
     [data-theme="dark"] .vip-card {
+      background: var(--bg-card);
       border-color: rgba(255, 255, 255, 0.08);
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
     }
@@ -560,8 +561,11 @@
     }
     .vip-card-img-wrap {
       position: relative;
-      height: 150px;
-      background: #000;
+      aspect-ratio: 4 / 5.2;
+      height: auto;
+      width: 100%;
+      border-radius: 5px 5px 0 0;
+      background: #0f172a;
       overflow: hidden;
     }
     .vip-card-img-wrap img {
@@ -575,31 +579,40 @@
       transform: translateZ(0);
     }
     .vip-card-body {
-      padding: 12px 14px;
+      padding: 9px 10px 11px;
       display: flex;
       flex-direction: column;
-      gap: 4px;
+      gap: 2px;
+      background: #ffffff;
     }
-    .vip-price {
-      font-size: 16px;
-      font-weight: 750;
-      letter-spacing: -0.015em;
-      color: var(--text-main);
+    [data-theme="dark"] .vip-card-body {
+      background: var(--bg-card);
     }
     .vip-title {
       font-size: 13px;
-      font-weight: 600;
-      color: var(--text-main);
+      font-weight: 400;
+      color: var(--text-main, #111418);
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+      margin: 0 0 2px 0;
+    }
+    .vip-price {
+      font-size: 15.5px;
+      font-weight: 600;
+      letter-spacing: -0.2px;
+      color: var(--text-main, #111418);
+      white-space: nowrap;
+      margin: 0 0 2px 0;
     }
     .vip-metro {
-      font-size: 11.5px;
-      color: var(--text-muted);
-      display: flex;
-      align-items: center;
-      gap: 6px;
+      font-size: 12px;
+      font-weight: 400;
+      color: #8f98a3;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin: 0;
     }
 
     /* MAIN LISTING SECTION */
@@ -1043,17 +1056,26 @@
     .offer-card.card-grid-layout {
       display: flex;
       flex-direction: column;
-      height: 285px;
-      min-height: 285px;
-      max-height: 285px;
+      height: auto;
       box-sizing: border-box;
-      border-radius: 14px;
+      border-radius: 6px;
+      overflow: hidden;
+      border: 1px solid var(--border-light, #e8eaed);
+      background: #ffffff;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+    .offer-card.card-grid-layout:hover {
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+      transform: translateY(-2px);
     }
     .offer-card.card-grid-layout .card-gallery-wrap {
-      height: 165px;
-      min-height: 165px;
-      max-height: 165px;
+      aspect-ratio: 4 / 5.2;
+      height: auto;
+      width: 100%;
+      border-radius: 5px 5px 0 0;
       flex-shrink: 0;
+      overflow: hidden;
+      position: relative;
     }
     .offer-card.card-grid-layout .desktop-only-content {
       display: none !important;
@@ -1061,24 +1083,39 @@
     .offer-card.card-grid-layout .card-mobile-body {
       display: flex !important;
       flex-direction: column !important;
-      justify-content: space-between !important;
-      height: 120px !important;
-      min-height: 120px !important;
-      max-height: 120px !important;
-      box-sizing: border-box !important;
+      gap: 3px !important;
       padding: 10px 12px 12px !important;
-    }
-    .offer-card.card-grid-layout .card-mobile-body .card-price-main {
-      font-size: 17px !important;
-      font-weight: 750 !important;
+      background: #ffffff !important;
+      box-sizing: border-box !important;
     }
     .offer-card.card-grid-layout .card-mobile-body .card-mobile-title {
       font-size: 13.5px !important;
-      font-weight: 650 !important;
-      line-height: 1.3 !important;
+      font-weight: 400 !important;
+      line-height: 1.35 !important;
+      color: #111418 !important;
+      display: -webkit-box !important;
+      -webkit-line-clamp: 2 !important;
+      -webkit-box-orient: vertical !important;
+      overflow: hidden !important;
+      margin: 0 0 2px 0 !important;
+    }
+    .offer-card.card-grid-layout .card-mobile-body .card-mobile-price {
+      font-size: 16px !important;
+      font-weight: 600 !important;
+      line-height: 1.25 !important;
+      color: #111418 !important;
+      white-space: nowrap !important;
+      margin: 0 0 2px 0 !important;
     }
     .offer-card.card-grid-layout .card-mobile-body .card-mobile-location {
-      font-size: 11.5px !important;
+      font-size: 12px !important;
+      font-weight: 400 !important;
+      color: #8f98a3 !important;
+      line-height: 1.3 !important;
+      white-space: nowrap !important;
+      overflow: hidden !important;
+      text-overflow: ellipsis !important;
+      margin: 0 !important;
     }
 
     .card-mobile-body {
@@ -2846,12 +2883,17 @@
         box-sizing: border-box !important;
       }
 
-      /* Avito 2-Tile Grid on mobile: White card tile softly distinct from page canvas, 12px radius, subtle border */
-      .offer-card {
+      /* Avito 2-Tile Grid on mobile: Crisp sharp card tile (6px radius), subtle border, white background */
+      .offer-card,
+      .offer-card.card-list-layout,
+      .offer-card.card-grid-layout {
         display: flex !important;
         flex-direction: column !important;
         grid-template-columns: none !important;
-        border-radius: 12px !important;
+        height: auto !important;
+        min-height: 0 !important;
+        max-height: none !important;
+        border-radius: 6px !important;
         overflow: hidden !important;
         transform: none !important;
         transition: transform 0.12s ease !important;
@@ -2859,30 +2901,39 @@
         -webkit-user-select: none !important;
         border: 1px solid var(--border-light, #e8eaed) !important;
         background: #ffffff !important;
-        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04) !important;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03) !important;
         cursor: pointer !important;
         box-sizing: border-box !important;
       }
       .offer-card:hover,
+      .offer-card.card-list-layout:hover,
+      .offer-card.card-grid-layout:hover,
       .offer-card.clickable:hover {
         transform: none !important;
       }
       .offer-card:active,
+      .offer-card.card-list-layout:active,
+      .offer-card.card-grid-layout:active,
       .offer-card.clickable:active {
-        transform: scale(0.982) !important;
+        transform: scale(0.985) !important;
         border-color: var(--border-light, #e8eaed) !important;
       }
 
-      /* Avito photo tile: Almost square, taller top-to-bottom, subtly rounded top corners */
-      .offer-card .card-gallery-wrap {
-        aspect-ratio: 1 / 1 !important;
+      /* Avito photo tile: Taller portrait aspect ratio (4/5.2) showing full room height, sharper top corners (5px) */
+      .offer-card .card-gallery-wrap,
+      .offer-card.card-list-layout .card-gallery-wrap,
+      .offer-card.card-grid-layout .card-gallery-wrap {
+        aspect-ratio: 4 / 5.2 !important;
         height: auto !important;
+        min-height: 0 !important;
+        max-height: none !important;
         width: 100% !important;
-        border-radius: 11px 11px 0 0 !important;
+        border-radius: 5px 5px 0 0 !important;
         transform: none !important;
-        background: #111418 !important;
+        background: #0f172a !important;
         position: relative !important;
         overflow: hidden !important;
+        flex-shrink: 0 !important;
       }
       /* Prevent horizontal slider from hijacking vertical feed scrolling on mobile */
       .offer-card .gallery-slider {
@@ -2904,7 +2955,7 @@
         font-size: 9px !important;
         font-weight: 800 !important;
         padding: 2px 6px !important;
-        border-radius: 4px !important;
+        border-radius: 3px !important;
       }
       .offer-card .gallery-counter {
         bottom: 6px !important;
@@ -2913,7 +2964,7 @@
         font-size: 10px !important;
         font-weight: 600 !important;
         padding: 2px 6px !important;
-        border-radius: 4px !important;
+        border-radius: 3px !important;
         background: rgba(17, 20, 24, 0.65) !important;
         backdrop-filter: blur(4px) !important;
         color: #ffffff !important;
@@ -2926,65 +2977,50 @@
         display: none !important;
       }
 
-      /* Avito 1-to-1 Information Hierarchy on Mobile 2-Tile */
+      /* Avito Exact Specification: Photo -> Title (regular) -> Price (semi-bold) -> District (gray) */
       .card-mobile-body {
         display: flex !important;
         flex-direction: column !important;
-        padding: 10px 10px 12px !important;
+        padding: 9px 10px 11px !important;
         gap: 2px !important;
         background: #ffffff !important;
+        box-sizing: border-box !important;
       }
-      .card-mobile-price-row {
-        display: flex !important;
-        align-items: baseline !important;
-        gap: 3px !important;
-      }
-      .card-mobile-price {
-        font-size: 16.5px !important;
-        font-weight: 700 !important;
-        line-height: 1.25 !important;
-        letter-spacing: -0.2px !important;
-        color: var(--text-main, #111418) !important;
-      }
-      .card-mobile-period {
-        font-size: 11.5px !important;
-        font-weight: 500 !important;
-        color: var(--text-muted, #7a8593) !important;
-      }
+      /* 1. Title: Not bold, clear normal words, 2 lines clamp */
       .card-mobile-title {
-        font-size: 13.5px !important;
-        font-weight: 500 !important;
-        line-height: 1.3 !important;
+        font-size: 13px !important;
+        font-weight: 400 !important;
+        line-height: 1.35 !important;
         color: var(--text-main, #111418) !important;
         display: -webkit-box !important;
         -webkit-line-clamp: 2 !important;
         -webkit-box-orient: vertical !important;
         overflow: hidden !important;
-        margin: 2px 0 0 !important;
+        margin: 0 0 2px 0 !important;
       }
+      /* 2. Price: Semi-bold on one single line (25 000 ₽ / мес.) */
+      .card-mobile-price {
+        font-size: 15.5px !important;
+        font-weight: 600 !important;
+        line-height: 1.25 !important;
+        letter-spacing: -0.2px !important;
+        color: var(--text-main, #111418) !important;
+        white-space: nowrap !important;
+        margin: 0 0 2px 0 !important;
+      }
+      /* 3. Location: Subtle gray (Томск, р-н ...) */
       .card-mobile-location {
-        display: flex !important;
-        align-items: center !important;
-        gap: 5px !important;
         font-size: 12px !important;
-        color: var(--text-muted, #7a8593) !important;
         font-weight: 400 !important;
+        color: #8f98a3 !important;
+        line-height: 1.3 !important;
         white-space: nowrap !important;
         overflow: hidden !important;
         text-overflow: ellipsis !important;
-        margin-top: 2px !important;
+        margin: 0 !important;
       }
       .card-mobile-time {
-        font-size: 11px !important;
-        color: var(--text-sub, #9aa4b0) !important;
-        font-weight: 400 !important;
-        margin-top: 1px !important;
-      }
-      .card-mobile-time {
-        font-size: 11px !important;
-        color: var(--text-sub) !important;
-        font-weight: 400 !important;
-        margin-top: 1px !important;
+        display: none !important;
       }
       /* Hide elements on mobile header as ordered */
       .header-theme-toggle {
