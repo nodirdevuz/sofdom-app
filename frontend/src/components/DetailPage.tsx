@@ -380,7 +380,7 @@ export const DetailPage: React.FC<DetailPageProps> = ({
                 <div className="joymee-seller-name">{sellerDisplayName}</div>
               </div>
             </div>
-            {/* Desktop Action Buttons: Call & Chat (Avito Style) */}
+            {/* Desktop Action Button: Call Only */}
             <div className="joymee-seller-actions">
               {isPhoneRevealed ? (
                 <a
@@ -407,21 +407,6 @@ export const DetailPage: React.FC<DetailPageProps> = ({
                   <span>Позвонить</span>
                 </button>
               )}
-
-              <button
-                className="joymee-btn-seller-chat clickable"
-                onClick={() => {
-                  telemetry.track('chat_click', 3, { offerId: offer.id });
-                  const cleanPhone = revealedPhone.replace(/[^0-9]/g, '');
-                  const msg = encodeURIComponent(`Здравствуйте! Я по поводу аренды квартиры (${offer.title}, № ${offer.id}) на SofDom.`);
-                  window.open(`https://wa.me/${cleanPhone}?text=${msg}`, '_blank');
-                }}
-              >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
-                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-                </svg>
-                <span>Написать</span>
-              </button>
             </div>
           </div>
         </div>
@@ -463,7 +448,7 @@ export const DetailPage: React.FC<DetailPageProps> = ({
                 <div className="joymee-seller-name">{sellerDisplayName}</div>
               </div>
             </div>
-            {/* Desktop Action Buttons: Call & Chat (Avito Style) */}
+            {/* Desktop Action Button: Call Only */}
             <div className="joymee-seller-actions">
               {isPhoneRevealed ? (
                 <a
@@ -490,21 +475,6 @@ export const DetailPage: React.FC<DetailPageProps> = ({
                   <span>Позвонить</span>
                 </button>
               )}
-
-              <button
-                className="joymee-btn-seller-chat clickable"
-                onClick={() => {
-                  telemetry.track('chat_click', 3, { offerId: offer.id });
-                  const cleanPhone = revealedPhone.replace(/[^0-9]/g, '');
-                  const msg = encodeURIComponent(`Здравствуйте! Я по поводу аренды квартиры (${offer.title}, № ${offer.id}) на SofDom.`);
-                  window.open(`https://wa.me/${cleanPhone}?text=${msg}`, '_blank');
-                }}
-              >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
-                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-                </svg>
-                <span>Написать</span>
-              </button>
             </div>
           </div>
 
@@ -641,21 +611,6 @@ export const DetailPage: React.FC<DetailPageProps> = ({
               </svg>
               <span>Позвонить</span>
             </a>
-
-            <button
-              className="avito-btn-chat clickable"
-              onClick={() => {
-                telemetry.track('chat_click', 3, { offerId: offer.id });
-                const cleanPhone = revealedPhone.replace(/[^0-9]/g, '');
-                const msg = encodeURIComponent(`Здравствуйте! Я по поводу аренды квартиры (${offer.title}, № ${offer.id}) на SofDom.`);
-                window.open(`https://wa.me/${cleanPhone}?text=${msg}`, '_blank');
-              }}
-            >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-              </svg>
-              <span>Написать</span>
-            </button>
           </>
         )}
       </div>

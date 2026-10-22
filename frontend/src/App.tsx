@@ -80,7 +80,7 @@ export const App: React.FC = () => {
     noDeposit: false,
     sortBy: 'new'
   });
-  const [layoutMode, setLayoutMode] = useState<LayoutMode>('list');
+  const [layoutMode, setLayoutMode] = useState<LayoutMode>('grid');
   const [isMapVisible, setIsMapVisible] = useState<boolean>(false);
   const [isProfileOpen, setIsProfileOpen] = useState<boolean>(false);
   const [isFiltersOpen, setIsFiltersOpen] = useState<boolean>(false);

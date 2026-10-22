@@ -4321,7 +4321,8 @@
 }
 .joymee-seller-actions .joymee-btn-seller-call {
   margin-top: 0 !important;
-  flex: 1.25;
+  width: 100% !important;
+  flex: 1;
   height: 48px;
   padding: 0 18px;
   background: var(--brand-yellow-gradient, linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)) !important;
@@ -4418,7 +4419,8 @@
   border-color: rgba(255, 97, 99, 0.3);
 }
 .avito-btn-call {
-  flex: 1.25;
+  flex: 1;
+  width: 100%;
   height: 48px;
   border-radius: 12px;
   background: var(--brand-yellow-gradient, linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%));

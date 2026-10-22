@@ -13,6 +13,25 @@ interface LightboxModalProps {
   onNext: () => void;
 }
 
+function getCleanRoomTitle(title?: string): string {
+  if (!title) return 'Квартира';
+  if (/студи/i.test(title)) return 'Студия';
+  const m = title.match(/(\d+)\s*[-—–]?\s*к(?:омн)?\.?\s*кв(?:артира)?/i);
+  if (m) {
+    const num = m[1];
+    const words: Record<string, string> = {
+      '1': '1-к. квартира',
+      '2': '2-к. квартира',
+      '3': '3-к. квартира',
+      '4': '4-к. квартира',
+      '5': '5-к. квартира',
+    };
+    return words[num] || `${num}-к. квартира`;
+  }
+  const parts = title.split(/[•⋅,]/);
+  return parts[0].trim();
+}
+
 export const LightboxModal: React.FC<LightboxModalProps> = ({
   isOpen,
   photos,
@@ -24,12 +43,16 @@ export const LightboxModal: React.FC<LightboxModalProps> = ({
   onPrev,
   onNext
 }) => {
-  const [isZoomed, setIsZoomed] = useState(false);
+  const [scale, setScale] = useState(1);
   const [panOffset, setPanOffset] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
   const [dragDownY, setDragDownY] = useState(0);
   const [isDismissing, setIsDismissing] = useState(false);
   const dragStartRef = useRef<{ x: number; y: number } | null>(null);
+
+  const pinchStartDistRef = useRef<number>(0);
+  const pinchStartScaleRef = useRef<number>(1);
+  const isPinchingRef = useRef<boolean>(false);
 
   const touchStartRef = useRef<{ x: number; y: number; time: number } | null>(null);
   const lastTapRef = useRef<number>(0);
@@ -37,11 +60,13 @@ export const LightboxModal: React.FC<LightboxModalProps> = ({
 
   // Reset zoom & drag on index change or close
   useEffect(() => {
-    setIsZoomed(false);
+    setScale(1);
     setPanOffset({ x: 0, y: 0 });
     setIsDragging(false);
     setDragDownY(0);
     setIsDismissing(false);
+    pinchStartDistRef.current = 0;
+    isPinchingRef.current = false;
   }, [currentIdx, isOpen]);
 
   // Scroll active thumbnail into center of thumb strip
@@ -61,8 +86,8 @@ export const LightboxModal: React.FC<LightboxModalProps> = ({
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
-        if (isZoomed) {
-          setIsZoomed(false);
+        if (scale > 1.05) {
+          setScale(1);
           setPanOffset({ x: 0, y: 0 });
         } else {
           onClose();
@@ -70,9 +95,9 @@ export const LightboxModal: React.FC<LightboxModalProps> = ({
       }
       if (e.key === 'ArrowLeft') onPrev();
       if (e.key === 'ArrowRight') onNext();
-      if (e.key === '+' || e.key === '=') setIsZoomed(true);
+      if (e.key === '+' || e.key === '=') setScale(2.5);
       if (e.key === '-' || e.key === '_') {
-        setIsZoomed(false);
+        setScale(1);
         setPanOffset({ x: 0, y: 0 });
       }
     };
@@ -93,33 +118,45 @@ export const LightboxModal: React.FC<LightboxModalProps> = ({
       document.documentElement.style.overflow = prevHtmlOverflow;
       document.body.style.touchAction = prevBodyTouchAction;
     };
-  }, [isOpen, onPrev, onNext, onClose, isZoomed]);
+  }, [isOpen, onPrev, onNext, onClose, scale]);
 
-  const toggleZoom = useCallback((clientX?: number, clientY?: number) => {
-    setIsZoomed((prev) => {
-      const next = !prev;
-      if (!next) {
+  const toggleZoom = useCallback(() => {
+    setScale((prev) => {
+      if (prev > 1.05) {
         setPanOffset({ x: 0, y: 0 });
+        return 1;
       }
-      return next;
+      return 2.5;
     });
   }, []);
 
-  // Double tap handler for mobile
+  // Multi-touch gestures: Two-finger Pinch-to-Zoom + Double Tap + Single-finger Drag / Dismiss
   const handleStageTouchStart = (e: React.TouchEvent) => {
+    if (e.touches.length === 2) {
+      isPinchingRef.current = true;
+      const dist = Math.hypot(
+        e.touches[0].clientX - e.touches[1].clientX,
+        e.touches[0].clientY - e.touches[1].clientY
+      );
+      pinchStartDistRef.current = dist;
+      pinchStartScaleRef.current = scale;
+      return;
+    }
+
     if (e.touches.length === 1) {
+      isPinchingRef.current = false;
       const now = Date.now();
       const touch = e.touches[0];
       touchStartRef.current = { x: touch.clientX, y: touch.clientY, time: now };
 
-      if (isZoomed) {
+      if (scale > 1.05) {
         dragStartRef.current = { x: touch.clientX - panOffset.x, y: touch.clientY - panOffset.y };
         setIsDragging(true);
       }
 
       // Double tap detected (< 300ms)
       if (now - lastTapRef.current < 300) {
-        toggleZoom(touch.clientX, touch.clientY);
+        toggleZoom();
         lastTapRef.current = 0;
       } else {
         lastTapRef.current = now;
@@ -128,16 +165,32 @@ export const LightboxModal: React.FC<LightboxModalProps> = ({
   };
 
   const handleStageTouchMove = (e: React.TouchEvent) => {
-    if (isZoomed && isDragging && dragStartRef.current && e.touches.length === 1) {
+    // 1. Two-finger pinch-to-zoom
+    if (e.touches.length === 2 && pinchStartDistRef.current > 0) {
+      const currentDist = Math.hypot(
+        e.touches[0].clientX - e.touches[1].clientX,
+        e.touches[0].clientY - e.touches[1].clientY
+      );
+      const ratio = currentDist / pinchStartDistRef.current;
+      const nextScale = Math.min(Math.max(pinchStartScaleRef.current * ratio, 1), 4);
+      setScale(nextScale);
+      return;
+    }
+
+    // 2. Drag / pan when zoomed in
+    if (scale > 1.05 && isDragging && dragStartRef.current && e.touches.length === 1) {
       const touch = e.touches[0];
       setPanOffset({
         x: touch.clientX - dragStartRef.current.x,
         y: touch.clientY - dragStartRef.current.y
       });
-    } else if (!isZoomed && touchStartRef.current && e.touches.length === 1) {
+      return;
+    }
+
+    // 3. Swipe down to dismiss when NOT zoomed
+    if (scale <= 1.05 && touchStartRef.current && e.touches.length === 1) {
       const dy = e.touches[0].clientY - touchStartRef.current.y;
       const dx = e.touches[0].clientX - touchStartRef.current.x;
-      // Fluid swipe down to dismiss tracking
       if (dy > 0 && dy > Math.abs(dx) * 0.75) {
         setDragDownY(dy);
       }
@@ -145,6 +198,15 @@ export const LightboxModal: React.FC<LightboxModalProps> = ({
   };
 
   const handleStageTouchEnd = (e: React.TouchEvent) => {
+    if (e.touches.length < 2) {
+      pinchStartDistRef.current = 0;
+      isPinchingRef.current = false;
+      if (scale < 1.05) {
+        setScale(1);
+        setPanOffset({ x: 0, y: 0 });
+      }
+    }
+
     setIsDragging(false);
     if (!touchStartRef.current || e.changedTouches.length === 0) {
       setDragDownY(0);
@@ -154,7 +216,7 @@ export const LightboxModal: React.FC<LightboxModalProps> = ({
     const deltaY = e.changedTouches[0].clientY - touchStartRef.current.y;
     touchStartRef.current = null;
 
-    if (!isZoomed) {
+    if (scale <= 1.05) {
       // Swipe down to dismiss threshold
       if (dragDownY > 80 || (deltaY > 80 && Math.abs(deltaX) < 70)) {
         setIsDismissing(true);
@@ -181,14 +243,14 @@ export const LightboxModal: React.FC<LightboxModalProps> = ({
 
   // Mouse pan handlers for desktop zoom mode
   const handleMouseDown = (e: React.MouseEvent) => {
-    if (isZoomed) {
+    if (scale > 1.05) {
       setIsDragging(true);
       dragStartRef.current = { x: e.clientX - panOffset.x, y: e.clientY - panOffset.y };
     }
   };
 
   const handleMouseMove = (e: React.MouseEvent) => {
-    if (isZoomed && isDragging && dragStartRef.current) {
+    if (scale > 1.05 && isDragging && dragStartRef.current) {
       setPanOffset({
         x: e.clientX - dragStartRef.current.x,
         y: e.clientY - dragStartRef.current.y
@@ -203,6 +265,8 @@ export const LightboxModal: React.FC<LightboxModalProps> = ({
   if (!isOpen || photos.length === 0) return null;
 
   const currentPhoto = photos[currentIdx];
+  const roomTitle = getCleanRoomTitle(offerTitle);
+  const isZoomed = scale > 1.05;
 
   return (
     <div
@@ -215,19 +279,19 @@ export const LightboxModal: React.FC<LightboxModalProps> = ({
         transition: isDismissing ? 'opacity 0.18s ease-out' : 'background-color 0.08s ease'
       }}
     >
-      {/* 1. TOP BAR */}
+      {/* 1. TOP BAR: [Тип квартиры] -> [Счетчик фото X из Y] -> [Приближение] -> [X Закрыть] */}
       <div className="lightbox-topbar">
-        {/* Left: Property Title */}
+        {/* Left: Clean Room Title (e.g. 2-к. квартира) */}
         <div className="lightbox-title-meta">
           <span className="lightbox-title-text" title={offerTitle}>
-            {offerTitle}
+            {roomTitle}
           </span>
         </div>
 
-        {/* Center: Photo Counter Pill */}
+        {/* Center: Photo Counter Pill (X из Y) */}
         <div className="lightbox-counter-pill">
           <span>{currentIdx + 1}</span>
-          <span className="lightbox-counter-divider">/</span>
+          <span className="lightbox-counter-divider">из</span>
           <span>{photos.length}</span>
         </div>
 
@@ -236,8 +300,8 @@ export const LightboxModal: React.FC<LightboxModalProps> = ({
           <button
             className={`lightbox-action-btn ${isZoomed ? 'active' : ''} clickable`}
             onClick={() => toggleZoom()}
-            title={isZoomed ? 'Сбросить масштаб (1x)' : 'Приблизить фото (2x)'}
-            aria-label="Масштаб"
+            title={isZoomed ? 'Сбросить масштаб (1x)' : 'Приблизить фото (2.5x)'}
+            aria-label="Приблизить"
           >
             {isZoomed ? (
               <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
@@ -253,16 +317,16 @@ export const LightboxModal: React.FC<LightboxModalProps> = ({
                 <line x1="8" y1="11" x2="14" y2="11" />
               </svg>
             )}
-            <span className="lightbox-action-label">{isZoomed ? '1x' : '2x'}</span>
+            <span className="lightbox-action-label">{isZoomed ? '1x' : 'Приблизить'}</span>
           </button>
 
           <button
             className="lightbox-close-btn clickable"
             onClick={onClose}
-            title="Закрыть (Esc)"
+            title="Закрыть (X)"
             aria-label="Закрыть"
           >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <line x1="18" y1="6" x2="6" y2="18" />
               <line x1="6" y1="6" x2="18" y2="18" />
             </svg>
@@ -270,7 +334,7 @@ export const LightboxModal: React.FC<LightboxModalProps> = ({
         </div>
       </div>
 
-      {/* 2. CENTER STAGE (FULL EXPANSIVE VIEW) */}
+      {/* 2. CENTER STAGE (FULL EXPANSIVE VIEW WITH PINCH-TO-ZOOM) */}
       <div
         className={`lightbox-center-stage ${isZoomed ? 'zoomed-stage' : ''}`}
         onTouchStart={handleStageTouchStart}
@@ -294,13 +358,13 @@ export const LightboxModal: React.FC<LightboxModalProps> = ({
           </svg>
         </button>
 
-        {/* Expansive Image Box (Exact hugging wrapper so shield sits on bottom-right of photo) */}
+        {/* Expansive Image Box */}
         <div
           className={`lightbox-img-box ${isZoomed ? 'is-zoomed' : ''} ${isDragging ? 'is-dragging' : ''}`}
           onMouseDown={handleMouseDown}
           onDoubleClick={(e) => {
             e.stopPropagation();
-            toggleZoom(e.clientX, e.clientY);
+            toggleZoom();
           }}
           onClick={(e) => {
             e.stopPropagation();
@@ -315,10 +379,11 @@ export const LightboxModal: React.FC<LightboxModalProps> = ({
             }
           }}
           style={
-            isZoomed
+            scale > 1.05
               ? {
-                  transform: `translate(${panOffset.x}px, ${panOffset.y}px) scale(2)`,
-                  cursor: isDragging ? 'grabbing' : 'grab'
+                  transform: `translate3d(${panOffset.x}px, ${panOffset.y}px, 0) scale(${scale})`,
+                  cursor: isDragging ? 'grabbing' : 'grab',
+                  touchAction: 'none'
                 }
               : dragDownY > 0
               ? {
@@ -332,7 +397,7 @@ export const LightboxModal: React.FC<LightboxModalProps> = ({
           <img
             key={currentIdx}
             src={currentPhoto}
-            alt={`${offerTitle} — фото ${currentIdx + 1}`}
+            alt={`${roomTitle} — фото ${currentIdx + 1}`}
             className="lightbox-main-img"
             onError={(e) => {
               const target = e.currentTarget;

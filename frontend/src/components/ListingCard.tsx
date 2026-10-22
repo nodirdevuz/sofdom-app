@@ -35,12 +35,18 @@ export const ListingCard: React.FC<ListingCardProps> = ({
   };
 
   const getDistrictText = () => {
-    const raw = offer.metro_name || offer.district || (offer.address ? offer.address.split(',')[1]?.trim() : '') || 'Советский';
-    const cleaned = raw
+    let d = offer.district;
+    if (!d && offer.metro_name) {
+      d = offer.metro_name.split('•')[0].trim();
+    }
+    if (!d && offer.address) {
+      const match = offer.address.match(/(Советский|Кировский|Октябрьский|Ленинский)/i);
+      if (match) d = match[1];
+    }
+    const cleaned = (d || 'Советский')
       .replace(/г\.?\s*Томск/gi, '')
       .replace(/Томск/gi, '')
       .replace(/р-н|район/gi, '')
-      .replace(/•.*$/g, '')
       .trim();
     return `Томск, р-н ${cleaned || 'Советский'}`;
   };
