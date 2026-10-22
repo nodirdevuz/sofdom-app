@@ -19,6 +19,8 @@ export interface MapApartment {
   distance_km?: number | null;
   deposit?: number | string;
   floor_str?: string;
+  geo_precision?: 'exact' | 'approximate' | 'none';
+  is_approximate?: boolean;
 }
 
 export interface MapApiResponse {
@@ -107,6 +109,8 @@ function getFallbackMapData(params: MapQueryParams): MapApiResponse {
               is_secret: !!o.is_top,
               deposit: o.deposit,
               floor_str: o.floor_str,
+              geo_precision: o.geo_precision || 'exact',
+              is_approximate: !!o.is_approximate || o.geo_precision === 'approximate',
             } as MapApartment)
         );
 
@@ -117,11 +121,27 @@ function getFallbackMapData(params: MapQueryParams): MapApiResponse {
 
   if (params.lat && params.lng) {
     list = list
-      .map((a) => ({
-        ...a,
-        distance_km: calcDistanceKm(params.lat!, params.lng!, a.lat, a.lng),
-      }))
-      .sort((a, b) => (a.distance_km ?? 9999) - (b.distance_km ?? 9999));
+      .map((a) => {
+        const isApprox = !!a.is_approximate;
+        return {
+          ...a,
+          distance_km: isApprox ? null : calcDistanceKm(params.lat!, params.lng!, a.lat, a.lng),
+        };
+      })
+      .filter((a) => {
+        if (params.radius_km !== undefined) {
+          // Приблизительные точки не включаются в точный радиусный поиск
+          if (a.is_approximate || a.distance_km === null || a.distance_km > params.radius_km) {
+            return false;
+          }
+        }
+        return true;
+      })
+      .sort((a, b) => {
+        const da = a.distance_km ?? 9999;
+        const db = b.distance_km ?? 9999;
+        return da - db;
+      });
   }
 
   return {

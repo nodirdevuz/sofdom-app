@@ -16,6 +16,7 @@ from datetime import datetime, timedelta
 from curl_cffi import requests
 from avito_session_manager import AvitoSession
 from db import upsert_apartment, get_connection
+from geo_utils import detect_city, detect_tomsk_district, classify_coordinates
 
 class RealtyScraper:
     def __init__(self):
@@ -116,6 +117,25 @@ class RealtyScraper:
                     if fee and fee > 0:
                         continue
 
+                    addr_str = geo.get('userInput') or 'г. Томск'
+                    c_lat = geo.get('coordinates', {}).get('lat')
+                    c_lng = geo.get('coordinates', {}).get('lng')
+                    clean_city = detect_city(addr_str, raw_city='Томск', lat=c_lat, lng=c_lng)
+                    raw_district = geo.get('district', {}).get('name', '')
+                    clean_district = detect_tomsk_district(
+                        addr_str,
+                        title=raw_title,
+                        city=clean_city,
+                        lat=c_lat,
+                        lng=c_lng,
+                        current_district=raw_district
+                    ) or ''
+                    valid_lat, valid_lng, precision = classify_coordinates(
+                        c_lat, c_lng,
+                        city=clean_city,
+                        source='cian'
+                    )
+
                     items.append({
                         'id': f"cian_{o.get('id')}",
                         'source': 'cian',
@@ -124,15 +144,17 @@ class RealtyScraper:
                         'price': int(bt.get('priceRur', 0)),
                         'deposit': int(bt.get('deposit', 0) or 0),
                         'commission': 0,
-                        'address': geo.get('userInput', 'г. Томск'),
-                        'city': 'Томск',
-                        'district': geo.get('district', {}).get('name', ''),
+                        'address': addr_str,
+                        'city': clean_city,
+                        'district': clean_district,
                         'rooms': rooms,
                         'area': area,
                         'floor': floor,
                         'total_floors': total_floors,
-                        'lat': geo.get('coordinates', {}).get('lat'),
-                        'lng': geo.get('coordinates', {}).get('lng'),
+                        'lat': valid_lat,
+                        'lng': valid_lng,
+                        'geo_precision': precision,
+                        'geo_source': 'cian' if precision != 'none' else 'none',
                         'phone': phone_str,
                         'owner_name': 'Собственник',
                         'photos': photos[:8],
@@ -217,13 +239,15 @@ class RealtyScraper:
                     'commission': 0,
                     'address': addr if addr.startswith("г. ") or addr.startswith("Томск") else f"Томск, {addr}",
                     'city': 'Томск',
-                    'district': '',
+                    'district': detect_tomsk_district(addr, title=clean_title) or '',
                     'rooms': rooms,
                     'area': area,
                     'floor': floor,
                     'total_floors': total_floors,
-                    'lat': 56.4977,
-                    'lng': 84.9744,
+                    'lat': None,
+                    'lng': None,
+                    'geo_precision': 'none',
+                    'geo_source': 'none',
                     'phone': 'Собственник (Ранний доступ)' if is_secret else 'Собственник',
                     'owner_name': 'Собственник',
                     'photos': clean_photos[:6],
@@ -298,13 +322,15 @@ class RealtyScraper:
                         'commission': 0,
                         'address': addr,
                         'city': 'Томск',
-                        'district': '',
+                        'district': detect_tomsk_district(addr, title=title) or '',
                         'rooms': rooms,
                         'area': area,
                         'floor': floor,
                         'total_floors': total_floors,
-                        'lat': 56.4977,
-                        'lng': 84.9744,
+                        'lat': None,
+                        'lng': None,
+                        'geo_precision': 'none',
+                        'geo_source': 'none',
                         'phone': 'Собственник (БезПосредников.ру)',
                         'owner_name': 'Собственник',
                         'photos': full_photos[:8],

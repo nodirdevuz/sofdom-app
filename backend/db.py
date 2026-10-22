@@ -11,6 +11,19 @@ import json
 import os
 from datetime import datetime, date, timedelta
 
+from geo_utils import (
+    haversine_distance,
+    TOMSK_DISTRICT_RULES,
+    TOMSK_AGGLOMERATION_ENVELOPE,
+    TOMSK_CENTER_PLACEHOLDER_LAT,
+    TOMSK_CENTER_PLACEHOLDER_LNG,
+    detect_city,
+    detect_tomsk_district,
+    classify_coordinates,
+    is_center_placeholder,
+    is_in_tomsk_envelope,
+)
+
 DB_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "realty.db")
 
 PLANS = {
@@ -64,7 +77,7 @@ def get_connection(db_path=DB_PATH):
 def init_db(db_path=DB_PATH):
     with get_connection(db_path) as conn:
         cursor = conn.cursor()
-        
+
         # 1. Users table
         cursor.execute("""
         CREATE TABLE IF NOT EXISTS users (
@@ -77,7 +90,7 @@ def init_db(db_path=DB_PATH):
             last_login_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
         """)
-        
+
         # 2. Subscriptions table
         cursor.execute("""
         CREATE TABLE IF NOT EXISTS subscriptions (
@@ -91,7 +104,7 @@ def init_db(db_path=DB_PATH):
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
         """)
-        
+
         # 3. Unlocked contacts table (tracks which user unlocked which apartment)
         cursor.execute("""
         CREATE TABLE IF NOT EXISTS unlocked_contacts (
@@ -102,7 +115,7 @@ def init_db(db_path=DB_PATH):
             UNIQUE(user_id, apartment_id)
         );
         """)
-        
+
         # 4. Favorites table
         cursor.execute("""
         CREATE TABLE IF NOT EXISTS favorites (
@@ -113,7 +126,7 @@ def init_db(db_path=DB_PATH):
             UNIQUE(user_id, apartment_id)
         );
         """)
-        
+
         # 5. Apartments table (matches existing data, with enhanced fields)
         cursor.execute("""
         CREATE TABLE IF NOT EXISTS apartments (
@@ -140,10 +153,12 @@ def init_db(db_path=DB_PATH):
             description TEXT DEFAULT '',
             url TEXT DEFAULT '',
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            geo_precision TEXT DEFAULT 'none',
+            geo_source TEXT DEFAULT 'none'
         );
         """)
-        
+
         # Check if new columns need to be added to users
         cursor.execute("PRAGMA table_info(users)")
         user_cols = [row["name"] for row in cursor.fetchall()]
@@ -161,7 +176,7 @@ def init_db(db_path=DB_PATH):
         # Check if new columns need to be added to apartments if table existed before
         cursor.execute("PRAGMA table_info(apartments)")
         existing_cols = [row["name"] for row in cursor.fetchall()]
-        
+
         cols_to_add = [
             ("secret_until", "TIMESTAMP"),
             ("district", "TEXT"),
@@ -171,7 +186,9 @@ def init_db(db_path=DB_PATH):
             ("total_floors", "INTEGER DEFAULT 1"),
             ("owner_name", "TEXT DEFAULT 'Собственник'"),
             ("updated_at", "TIMESTAMP"),
-            ("is_alerted", "INTEGER DEFAULT 0")
+            ("is_alerted", "INTEGER DEFAULT 0"),
+            ("geo_precision", "TEXT DEFAULT 'none'"),
+            ("geo_source", "TEXT DEFAULT 'none'")
         ]
         for col_name, col_type in cols_to_add:
             if col_name not in existing_cols:
@@ -190,14 +207,14 @@ def get_or_create_user(phone: str, name: str = None, db_path=DB_PATH) -> dict:
         clean_phone = "+7" + clean_phone[1:]
     elif not clean_phone.startswith("+"):
         clean_phone = "+" + clean_phone
-        
+
     token = f"tok_{clean_phone.replace('+', '')}_{abs(hash(clean_phone)) % 10000000}"
-    
+
     with get_connection(db_path) as conn:
         cursor = conn.cursor()
         cursor.execute("SELECT * FROM users WHERE phone = ?", (clean_phone,))
         row = cursor.fetchone()
-        
+
         if row:
             user = dict(row)
             cursor.execute("UPDATE users SET last_login_at = CURRENT_TIMESTAMP, token = ? WHERE id = ?", (token, user["id"]))
@@ -210,7 +227,7 @@ def get_or_create_user(phone: str, name: str = None, db_path=DB_PATH) -> dict:
                 (clean_phone, default_name, token)
             )
             user_id = cursor.lastrowid
-            
+
             # Create default free trial subscription
             free_plan = PLANS["free_trial"]
             expires_at = (datetime.now() + timedelta(days=free_plan["duration_days"])).strftime("%Y-%m-%d %H:%M:%S")
@@ -218,11 +235,11 @@ def get_or_create_user(phone: str, name: str = None, db_path=DB_PATH) -> dict:
             INSERT INTO subscriptions (user_id, plan_code, plan_name, daily_limit, expires_at)
             VALUES (?, ?, ?, ?, ?)
             """, (user_id, free_plan["code"], free_plan["name"], free_plan["daily_limit"], expires_at))
-            
+
             conn.commit()
             cursor.execute("SELECT * FROM users WHERE id = ?", (user_id,))
             user = dict(cursor.fetchone())
-            
+
     return user
 
 def get_user_by_token(token: str, db_path=DB_PATH) -> dict:
@@ -238,7 +255,7 @@ def get_user_subscription(user_id: int, db_path=DB_PATH) -> dict:
     with get_connection(db_path) as conn:
         cursor = conn.cursor()
         cursor.execute("""
-        SELECT * FROM subscriptions 
+        SELECT * FROM subscriptions
         WHERE user_id = ? AND status = 'active' AND expires_at > CURRENT_TIMESTAMP
         ORDER BY daily_limit DESC, expires_at DESC LIMIT 1
         """, (user_id,))
@@ -254,7 +271,7 @@ def get_user_subscription(user_id: int, db_path=DB_PATH) -> dict:
             sub["unlocked_today"] = unlocked_today
             sub["remaining_today"] = max(0, sub["daily_limit"] - unlocked_today)
             return sub
-            
+
         # If expired or none, return default free trial info with 0 limit
         return {
             "plan_code": "expired",
@@ -271,7 +288,7 @@ def upgrade_user_subscription(user_id: int, plan_code: str, db_path=DB_PATH) -> 
         raise ValueError(f"Unknown plan: {plan_code}")
     plan = PLANS[plan_code]
     expires_at = (datetime.now() + timedelta(days=plan["duration_days"])).strftime("%Y-%m-%d %H:%M:%S")
-    
+
     with get_connection(db_path) as conn:
         cursor = conn.cursor()
         cursor.execute("UPDATE subscriptions SET status = 'replaced' WHERE user_id = ?", (user_id,))
@@ -299,15 +316,15 @@ def unlock_apartment(user_id: int, apartment_id: str, db_path=DB_PATH) -> dict:
     """
     with get_connection(db_path) as conn:
         cursor = conn.cursor()
-        
+
         # Check if apartment exists
         cursor.execute("SELECT phone, title FROM apartments WHERE id = ?", (apartment_id,))
         apt = cursor.fetchone()
         if not apt:
             return {"success": False, "error": "NOT_FOUND", "message": "Объявление не найдено"}
-            
+
         real_phone = apt["phone"]
-        
+
         # Check if already unlocked previously (unlimited access once unlocked)
         cursor.execute("SELECT 1 FROM unlocked_contacts WHERE user_id = ? AND apartment_id = ?", (user_id, apartment_id))
         if cursor.fetchone():
@@ -318,7 +335,7 @@ def unlock_apartment(user_id: int, apartment_id: str, db_path=DB_PATH) -> dict:
                 "phone": real_phone,
                 "remaining_today": sub["remaining_today"]
             }
-            
+
         # Check daily quota
         sub = get_user_subscription(user_id, db_path=db_path)
         if sub["remaining_today"] <= 0:
@@ -328,13 +345,13 @@ def unlock_apartment(user_id: int, apartment_id: str, db_path=DB_PATH) -> dict:
                 "message": "Лимит на сегодня исчерпан. Перейдите на тариф «Снайпер» или «Семейный Pro» для открытия контактов.",
                 "plans": PLANS
             }
-            
+
         # Record unlock
         cursor.execute("""
         INSERT INTO unlocked_contacts (user_id, apartment_id) VALUES (?, ?)
         """, (user_id, apartment_id))
         conn.commit()
-        
+
         updated_sub = get_user_subscription(user_id, db_path=db_path)
         return {
             "success": True,
@@ -398,15 +415,40 @@ def re_digits(text: str) -> str:
 def upsert_apartment(item: dict, db_path=DB_PATH):
     with get_connection(db_path) as conn:
         cursor = conn.cursor()
+
+        raw_lat = item.get("lat")
+        raw_lng = item.get("lng")
+        source = item.get("source", "avito")
+        clean_city = detect_city(item.get("address"), raw_city=item.get("city", "Томск"), lat=raw_lat, lng=raw_lng)
+        clean_lat, clean_lng, precision = classify_coordinates(
+            raw_lat, raw_lng,
+            city=clean_city,
+            source=source
+        )
+        geo_precision = item.get("geo_precision") or precision
+        geo_source = item.get("geo_source") or (source if geo_precision != "none" else "none")
+
+        raw_dist = item.get("district", "")
+        clean_dist = detect_tomsk_district(
+            item.get("address"),
+            title=item.get("title", ""),
+            city=clean_city,
+            lat=clean_lat,
+            lng=clean_lng,
+            current_district=raw_dist
+        ) if clean_city in ("Томск", "Пригород") else (raw_dist if raw_dist not in ("Советский район", "Кировский район", "Ленинский район", "Октябрьский район") else "")
+
         cursor.execute("""
         INSERT INTO apartments (
             id, source, is_secret_early_access, secret_until, title, price, deposit, commission,
             address, city, district, rooms, area, floor, total_floors, lat, lng,
-            phone, owner_name, photos_json, description, url, updated_at
+            phone, owner_name, photos_json, description, url, updated_at,
+            geo_precision, geo_source
         ) VALUES (
             :id, :source, :is_secret_early_access, :secret_until, :title, :price, :deposit, :commission,
             :address, :city, :district, :rooms, :area, :floor, :total_floors, :lat, :lng,
-            :phone, :owner_name, :photos_json, :description, :url, CURRENT_TIMESTAMP
+            :phone, :owner_name, :photos_json, :description, :url, CURRENT_TIMESTAMP,
+            :geo_precision, :geo_source
         )
         ON CONFLICT(id) DO UPDATE SET
             price = excluded.price,
@@ -414,10 +456,16 @@ def upsert_apartment(item: dict, db_path=DB_PATH):
             phone = CASE WHEN apartments.phone != '' THEN apartments.phone ELSE excluded.phone END,
             photos_json = excluded.photos_json,
             description = excluded.description,
-            updated_at = CURRENT_TIMESTAMP
+            city = excluded.city,
+            district = excluded.district,
+            updated_at = CURRENT_TIMESTAMP,
+            lat = CASE WHEN excluded.lat IS NOT NULL THEN excluded.lat ELSE apartments.lat END,
+            lng = CASE WHEN excluded.lng IS NOT NULL THEN excluded.lng ELSE apartments.lng END,
+            geo_precision = CASE WHEN excluded.geo_precision != 'none' THEN excluded.geo_precision ELSE apartments.geo_precision END,
+            geo_source = CASE WHEN excluded.geo_source != 'none' THEN excluded.geo_source ELSE apartments.geo_source END
         """, {
             "id": str(item["id"]),
-            "source": item.get("source", "avito"),
+            "source": source,
             "is_secret_early_access": 1 if item.get("is_secret") or item.get("is_secret_early_access") else 0,
             "secret_until": item.get("secret_until"),
             "title": item.get("title", "Квартира от собственника"),
@@ -425,14 +473,16 @@ def upsert_apartment(item: dict, db_path=DB_PATH):
             "deposit": int(item.get("deposit", 0)),
             "commission": int(item.get("commission", 0)),
             "address": item.get("address", "Томск"),
-            "city": item.get("city", "Томск"),
-            "district": item.get("district", ""),
+            "city": clean_city,
+            "district": clean_dist or "",
             "rooms": item.get("rooms", "1-комн"),
             "area": float(item.get("area", 0) or 0),
             "floor": int(item.get("floor", 1) or 1),
             "total_floors": int(item.get("total_floors", 1) or 1),
-            "lat": float(item.get("lat")) if item.get("lat") else None,
-            "lng": float(item.get("lng")) if item.get("lng") else None,
+            "lat": clean_lat,
+            "lng": clean_lng,
+            "geo_precision": geo_precision,
+            "geo_source": geo_source,
             "phone": item.get("phone", ""),
             "owner_name": item.get("owner_name", "Собственник"),
             "photos_json": json.dumps(item.get("photos", []), ensure_ascii=False) if isinstance(item.get("photos"), list) else item.get("photos_json", "[]"),
@@ -456,81 +506,81 @@ def list_apartments(
 ) -> list:
     unlocked_set = get_user_unlocked_ids(user_id, db_path=db_path) if user_id else set()
     favorites_set = get_user_favorite_ids(user_id, db_path=db_path) if user_id else set()
-    
+
     query = "SELECT * FROM apartments WHERE 1=1"
     params = []
-    
+
     if city:
         query += " AND city = ?"
         params.append(city)
-        
+
     if rooms:
         r_clean = rooms.strip()
         query += " AND (rooms LIKE ? OR rooms LIKE ? OR rooms LIKE ?)"
         params.extend([f"%{r_clean}%", f"%{r_clean.capitalize()}%", f"%{r_clean.lower()}%"])
-        
+
     if price_min is not None:
         query += " AND price >= ?"
         params.append(price_min)
-        
+
     if price_max is not None:
         query += " AND price <= ?"
         params.append(price_max)
-        
+
     if is_secret_only:
         query += " AND is_secret_early_access = 1"
-        
+
     if source:
         query += " AND source = ?"
         params.append(source)
-        
+
     if sort == "price_asc":
         query += " ORDER BY price ASC"
     elif sort == "price_desc":
         query += " ORDER BY price DESC"
     else:
         query += " ORDER BY is_secret_early_access DESC, created_at DESC"
-        
+
     query += " LIMIT ? OFFSET ?"
     params.extend([limit, offset])
-    
+
     with get_connection(db_path) as conn:
         cursor = conn.cursor()
         cursor.execute(query, params)
         rows = cursor.fetchall()
-        
+
         result = []
         for r in rows:
             apt = dict(r)
             apt_id = apt["id"]
             is_unlocked = apt_id in unlocked_set
-            
+
             # Format phone cleanly (+7 (XXX) XXX-XX-XX)
             raw_phone = apt.get("phone") or ""
             if not raw_phone.startswith("+7") and len(raw_phone) == 10:
                 clean_phone = f"+7 ({raw_phone[:3]}) {raw_phone[3:6]}-{raw_phone[6:8]}-{raw_phone[8:]}"
             else:
                 clean_phone = raw_phone
-            
+
             # In active test/demo mode: show all contacts without blocking
             apt["phone"] = clean_phone
             apt["phone_display"] = clean_phone
             apt["is_locked"] = False
-                
+
             apt["is_favorite"] = apt_id in favorites_set
             try:
                 apt["photos"] = json.loads(apt.get("photos_json") or "[]")
             except Exception:
                 apt["photos"] = []
-                
+
             result.append(apt)
-            
+
         return result
 
 def get_apartment_by_id(apartment_id: str, user_id: int = None, db_path=DB_PATH) -> dict:
     unlocked_set = get_user_unlocked_ids(user_id, db_path=db_path) if user_id else set()
     favorites_set = get_user_favorite_ids(user_id, db_path=db_path) if user_id else set()
-    
+
     with get_connection(db_path) as conn:
         cursor = conn.cursor()
         cursor.execute("SELECT * FROM apartments WHERE id = ?", (apartment_id,))
@@ -539,7 +589,7 @@ def get_apartment_by_id(apartment_id: str, user_id: int = None, db_path=DB_PATH)
             return None
         apt = dict(row)
         is_unlocked = apartment_id in unlocked_set
-        
+
         # Format phone cleanly (+7 (XXX) XXX-XX-XX)
         raw_phone = apt.get("phone") or ""
         if not raw_phone.startswith("+7") and len(raw_phone) == 10:
@@ -550,7 +600,7 @@ def get_apartment_by_id(apartment_id: str, user_id: int = None, db_path=DB_PATH)
         apt["phone"] = clean_phone
         apt["phone_display"] = clean_phone
         apt["is_locked"] = False
-            
+
         apt["is_favorite"] = apartment_id in favorites_set
         try:
             apt["photos"] = json.loads(apt.get("photos_json") or "[]")
@@ -563,22 +613,22 @@ def get_system_stats(db_path=DB_PATH) -> dict:
         cursor = conn.cursor()
         cursor.execute("SELECT count(*) as total FROM apartments")
         total = cursor.fetchone()["total"]
-        
+
         cursor.execute("SELECT count(*) as secret FROM apartments WHERE is_secret_early_access = 1")
         secret = cursor.fetchone()["secret"]
-        
+
         cursor.execute("SELECT count(*) as cian_cnt FROM apartments WHERE source = 'cian'")
         cian_cnt = cursor.fetchone()["cian_cnt"]
-        
+
         cursor.execute("SELECT count(*) as avito_cnt FROM apartments WHERE source = 'avito'")
         avito_cnt = cursor.fetchone()["avito_cnt"]
-        
+
         cursor.execute("SELECT count(*) as users_cnt FROM users")
         users_cnt = cursor.fetchone()["users_cnt"]
-        
+
         cursor.execute("SELECT count(*) as unlocks_cnt FROM unlocked_contacts")
         unlocks_cnt = cursor.fetchone()["unlocks_cnt"]
-        
+
         return {
             "city": "Томск",
             "total_apartments": total,
@@ -591,88 +641,85 @@ def get_system_stats(db_path=DB_PATH) -> dict:
             "timestamp": datetime.now().isoformat()
         }
 
-import math
-
-def haversine_distance(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
-    """Calculates distance between two coordinates in kilometers."""
-    R = 6371.0
-    dlat = math.radians(lat2 - lat1)
-    dlon = math.radians(lon2 - lon1)
-    a = math.sin(dlat / 2)**2 + math.cos(math.radians(lat1)) * math.cos(math.radians(lat2)) * math.sin(dlon / 2)**2
-    return round(2 * R * math.asin(math.sqrt(a)), 2)
-
-TOMSK_DISTRICT_RULES = [
-    ("Кировский район", 56.460, 84.970, [
-        "усов", "киров", "красноармейск", "мокрушин", "елизаров", "нахимов", "котовск",
-        "учебн", "вершинин", "дзержинск", "студенческ", "южн", "буревестник", "тимаков",
-        "тгу", "тпу", "сибгму", "лагерный", "южная", "кировский"
-    ]),
-    ("Советский район", 56.478, 84.985, [
-        "фрунзе", "комсомольск", "сибирск", "алтайск", "нечевск", "никитин", "шевченко",
-        "герцен", "кулагин", "тверск", "гогол", "крылов", "чкалов", "советский"
-    ]),
-    ("Ленинский район", 56.515, 84.960, [
-        "мир", "79 гвардейск", "каштак", "войков", "говоров", "смирнов", "березов",
-        "пролетарск", "большая подгорн", "черемошник", "интернационалист", "карла маркс",
-        "5-й арми", "ленинский"
-    ]),
-    ("Октябрьский район", 56.508, 85.030, [
-        "иркутск", "лазо", "герасименко", "солнечн", "зеленые горк", "зелёные горк",
-        "беринг", "клюев", "архитектор", "пушкин", "мичурин", "энтузиаст", "бауман",
-        "черноморск", "октябрьский"
-    ]),
-    ("Пригород", 56.425, 85.015, [
-        "зональн", "южные ворот", "кисловк", "левобережн", "тимирязев", "северск"
-    ])
-]
-
 def enrich_tomsk_geo(db_path=DB_PATH):
-    """Enriches apartments with exact Tomsk districts and spread coordinates."""
+    """
+    Нормализует геолокацию, город, район и координаты объявлений.
+
+    Гарантии:
+    1. Исключает присвоение фиктивной точки центра Томска (56.4977, 84.9744) как точных координат.
+    2. Исключает генерацию координат со случайным смещением на основе hash(id).
+    3. Исключает назначение районов Томска (например, 'Советский район') населённым
+       пунктам области (Колпашево, Северск и др.).
+    4. Сохраняет подлинные координаты от источников (Циан) с маркировкой geo_precision='exact'.
+    5. Для объявлений без точных координат сохраняет lat=None, lng=None, geo_precision='none'.
+    """
     with get_connection(db_path) as conn:
         cursor = conn.cursor()
-        cursor.execute("SELECT id, address, title, district, lat, lng FROM apartments")
+
+        # Убедимся, что новые колонки присутствуют
+        cursor.execute("PRAGMA table_info(apartments)")
+        existing_cols = {row["name"] for row in cursor.fetchall()}
+        for col_name, col_def in [("geo_precision", "TEXT DEFAULT 'none'"), ("geo_source", "TEXT DEFAULT 'none'")]:
+            if col_name not in existing_cols:
+                try:
+                    cursor.execute(f"ALTER TABLE apartments ADD COLUMN {col_name} {col_def}")
+                except Exception:
+                    pass
+
+        cursor.execute("""
+        SELECT id, address, title, city, district, lat, lng, source, geo_precision, geo_source
+        FROM apartments
+        """)
         rows = cursor.fetchall()
-        
+
         updated = 0
         for r in rows:
             apt_id = r["id"]
-            addr_lower = (r["address"] or "").lower() + " " + (r["title"] or "").lower()
+            addr = r["address"] or ""
+            title = r["title"] or ""
+            current_city = r["city"] or "Томск"
             current_dist = r["district"]
             current_lat = r["lat"]
             current_lng = r["lng"]
-            
-            # Detect district
-            matched_dist = current_dist
-            base_lat, base_lng = None, None
-            for d_name, d_lat, d_lng, keywords in TOMSK_DISTRICT_RULES:
-                if any(kw in addr_lower for kw in keywords):
-                    matched_dist = d_name
-                    base_lat, base_lng = d_lat, d_lng
-                    break
-                    
-            if not matched_dist:
-                matched_dist = "Советский район"
-                base_lat, base_lng = 56.478, 84.985
-                
-            needs_coord_update = (
-                not current_lat or not current_lng or
-                (abs(current_lat - 56.4977) < 0.001 and abs(current_lng - 84.9744) < 0.001)
+            source = r["source"] or "unknown"
+
+            # 1. Проверяем реальный населённый пункт
+            new_city = detect_city(addr, raw_city=current_city, lat=current_lat, lng=current_lng)
+
+            # 2. Классифицируем координаты и определяем уровень достоверности
+            clean_lat, clean_lng, precision = classify_coordinates(
+                current_lat, current_lng,
+                city=new_city,
+                source=source
             )
-            
-            if needs_coord_update and base_lat and base_lng:
-                h = abs(hash(apt_id))
-                jitter_lat = ((h % 1000) / 1000.0 - 0.5) * 0.015
-                jitter_lng = (((h // 1000) % 1000) / 1000.0 - 0.5) * 0.025
-                new_lat = round(base_lat + jitter_lat, 6)
-                new_lng = round(base_lng + jitter_lng, 6)
+            geo_source = source if precision != "none" else "none"
+
+            # 3. Определяем район: для других городов район Томска НЕДОПУСТИМ;
+            # для Томска fallback на 'Советский район' ИСКЛЮЧЁН.
+            new_district = detect_tomsk_district(
+                addr,
+                title=title,
+                city=new_city,
+                lat=clean_lat,
+                lng=clean_lng,
+                current_district=current_dist
+            )
+
+            # 4. Проверяем, изменились ли поля
+            dist_changed = (new_district != current_dist)
+            city_changed = (new_city != current_city)
+            coords_changed = (clean_lat != current_lat or clean_lng != current_lng)
+            prec_changed = (r["geo_precision"] != precision)
+
+            if dist_changed or city_changed or coords_changed or prec_changed:
                 cursor.execute("""
-                UPDATE apartments SET district = ?, lat = ?, lng = ? WHERE id = ?
-                """, (matched_dist, new_lat, new_lng, apt_id))
+                UPDATE apartments
+                SET city = ?, district = ?, lat = ?, lng = ?, geo_precision = ?, geo_source = ?,
+                    updated_at = CURRENT_TIMESTAMP
+                WHERE id = ?
+                """, (new_city, new_district or "", clean_lat, clean_lng, precision, geo_source, apt_id))
                 updated += 1
-            elif matched_dist != current_dist:
-                cursor.execute("UPDATE apartments SET district = ? WHERE id = ?", (matched_dist, apt_id))
-                updated += 1
-                
+
         conn.commit()
         return updated
 
@@ -691,30 +738,42 @@ def list_apartments_geo(
 ) -> dict:
     with get_connection(db_path) as conn:
         cursor = conn.cursor()
-        query = "SELECT id, title, price, deposit, commission, address, district, rooms, area, floor, total_floors, lat, lng, photos_json, is_secret_early_access FROM apartments WHERE lat IS NOT NULL AND lng IS NOT NULL"
+
+        # Проверяем наличие колонки geo_precision
+        cursor.execute("PRAGMA table_info(apartments)")
+        col_names = {row["name"] for row in cursor.fetchall()}
+        has_precision = "geo_precision" in col_names
+
+        prec_col = ", geo_precision" if has_precision else ""
+        query = f"""
+        SELECT id, title, price, deposit, commission, address, district, rooms,
+               area, floor, total_floors, lat, lng, photos_json, is_secret_early_access{prec_col}
+        FROM apartments
+        WHERE lat IS NOT NULL AND lng IS NOT NULL
+        """
         params = []
-        
+
         if district:
             d_clean = district.strip()
             query += " AND (district LIKE ? OR district LIKE ? OR district LIKE ?)"
             params.extend([f"%{d_clean}%", f"%{d_clean.capitalize()}%", f"%{d_clean.lower()}%"])
-            
+
         if rooms:
             r_clean = rooms.strip()
             query += " AND (rooms LIKE ? OR rooms LIKE ? OR rooms LIKE ?)"
             params.extend([f"%{r_clean}%", f"%{r_clean.capitalize()}%", f"%{r_clean.lower()}%"])
-            
+
         if price_min is not None:
             query += " AND price >= ?"
             params.append(price_min)
-            
+
         if price_max is not None:
             query += " AND price <= ?"
             params.append(price_max)
-            
+
         if is_secret_only:
             query += " AND is_secret_early_access = 1"
-            
+
         if bbox:
             try:
                 parts = [float(p.strip()) for p in bbox.split(",")]
@@ -724,26 +783,41 @@ def list_apartments_geo(
                     params.extend([min_lat, max_lat, min_lng, max_lng])
             except Exception:
                 pass
-                
+
         query += " ORDER BY is_secret_early_access DESC, price ASC LIMIT ?"
         params.append(limit)
-        
+
         cursor.execute(query, params)
         rows = cursor.fetchall()
-        
+
         cursor.execute("SELECT district, count(*) as count FROM apartments WHERE district IS NOT NULL AND district != '' GROUP BY district")
         district_counts = [dict(r) for r in cursor.fetchall()]
-        
+
         points = []
         for r in rows:
             apt = dict(r)
             a_lat, a_lng = apt["lat"], apt["lng"]
+
+            # Проверяем, не является ли это синтетической заглушкой центра
+            if is_center_placeholder(a_lat, a_lng):
+                continue
+
+            geo_prec = apt.get("geo_precision") or ("exact" if (a_lat and a_lng and not is_center_placeholder(a_lat, a_lng)) else "none")
+            if geo_prec == "none":
+                continue
+
+            is_approx = (geo_prec != "exact")
             dist_km = None
             if center_lat is not None and center_lng is not None:
-                dist_km = haversine_distance(center_lat, center_lng, a_lat, a_lng)
-                if radius_km is not None and dist_km > radius_km:
-                    continue
-                    
+                if not is_approx:
+                    dist_km = haversine_distance(center_lat, center_lng, a_lat, a_lng)
+                    if radius_km is not None and dist_km > radius_km:
+                        continue
+                else:
+                    # Приблизительные точки НЕ квалифицируются для точного поиска рядом по радиусу
+                    if radius_km is not None:
+                        continue
+
             try:
                 photos = json.loads(apt.get("photos_json") or "[]")
                 first_photo = photos[0] if photos else ""
@@ -751,7 +825,7 @@ def list_apartments_geo(
             except Exception:
                 first_photo = ""
                 photos_count = 0
-                
+
             points.append({
                 "id": apt["id"],
                 "lat": a_lat,
@@ -768,15 +842,18 @@ def list_apartments_geo(
                 "photo": first_photo,
                 "photos_count": photos_count,
                 "is_secret": bool(apt["is_secret_early_access"]),
-                "distance_km": dist_km
+                "distance_km": dist_km,
+                "geo_precision": geo_prec,
+                "is_approximate": is_approx
             })
-            
+
         if center_lat is not None and center_lng is not None:
-            points.sort(key=lambda p: (p["distance_km"] or 999999))
-            
+            # Точные расстояния сортируются первыми по возрастанию; точки без точного расстояния идут следом
+            points.sort(key=lambda p: (0 if p["distance_km"] is not None else 1, p["distance_km"] or 999999))
+
         return {
             "count": len(points),
-            "center": {"lat": center_lat or 56.4977, "lng": center_lng or 84.9744},
+            "center": {"lat": center_lat or TOMSK_CENTER_PLACEHOLDER_LAT, "lng": center_lng or TOMSK_CENTER_PLACEHOLDER_LNG},
             "districts": district_counts,
             "apartments": points
         }
@@ -810,7 +887,7 @@ def link_telegram_user(telegram_chat_id: str, phone: str = None, username: str =
                 u = dict(cursor.fetchone())
                 sub = get_user_subscription(u["id"], db_path)
                 return {"user": u, "subscription": sub}
-        
+
         # If user not found by phone, search by telegram_chat_id
         cursor.execute("SELECT * FROM users WHERE telegram_chat_id = ?", (str(telegram_chat_id),))
         row = cursor.fetchone()
@@ -818,7 +895,7 @@ def link_telegram_user(telegram_chat_id: str, phone: str = None, username: str =
             u = dict(row)
             sub = get_user_subscription(u["id"], db_path)
             return {"user": u, "subscription": sub}
-            
+
         # Create new telegram-only user if not exists
         temp_phone = phone or f"+tg_{telegram_chat_id}"
         user_dict = get_or_create_user(temp_phone, name=username or f"TG_{telegram_chat_id}", db_path=db_path)
@@ -839,7 +916,7 @@ def get_subscribers_for_alerts(db_path=DB_PATH) -> list:
         SELECT u.id, u.telegram_chat_id, u.phone, s.plan_code, s.plan_name
         FROM users u
         JOIN subscriptions s ON s.user_id = u.id
-        WHERE u.telegram_chat_id IS NOT NULL 
+        WHERE u.telegram_chat_id IS NOT NULL
           AND u.telegram_chat_id != ''
           AND s.status = 'active'
           AND s.expires_at > CURRENT_TIMESTAMP
