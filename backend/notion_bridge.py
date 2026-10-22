@@ -189,7 +189,7 @@ def append_task_report(page_id: str, report_text: str) -> dict:
 
 
 def create_task(title: str, body_text: str, status: str = "Up next", db_id: str = TASKS_DB_ID) -> dict:
-    """Создаёт новую задачу (для Оркестратора)."""
+    """Создаёт новую задачу или отчёт в Notion Tasks."""
     blocks = []
     if body_text:
         paragraphs = [p.strip() for p in body_text.split("\n\n") if p.strip()]
@@ -214,9 +214,18 @@ def create_task(title: str, body_text: str, status: str = "Up next", db_id: str 
                 "status": {"name": status}
             }
         },
-        "children": blocks[:100]
+        "children": blocks[:90]
     }
-    return _notion_request("pages", method="POST", data=payload)
+    page = _notion_request("pages", method="POST", data=payload)
+    page_id = page["id"]
+
+    # Добавляем оставшиеся блоки порциями по 90
+    if len(blocks) > 90:
+        for i in range(90, len(blocks), 90):
+            batch = blocks[i:i+90]
+            _notion_request(f"blocks/{page_id}/children", method="PATCH", data={"children": batch})
+
+    return page
 
 
 def main():
@@ -235,9 +244,10 @@ def main():
     p_complete.add_argument("page_id", help="UUID страницы задачи")
     p_complete.add_argument("--report", required=True, help="Текст отчёта или путь к .md файлу")
 
-    p_create = subparsers.add_parser("create", help="Создать задачу (для Оркестратора)")
-    p_create.add_argument("--title", required=True, help="Название задачи")
-    p_create.add_argument("--body", default="", help="Описание / ТЗ задачи")
+    p_create = subparsers.add_parser("create", help="Создать задачу или отчёт")
+    p_create.add_argument("--title", required=True, help="Название задачи или отчёта")
+    p_create.add_argument("--body", default="", help="Описание / ТЗ задачи или путь к файлу")
+    p_create.add_argument("--status", default="Up next", help="Статус: 'Not started', 'Up next', 'In progress', 'Done'")
 
     args = parser.parse_args()
 
@@ -259,7 +269,11 @@ def main():
         set_task_status(args.page_id, "Done")
         print(f"Отчёт добавлен, статус задачи {args.page_id} изменён на 'Done'")
     elif args.cmd == "create":
-        res = create_task(args.title, args.body)
+        body_text = args.body
+        if os.path.exists(body_text):
+            with open(body_text, "r", encoding="utf-8") as f:
+                body_text = f.read()
+        res = create_task(args.title, body_text, status=args.status)
         print(f"Задача создана: {res.get('url')}")
     else:
         parser.print_help()
