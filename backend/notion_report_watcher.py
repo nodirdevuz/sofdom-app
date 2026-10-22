@@ -22,7 +22,7 @@ else:
     import notion_bridge
 
 LABEL = "com.sofdom.notion-report-watcher"
-POLL_INTERVAL_SECONDS = 480
+POLL_INTERVAL_SECONDS = 300
 STATE_DIR = Path.home() / "Library" / "Application Support" / "SofDom" / "NotionReportWatcher"
 STATE_PATH = STATE_DIR / "state.json"
 APP_DIR = STATE_DIR / "app"
@@ -273,7 +273,7 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="Локальные уведомления об отчётах Notion Tasks")
     commands = parser.add_subparsers(dest="command", required=True)
     commands.add_parser("poll", help="Проверить отчёты один раз")
-    commands.add_parser("install", help="Установить локальный LaunchAgent с интервалом 8 минут")
+    commands.add_parser("install", help="Установить локальный LaunchAgent с интервалом 5 минут")
     commands.add_parser("uninstall", help="Остановить и удалить LaunchAgent")
     commands.add_parser("status", help="Показать статус LaunchAgent")
     args = parser.parse_args()

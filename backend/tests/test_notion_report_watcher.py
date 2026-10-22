@@ -8,6 +8,9 @@ from backend import notion_report_watcher as watcher
 
 
 class NotionReportWatcherTests(unittest.TestCase):
+    def test_poll_interval_is_five_minutes(self):
+        self.assertEqual(watcher.POLL_INTERVAL_SECONDS, 300)
+
     def test_first_poll_creates_silent_baseline(self):
         with tempfile.TemporaryDirectory() as directory:
             state_path = Path(directory) / "state.json"
