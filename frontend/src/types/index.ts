@@ -41,7 +41,7 @@ export interface Offer {
   status?: 'active' | 'rented' | 'archived';
   lat: number;
   lng: number;
-  geo_precision?: 'exact' | 'approximate' | 'none';
+  geo_precision?: 'exact' | 'approximate' | 'unknown' | 'none';
   is_approximate?: boolean;
 }
 

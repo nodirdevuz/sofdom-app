@@ -19,7 +19,7 @@ export interface MapApartment {
   distance_km?: number | null;
   deposit?: number | string;
   floor_str?: string;
-  geo_precision?: 'exact' | 'approximate' | 'none';
+  geo_precision?: 'exact' | 'approximate' | 'unknown' | 'none';
   is_approximate?: boolean;
 }
 
@@ -86,12 +86,23 @@ function getCacheKey(params: MapQueryParams): string {
 }
 
 /**
- * Fallback generator using local dataset if backend API is not running
+ * Fallback generator using local dataset if backend API is not running.
+ * Fallback items without proven coordinates provenance are marked as 'unknown'
+ * (non-exact, is_approximate: true), do not display fictitious distances (distance_km: null),
+ * and are excluded from exact radius queries.
  */
 function getFallbackMapData(params: MapQueryParams): MapApiResponse {
   let list =
     TOMSK_MAP_FALLBACK.apartments && TOMSK_MAP_FALLBACK.apartments.length > 0
-      ? [...TOMSK_MAP_FALLBACK.apartments]
+      ? TOMSK_MAP_FALLBACK.apartments.map((a) => {
+          const prec = a.geo_precision || 'unknown';
+          const isApprox = prec !== 'exact';
+          return {
+            ...a,
+            geo_precision: prec,
+            is_approximate: isApprox,
+          };
+        })
       : OFFERS.map(
           (o) =>
             ({
@@ -109,8 +120,8 @@ function getFallbackMapData(params: MapQueryParams): MapApiResponse {
               is_secret: !!o.is_top,
               deposit: o.deposit,
               floor_str: o.floor_str,
-              geo_precision: o.geo_precision || 'exact',
-              is_approximate: !!o.is_approximate || o.geo_precision === 'approximate',
+              geo_precision: o.geo_precision || 'unknown',
+              is_approximate: (o.geo_precision || 'unknown') !== 'exact',
             } as MapApartment)
         );
 
@@ -122,16 +133,16 @@ function getFallbackMapData(params: MapQueryParams): MapApiResponse {
   if (params.lat && params.lng) {
     list = list
       .map((a) => {
-        const isApprox = !!a.is_approximate;
+        const isExact = a.geo_precision === 'exact' && !a.is_approximate;
         return {
           ...a,
-          distance_km: isApprox ? null : calcDistanceKm(params.lat!, params.lng!, a.lat, a.lng),
+          distance_km: isExact ? calcDistanceKm(params.lat!, params.lng!, a.lat, a.lng) : null,
         };
       })
       .filter((a) => {
         if (params.radius_km !== undefined) {
-          // Приблизительные точки не включаются в точный радиусный поиск
-          if (a.is_approximate || a.distance_km === null || a.distance_km > params.radius_km) {
+          // Не проверенные ('unknown', 'approximate', 'none') точки не включаются в точный радиусный поиск
+          if (a.is_approximate || a.geo_precision !== 'exact' || a.distance_km === null || a.distance_km > params.radius_km) {
             return false;
           }
         }

@@ -216,6 +216,31 @@ def detect_tomsk_district(
     return None
 
 
+def calc_radius_bbox(
+    center_lat: float,
+    center_lng: float,
+    radius_km: float
+) -> Tuple[float, float, float, float]:
+    """
+    Вычисляет грубый ограничивающий прямоугольник (bounding box) для круга radius_km вокруг центра.
+    Используется для быстрой предварительной фильтрации в SQL перед точным расчётом haversine.
+    Возвращает (min_lat, max_lat, min_lng, max_lng).
+    """
+    # 1 градус широты ~ 111.0 км на Земле. С запасом 5% на пограничные эффекты.
+    delta_lat = (radius_km / 111.0) * 1.05
+
+    # 1 градус долготы на широте phi ~ 111.0 * cos(phi) км.
+    cos_lat = max(0.01, math.cos(math.radians(center_lat)))
+    delta_lng = (radius_km / (111.0 * cos_lat)) * 1.05
+
+    min_lat = round(max(-90.0, center_lat - delta_lat), 6)
+    max_lat = round(min(90.0, center_lat + delta_lat), 6)
+    min_lng = round(max(-180.0, center_lng - delta_lng), 6)
+    max_lng = round(min(180.0, center_lng + delta_lng), 6)
+
+    return min_lat, max_lat, min_lng, max_lng
+
+
 def classify_coordinates(
     lat: Optional[float],
     lng: Optional[float],
@@ -224,9 +249,11 @@ def classify_coordinates(
 ) -> Tuple[Optional[float], Optional[float], str]:
     """
     Классифицирует координаты и определяет уровень их точности (provenance):
-      - 'exact': подлинные координаты от источника (например, Циан);
-      - 'approximate': центроид района или населённого пункта (без фиктивного jitter);
-      - 'none': координаты отсутствуют, нулевые или были синтетической заглушкой центра.
+      - 'exact': подлинные координаты от подтверждённого источника (например, Циан);
+      - 'approximate': центроид района или населённого пункта (поддерживается на уровне
+        модели данных/API, но текущие продакшен-сборщики его НЕ генерируют);
+      - 'none': координаты отсутствуют, невалидны, являются заглушкой центра или
+        получены из источников, не передающих координаты (Авито, БезПосредников).
 
     Возвращает (clean_lat, clean_lng, precision).
     """
@@ -251,5 +278,21 @@ def classify_coordinates(
     if is_center_placeholder(f_lat, f_lng):
         return None, None, "none"
 
-    # Валидные координаты от источника
-    return round(f_lat, 6), round(f_lng, 6), "exact"
+    # Источники Авито и БезПосредников в текущих сборщиках не предоставляют проверенные
+    # координаты объектов (ранее им присваивался центр Томска или синтетический jitter).
+    # Без подтверждённой внешней provenance их координаты считаются недостоверными ('none').
+    if source in ("avito", "bezposrednikov", "legacy"):
+        return None, None, "none"
+
+    # Только проверенные источники могут иметь статус 'exact'
+    verified_sources = ("cian", "verified", "test_verified")
+    if source in verified_sources or source.startswith("cian"):
+        # Проверка географической согласованности с заявленным городом:
+        # если город заявлен как Томск, но координаты заведомо за пределами конверта Томска
+        # (например, Колпашево 58.31 N при city='Томск'), то они не могут считаться точкой Томска.
+        if city == "Томск" and not is_in_tomsk_envelope(f_lat, f_lng):
+            return None, None, "none"
+        return round(f_lat, 6), round(f_lng, 6), "exact"
+
+    # Для неизвестных или не проверенных источников числовая валидность не даёт права заявлять exact
+    return None, None, "none"

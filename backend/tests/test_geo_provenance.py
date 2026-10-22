@@ -414,5 +414,253 @@ class TestApiAndMapBehavior(unittest.TestCase):
                 os.remove(old_db)
 
 
+class TestOrchestratorProvenanceRegressions(unittest.TestCase):
+    """
+    Регрессионные тесты для инвариантов достоверности геолокации (provenance),
+    выявленных при проверке оркестратора.
+    """
+
+    def setUp(self):
+        self.tf = tempfile.NamedTemporaryFile(suffix=".db", delete=False)
+        self.temp_db = self.tf.name
+        db.init_db(db_path=self.temp_db)
+
+    def tearDown(self):
+        if os.path.exists(self.temp_db):
+            os.remove(self.temp_db)
+
+    def test_upsert_resets_exact_coordinates_when_overwritten_with_none(self):
+        """
+        Дефект оркестратора (a):
+        Если сначала вставлены точные координаты (56.48, 84.97, exact), а затем
+        тот же ID обновлён с lat=None, lng=None — старые координаты и exact
+        НЕ должны оставаться в БД.
+        """
+        apt_id = "test_provenance_a"
+        # 1. Вставка точной точки
+        item_exact = {
+            "id": apt_id,
+            "source": "cian",
+            "title": "Квартира с точной точкой",
+            "price": 30000,
+            "address": "г. Томск, ул. Кирова, 10",
+            "city": "Томск",
+            "lat": 56.4800,
+            "lng": 84.9700,
+            "geo_precision": "exact",
+            "geo_source": "cian"
+        }
+        db.upsert_apartment(item_exact, db_path=self.temp_db)
+        apt1 = db.get_apartment_by_id(apt_id, db_path=self.temp_db)
+        self.assertEqual(apt1["lat"], 56.4800)
+        self.assertEqual(apt1["lng"], 84.9700)
+        self.assertEqual(apt1["geo_precision"], "exact")
+        self.assertEqual(apt1["geo_source"], "cian")
+        self.assertIsNotNone(apt1.get("geo_observed_at"))
+
+        # 2. Обновление того же ID с lat=None, lng=None
+        item_none = {
+            "id": apt_id,
+            "source": "cian",
+            "title": "Квартира с точной точкой (обновление без гео)",
+            "price": 31000,
+            "address": "г. Томск, ул. Кирова, 10",
+            "city": "Томск",
+            "lat": None,
+            "lng": None,
+            "geo_precision": "none",
+            "geo_source": "none"
+        }
+        db.upsert_apartment(item_none, db_path=self.temp_db)
+        apt2 = db.get_apartment_by_id(apt_id, db_path=self.temp_db)
+        self.assertIsNone(apt2["lat"], "Старая широта не должна оставаться при обновлении на None")
+        self.assertIsNone(apt2["lng"], "Старая долгота не должна оставаться при обновлении на None")
+        self.assertEqual(apt2["geo_precision"], "none", "Старый статус exact не должен сохраняться при отсутствии координат")
+        self.assertEqual(apt2["geo_source"], "none")
+        self.assertIsNone(apt2.get("geo_observed_at"), "geo_observed_at должен быть сброшен в None")
+
+    def test_invalid_coordinates_cannot_force_exact_or_caller_source(self):
+        """
+        Дефект оркестратора (b):
+        Входные данные с lat=95, lng=200, geo_precision='exact', geo_source='caller'
+        не должны приводить к lat=NULL с метаданными exact/caller.
+        """
+        apt_id = "test_provenance_b"
+        item_bad = {
+            "id": apt_id,
+            "source": "cian",
+            "title": "Невалидные координаты",
+            "price": 25000,
+            "address": "г. Томск, пр. Ленина, 50",
+            "city": "Томск",
+            "lat": 95.0,
+            "lng": 200.0,
+            "geo_precision": "exact",
+            "geo_source": "caller"
+        }
+        db.upsert_apartment(item_bad, db_path=self.temp_db)
+        apt = db.get_apartment_by_id(apt_id, db_path=self.temp_db)
+        self.assertIsNone(apt["lat"])
+        self.assertIsNone(apt["lng"])
+        self.assertEqual(apt["geo_precision"], "none", "Невалидные координаты обязаны иметь geo_precision='none'")
+        self.assertEqual(apt["geo_source"], "none", "При невалидных координатах geo_source не может быть 'caller'")
+        self.assertIsNone(apt.get("geo_observed_at"))
+
+    def test_legacy_avito_jitter_does_not_become_exact(self):
+        """
+        Координаты Авито и БезПосредников (включая синтетический legacy jitter)
+        не могут стать exact, даже если числовые значения попадают в диапазон Томска.
+        """
+        # 1. Попытка вставки через upsert с попыткой проставить 'exact'
+        item_avito = {
+            "id": "avito_jitter_1",
+            "source": "avito",
+            "title": "Авито со случайным джиттером",
+            "price": 20000,
+            "address": "г. Томск, ул. Фрунзе, 20",
+            "city": "Томск",
+            "lat": 56.485123,
+            "lng": 84.965432,
+            "geo_precision": "exact"
+        }
+        db.upsert_apartment(item_avito, db_path=self.temp_db)
+        apt = db.get_apartment_by_id("avito_jitter_1", db_path=self.temp_db)
+        self.assertIsNone(apt["lat"], "Синтетические координаты Авито должны быть отброшены")
+        self.assertIsNone(apt["lng"])
+        self.assertEqual(apt["geo_precision"], "none")
+
+        # 2. Нормализация старой записи через enrich_tomsk_geo
+        with db.get_connection(self.temp_db) as conn:
+            conn.execute("""
+            INSERT INTO apartments (id, source, title, price, address, city, district, lat, lng, geo_precision, geo_source)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """, ("legacy_avito_row", "avito", "Старая запись", 21000, "г. Томск, ул. Усова", "Томск", "Кировский район",
+                  56.461234, 84.971234, "exact", "legacy_jitter"))
+            conn.commit()
+
+        db.enrich_tomsk_geo(db_path=self.temp_db)
+        apt_legacy = db.get_apartment_by_id("legacy_avito_row", db_path=self.temp_db)
+        self.assertIsNone(apt_legacy["lat"])
+        self.assertIsNone(apt_legacy["lng"])
+        self.assertEqual(apt_legacy["geo_precision"], "none")
+        self.assertEqual(apt_legacy["geo_source"], "none")
+
+
+class TestSpatialPreFilterAndRadiusSearch(unittest.TestCase):
+    """
+    Тесты пространственной предварительной фильтрации (spatial pre-filter bbox)
+    и радиусного поиска в db.list_apartments_geo.
+    """
+
+    def setUp(self):
+        self.tf = tempfile.NamedTemporaryFile(suffix=".db", delete=False)
+        self.temp_db = self.tf.name
+        db.init_db(db_path=self.temp_db)
+
+    def tearDown(self):
+        if os.path.exists(self.temp_db):
+            os.remove(self.temp_db)
+
+    def test_radius_search_not_starved_by_distant_cheaper_apartments_with_limit(self):
+        """
+        Связка SQL LIMIT и радиуса:
+        Если в базе есть много дешёвых объектов за пределами радиуса,
+        spatial pre-filter в SQL не позволяет им вытеснить близкие подходящие квартиры.
+        """
+        center_lat = 56.4600
+        center_lng = 84.9700
+
+        # Вставляем 10 дешёвых квартир далеко от центра (~15 км, цена 10 000 руб)
+        for i in range(10):
+            db.upsert_apartment({
+                "id": f"distant_cheap_{i}",
+                "source": "cian",
+                "title": f"Далёкая дешёвая квартира {i}",
+                "price": 10000 + i * 100,
+                "address": "г. Томск, окраина",
+                "city": "Томск",
+                "lat": 56.5700,
+                "lng": 84.9700,
+                "geo_precision": "exact",
+                "geo_source": "cian"
+            }, db_path=self.temp_db)
+
+        # Вставляем 2 более дорогие квартиры прямо в центре (~100 м, цена 40 000 руб)
+        for i in range(2):
+            db.upsert_apartment({
+                "id": f"nearby_expensive_{i}",
+                "source": "cian",
+                "title": f"Близкая квартира {i}",
+                "price": 40000 + i * 500,
+                "address": "г. Томск, центр",
+                "city": "Томск",
+                "lat": 56.4605 + i * 0.0002,
+                "lng": 84.9705,
+                "geo_precision": "exact",
+                "geo_source": "cian"
+            }, db_path=self.temp_db)
+
+        # Запрашиваем радиус 1.0 км с limit=5
+        # Без spatial bbox pre-filter 5 слотов LIMIT заняли бы дешёвые далёкие квартиры (price ~10000),
+        # а затем в Python они были бы отброшены из-за dist > 1.0 км, дав пустой результат!
+        res = db.list_apartments_geo(
+            center_lat=center_lat,
+            center_lng=center_lng,
+            radius_km=1.0,
+            limit=5,
+            db_path=self.temp_db
+        )
+        returned_ids = {a["id"] for a in res["apartments"]}
+        self.assertIn("nearby_expensive_0", returned_ids, "Близкая квартира 0 должна попасть в результат")
+        self.assertIn("nearby_expensive_1", returned_ids, "Близкая квартира 1 должна попасть в результат")
+        self.assertEqual(len(res["apartments"]), 2)
+
+    def test_radius_search_without_center_coordinates_handled_safely(self):
+        """
+        Вызов с radius_km без center_lat/center_lng обрабатывается безопасно:
+        не падает с ошибкой, возвращает объекты без радиусной фильтрации и distance_km=None.
+        """
+        db.upsert_apartment({
+            "id": "apt_no_center_test",
+            "source": "cian",
+            "title": "Квартира",
+            "price": 25000,
+            "address": "г. Томск, ул. Ленина, 1",
+            "city": "Томск",
+            "lat": 56.4600,
+            "lng": 84.9700,
+            "geo_precision": "exact",
+            "geo_source": "cian"
+        }, db_path=self.temp_db)
+
+        res = db.list_apartments_geo(
+            radius_km=3.0,
+            center_lat=None,
+            center_lng=None,
+            db_path=self.temp_db
+        )
+        self.assertGreaterEqual(res["count"], 1)
+        for apt in res["apartments"]:
+            self.assertIsNone(apt["distance_km"], "Без координат центра distance_km не может быть вычислен")
+
+    def test_frontend_fallback_marked_unknown_not_exact(self):
+        """
+        Проверка исходного кода frontend:
+        getFallbackMapData не подставляет 'exact' по умолчанию для fallback-объектов,
+        а помечает их 'unknown', сбрасывает distance_km и исключает из точного поиска по радиусу.
+        """
+        frontend_map_service_path = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)),
+            "..", "..", "frontend", "src", "services", "mapService.ts"
+        )
+        with open(frontend_map_service_path, encoding="utf-8") as f:
+            code = f.read()
+
+        self.assertNotIn("geo_precision: o.geo_precision || 'exact'", code,
+                         "Frontend fallback не должен подставлять 'exact' по умолчанию")
+        self.assertIn("geo_precision: o.geo_precision || 'unknown'", code)
+        self.assertIn("geo_precision || 'unknown'", code)
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -13,6 +13,7 @@ from datetime import datetime, date, timedelta
 
 from geo_utils import (
     haversine_distance,
+    calc_radius_bbox,
     TOMSK_DISTRICT_RULES,
     TOMSK_AGGLOMERATION_ENVELOPE,
     TOMSK_CENTER_PLACEHOLDER_LAT,
@@ -155,7 +156,8 @@ def init_db(db_path=DB_PATH):
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             geo_precision TEXT DEFAULT 'none',
-            geo_source TEXT DEFAULT 'none'
+            geo_source TEXT DEFAULT 'none',
+            geo_observed_at TIMESTAMP
         );
         """)
 
@@ -188,7 +190,8 @@ def init_db(db_path=DB_PATH):
             ("updated_at", "TIMESTAMP"),
             ("is_alerted", "INTEGER DEFAULT 0"),
             ("geo_precision", "TEXT DEFAULT 'none'"),
-            ("geo_source", "TEXT DEFAULT 'none'")
+            ("geo_source", "TEXT DEFAULT 'none'"),
+            ("geo_observed_at", "TIMESTAMP")
         ]
         for col_name, col_type in cols_to_add:
             if col_name not in existing_cols:
@@ -438,17 +441,37 @@ def upsert_apartment(item: dict, db_path=DB_PATH):
             current_district=raw_dist
         ) if clean_city in ("Томск", "Пригород") else (raw_dist if raw_dist not in ("Советский район", "Кировский район", "Ленинский район", "Октябрьский район") else "")
 
+        # Строгий инвариант достоверности (provenance):
+        # 1. Невалидные, нулевые координаты или координаты из неподтверждённых источников (Авито, БезПосредников)
+        #    НИКОГДА не могут сохранять или получать статус 'exact' или 'approximate'.
+        # 2. Если координат нет, метаданные provenance строго сбрасываются в 'none'.
+        # 3. geo_observed_at фиксирует время подтверждения координат текущим запуском.
+        if clean_lat is None or clean_lng is None:
+            clean_lat = None
+            clean_lng = None
+            geo_precision = "none"
+            geo_source = "none"
+            geo_observed_at = None
+        else:
+            if item.get("geo_precision") == "approximate":
+                geo_precision = "approximate"
+                geo_source = item.get("geo_source") or source
+            else:
+                geo_precision = precision
+                geo_source = source if precision != "none" else "none"
+            geo_observed_at = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
+
         cursor.execute("""
         INSERT INTO apartments (
             id, source, is_secret_early_access, secret_until, title, price, deposit, commission,
             address, city, district, rooms, area, floor, total_floors, lat, lng,
             phone, owner_name, photos_json, description, url, updated_at,
-            geo_precision, geo_source
+            geo_precision, geo_source, geo_observed_at
         ) VALUES (
             :id, :source, :is_secret_early_access, :secret_until, :title, :price, :deposit, :commission,
             :address, :city, :district, :rooms, :area, :floor, :total_floors, :lat, :lng,
             :phone, :owner_name, :photos_json, :description, :url, CURRENT_TIMESTAMP,
-            :geo_precision, :geo_source
+            :geo_precision, :geo_source, :geo_observed_at
         )
         ON CONFLICT(id) DO UPDATE SET
             price = excluded.price,
@@ -459,10 +482,11 @@ def upsert_apartment(item: dict, db_path=DB_PATH):
             city = excluded.city,
             district = excluded.district,
             updated_at = CURRENT_TIMESTAMP,
-            lat = CASE WHEN excluded.lat IS NOT NULL THEN excluded.lat ELSE apartments.lat END,
-            lng = CASE WHEN excluded.lng IS NOT NULL THEN excluded.lng ELSE apartments.lng END,
-            geo_precision = CASE WHEN excluded.geo_precision != 'none' THEN excluded.geo_precision ELSE apartments.geo_precision END,
-            geo_source = CASE WHEN excluded.geo_source != 'none' THEN excluded.geo_source ELSE apartments.geo_source END
+            lat = excluded.lat,
+            lng = excluded.lng,
+            geo_precision = excluded.geo_precision,
+            geo_source = excluded.geo_source,
+            geo_observed_at = excluded.geo_observed_at
         """, {
             "id": str(item["id"]),
             "source": source,
@@ -483,6 +507,7 @@ def upsert_apartment(item: dict, db_path=DB_PATH):
             "lng": clean_lng,
             "geo_precision": geo_precision,
             "geo_source": geo_source,
+            "geo_observed_at": geo_observed_at,
             "phone": item.get("phone", ""),
             "owner_name": item.get("owner_name", "Собственник"),
             "photos_json": json.dumps(item.get("photos", []), ensure_ascii=False) if isinstance(item.get("photos"), list) else item.get("photos_json", "[]"),
@@ -659,7 +684,11 @@ def enrich_tomsk_geo(db_path=DB_PATH):
         # Убедимся, что новые колонки присутствуют
         cursor.execute("PRAGMA table_info(apartments)")
         existing_cols = {row["name"] for row in cursor.fetchall()}
-        for col_name, col_def in [("geo_precision", "TEXT DEFAULT 'none'"), ("geo_source", "TEXT DEFAULT 'none'")]:
+        for col_name, col_def in [
+            ("geo_precision", "TEXT DEFAULT 'none'"),
+            ("geo_source", "TEXT DEFAULT 'none'"),
+            ("geo_observed_at", "TIMESTAMP")
+        ]:
             if col_name not in existing_cols:
                 try:
                     cursor.execute(f"ALTER TABLE apartments ADD COLUMN {col_name} {col_def}")
@@ -667,7 +696,7 @@ def enrich_tomsk_geo(db_path=DB_PATH):
                     pass
 
         cursor.execute("""
-        SELECT id, address, title, city, district, lat, lng, source, geo_precision, geo_source
+        SELECT id, address, title, city, district, lat, lng, source, geo_precision, geo_source, geo_observed_at
         FROM apartments
         """)
         rows = cursor.fetchall()
@@ -692,7 +721,15 @@ def enrich_tomsk_geo(db_path=DB_PATH):
                 city=new_city,
                 source=source
             )
-            geo_source = source if precision != "none" else "none"
+            if clean_lat is None or clean_lng is None:
+                clean_lat = None
+                clean_lng = None
+                precision = "none"
+                geo_source = "none"
+                geo_observed_at = None
+            else:
+                geo_source = source if precision != "none" else "none"
+                geo_observed_at = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
 
             # 3. Определяем район: для других городов район Томска НЕДОПУСТИМ;
             # для Томска fallback на 'Советский район' ИСКЛЮЧЁН.
@@ -710,14 +747,15 @@ def enrich_tomsk_geo(db_path=DB_PATH):
             city_changed = (new_city != current_city)
             coords_changed = (clean_lat != current_lat or clean_lng != current_lng)
             prec_changed = (r["geo_precision"] != precision)
+            src_changed = (r["geo_source"] != geo_source)
 
-            if dist_changed or city_changed or coords_changed or prec_changed:
+            if dist_changed or city_changed or coords_changed or prec_changed or src_changed:
                 cursor.execute("""
                 UPDATE apartments
                 SET city = ?, district = ?, lat = ?, lng = ?, geo_precision = ?, geo_source = ?,
-                    updated_at = CURRENT_TIMESTAMP
+                    geo_observed_at = ?, updated_at = CURRENT_TIMESTAMP
                 WHERE id = ?
-                """, (new_city, new_district or "", clean_lat, clean_lng, precision, geo_source, apt_id))
+                """, (new_city, new_district or "", clean_lat, clean_lng, precision, geo_source, geo_observed_at, apt_id))
                 updated += 1
 
         conn.commit()
@@ -736,6 +774,22 @@ def list_apartments_geo(
     limit: int = 250,
     db_path=DB_PATH
 ) -> dict:
+    """
+    Возвращает гео-точки для карты и радиусного поиска.
+
+    Политика точности (provenance):
+    - 'exact': проверенные координаты от подтверждённого источника. Участвуют в радиусном поиске
+      и имеют вычисленный distance_km.
+    - 'approximate': центроид населённого пункта или района (поддерживается моделью, но текущие парсеры
+      не генерируют). На карте отображаются, но НЕ включаются в поиск по точному радиусу (distance_km=None).
+    - 'unknown': локальный fallback без проверенной точки; не имеет distance_km и исключается из радиуса.
+    - 'none' и синтетические заглушки центра исключаются из карты.
+
+    Spatial pre-filter:
+    - При наличии center_lat, center_lng и radius_km формируется bounding box в SQL.
+      Это исключает ситуацию, когда дешёвые объекты за пределами радиуса вытесняют близкие квартиры через LIMIT.
+    - Если radius_km передан без координат центра, радиусная фильтрация не применяется.
+    """
     with get_connection(db_path) as conn:
         cursor = conn.cursor()
 
@@ -784,8 +838,18 @@ def list_apartments_geo(
             except Exception:
                 pass
 
+        # Spatial pre-filter для радиусного поиска:
+        has_radius_filter = (center_lat is not None and center_lng is not None and radius_km is not None)
+        if has_radius_filter:
+            r_min_lat, r_max_lat, r_min_lng, r_max_lng = calc_radius_bbox(center_lat, center_lng, radius_km)
+            query += " AND lat >= ? AND lat <= ? AND lng >= ? AND lng <= ?"
+            params.extend([r_min_lat, r_max_lat, r_min_lng, r_max_lng])
+            if has_precision:
+                query += " AND geo_precision = 'exact'"
+
+        sql_limit = max(limit * 3, 250) if has_radius_filter else limit
         query += " ORDER BY is_secret_early_access DESC, price ASC LIMIT ?"
-        params.append(limit)
+        params.append(sql_limit)
 
         cursor.execute(query, params)
         rows = cursor.fetchall()
@@ -850,6 +914,8 @@ def list_apartments_geo(
         if center_lat is not None and center_lng is not None:
             # Точные расстояния сортируются первыми по возрастанию; точки без точного расстояния идут следом
             points.sort(key=lambda p: (0 if p["distance_km"] is not None else 1, p["distance_km"] or 999999))
+
+        points = points[:limit]
 
         return {
             "count": len(points),
