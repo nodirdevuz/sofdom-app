@@ -1627,23 +1627,79 @@ class TestCityProfileArchitectureAndExtensibility(unittest.TestCase):
         )
         self.assertEqual(res, "Красноярск")
 
+    def test_street_names_in_tomsk_never_override_city_to_regional_settlements(self):
+        """
+        Регрессионные тесты для четырёх томских адресов с названиями соседних населённых пунктов.
+        Названия улиц, переулков, проездов и трактов в черте Томска категорически не меняют город.
+        """
+        # 1. С явным указанием 'г. Томск' / 'Томск'
+        self.assertEqual(detect_city("г. Томск, Северский проезд, 5"), "Томск")
+        self.assertEqual(detect_city("Томск, Колпашевская улица, 7"), "Томск")
+        self.assertEqual(detect_city("Томск, Асиновский тракт, 4"), "Томск")
+        self.assertEqual(detect_city("Томск, Стрежевой переулок, 3"), "Томск")
+
+        # 2. Без префикса города (только адрес улицы) при default_city='Томск'
+        self.assertEqual(detect_city("Северский проезд, 5"), "Томск")
+        self.assertEqual(detect_city("Колпашевская улица, 7"), "Томск")
+        self.assertEqual(detect_city("Асиновский тракт, 4"), "Томск")
+        self.assertEqual(detect_city("Стрежевой переулок, 3"), "Томск")
+
+    def test_tomsk_street_collisions_for_all_oblast_dictionary_keys(self):
+        """
+        Проверка улиц Томска, названия которых происходят от населённых пунктов области.
+        Ни один словарный ключ (Подгорная, Белоярская, Кожевникова, Мельничный и др.)
+        не должен ложно превращать Томск в село области.
+        """
+        # Большая Подгорная улица (Ленинский район Томска) не должна определяться как Подгорное
+        self.assertEqual(detect_city("г. Томск, ул. Большая Подгорная, 10"), "Томск")
+        self.assertEqual(detect_city("ул. Большая Подгорная, 10"), "Томск")
+
+        # Другие реальные улицы Томска: Белоярская, Кожевникова, Мельничный, Самусьский, Александровская
+        self.assertEqual(detect_city("г. Томск, ул. Белоярская, 2"), "Томск")
+        self.assertEqual(detect_city("г. Томск, ул. Кожевникова, 15"), "Томск")
+        self.assertEqual(detect_city("г. Томск, пер. Мельничный, 8"), "Томск")
+        self.assertEqual(detect_city("г. Томск, Самусьский тракт, 1"), "Томск")
+        self.assertEqual(detect_city("г. Томск, ул. Александровская, 4"), "Томск")
+
     def test_tomsk_city_detection_preserves_all_settlements_and_heuristics(self):
-        """Для Томска сохраняются все правила обнаружения городов области и координатная эвристика SD-1075."""
-        # 1. Прямое упоминание Северска
+        """
+        Позитивные сценарии: для реальных населённых пунктов области
+        распознавание сохраняется в полном объёме.
+        """
+        # 1. Северск (с 'г.' и без)
         self.assertEqual(detect_city("г. Северск, ул. Победы, 1"), "Северск")
+        self.assertEqual(detect_city("Северск, ул. Победы, 1"), "Северск")
 
         # 2. Населённые пункты из non_city_settlements
         self.assertEqual(detect_city("г. Колпашево, ул. Ленина, 10"), "Колпашево")
-        self.assertEqual(detect_city("г. Асино, ул. Чехова, 5"), "Асино")
-        self.assertEqual(detect_city("г. Стрежевой, мкр 2, д. 20"), "Стрежевой")
+        self.assertEqual(detect_city("Колпашево, ул. Ленина, 10"), "Колпашево")
+        self.assertEqual(detect_city("Томская область, Колпашево, ул. Ленина"), "Колпашево")
+        self.assertEqual(detect_city("Томская область, р-н Колпашевский, ул Нефтеразведчиков"), "Колпашево")
 
-        # 3. Региональная координатная эвристика Колпашево (SD-1075)
+        # 3. Асино и Стрежевой
+        self.assertEqual(detect_city("г. Асино, ул. Чехова, 5"), "Асино")
+        self.assertEqual(detect_city("Асино, ул. Чехова, 5"), "Асино")
+        self.assertEqual(detect_city("г. Стрежевой, мкр 2, д. 20"), "Стрежевой")
+        self.assertEqual(detect_city("Стрежевой, мкр 2, д. 20"), "Стрежевой")
+
+        # 4. Другие пункты области с префиксами 'село', 'с.', 'пгт', 'посёлок'
+        self.assertEqual(detect_city("село Подгорное, ул. Ленина, 1"), "Подгорное")
+        self.assertEqual(detect_city("с. Подгорное, ул. Ленина, 1"), "Подгорное")
+        self.assertEqual(detect_city("пгт Белый Яр, ул. Гагарина, 5"), "Белый Яр")
+        self.assertEqual(detect_city("с. Мельниково, ул. Калинина, 3"), "Мельниково")
+        self.assertEqual(detect_city("посёлок Самусь, ул. Ленина, 10"), "Самусь")
+
+        # 5. Региональная координатная эвристика Колпашево (SD-1075)
         self.assertEqual(
             detect_city("Томская область, р-н Колпашевский, ул Нефтеразведчиков", lat=58.31, lng=82.90),
             "Колпашево"
         )
+        self.assertEqual(
+            detect_city("Томская область, ул Нефтеразведчиков", lat=58.31, lng=82.90),
+            "Колпашево"
+        )
 
-        # 4. Обычный адрес Томска
+        # 6. Обычный адрес Томска
         self.assertEqual(detect_city("г. Томск, ул. Кирова, 15"), "Томск")
 
     def test_tomsk_existing_geo_behavior_fully_preserved(self):

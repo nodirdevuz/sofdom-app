@@ -30,6 +30,30 @@ class DistrictRule(NamedTuple):
     keywords: Tuple[str, ...]
 
 
+# Стандартные маркеры улично-дорожной сети и адресных элементов
+STREET_TYPE_MARKERS = {
+    'ул', 'улица', 'улицы', 'улице', 'улицу',
+    'пер', 'переулок', 'переулка', 'переулке', 'переулком',
+    'пр', 'проезд', 'проезда', 'проезде', 'проездом',
+    'просп', 'проспект', 'проспекта', 'проспекте', 'пр-кт', 'пр-т',
+    'тр', 'тракт', 'тракта', 'тракте', 'трактом', 'тр-т',
+    'туп', 'тупик', 'тупика', 'тупике',
+    'бул', 'бульвар', 'бульвара', 'бульваре',
+    'наб', 'набережная', 'набережной',
+    'ш', 'шоссе',
+    'пл', 'площадь', 'площади',
+    'аллея', 'аллее',
+    'мкр', 'микрорайон', 'микрорайона',
+    'квартал', 'кв-л'
+}
+
+
+def is_street_segment(segment: str) -> bool:
+    """Проверяет, содержит ли сегмент адреса маркер улично-дорожной сети."""
+    tokens = re.findall(r'[а-яёa-z0-9\-]+', segment.lower())
+    return any(t in STREET_TYPE_MARKERS for t in tokens)
+
+
 @dataclass
 class RegionalCoordinateHeuristic:
     """
@@ -92,6 +116,24 @@ class CityProfile:
         except (ValueError, TypeError):
             return False
 
+    def has_explicit_profile_city(self, address: str) -> bool:
+        """
+        Проверяет, заявлен ли профильный город явно как населённый пункт в адресе
+        (например, 'г. Томск', 'город Томск' или первый сегмент 'Томск').
+        """
+        addr_lower = address.lower()
+        all_names = [self.name.lower()] + [a.lower() for a in self.aliases]
+        for name in all_names:
+            if re.search(r'\b(?:г|гор|город)\.?\s*' + re.escape(name) + r'\b', addr_lower):
+                return True
+        segments = [s.strip().lower() for s in re.split(r'[,;/]', addr_lower) if s.strip()]
+        for s in segments[:2]:
+            tokens = re.findall(r'[а-яёa-z0-9\-]+', s)
+            clean_tokens = [t for t in tokens if t not in {'г', 'гор', 'город', 'г-д'}]
+            if clean_tokens and clean_tokens[0] in all_names:
+                return True
+        return False
+
     def detect_settlement(
         self,
         address: Optional[str],
@@ -101,16 +143,41 @@ class CityProfile:
         """
         Проверяет, относится ли адрес к другому населённому пункту региона
         по словарю региональных пунктов или координатным эвристикам профиля.
-        Возвращает название населённого пункта (например, 'Колпашево', 'Северск') или None.
+        Гарантирует:
+        1. Если в адресе явно указан основной город профиля ('г. Томск', 'Томск') —
+           названия улиц (Северский проезд, Колпашевская ул., Асиновский тракт и т.д.)
+           категорически не могут переопределить город на соседний населённый пункт.
+        2. Сегменты адреса с маркерами улично-дорожной сети (проезд, улица, тракт,
+           переулок и т.д.) не считаются населёнными пунктами.
+        3. Сохраняются явные населённые пункты региона ('г. Северск', 'Колпашево', 'р-н Колпашевский')
+           и подтверждённые координатные эвристики (SD-1075).
         """
-        addr_clean = (address or "").lower()
+        if not address:
+            return None
 
-        # 1. Поиск по ключевым словам населённых пунктов региона
-        for pattern, settlement_name in self.non_city_settlements.items():
-            if pattern in addr_clean:
-                return settlement_name
+        # 1. Если в адресе явно указан основной город профиля (например, 'г. Томск', 'Томск') —
+        # названия улиц, трактов и переулков не могут переопределить город.
+        if self.has_explicit_profile_city(address):
+            return None
 
-        # 2. Поиск по координатным региональным эвристикам
+        # 2. Поиск по сегментам адреса, исключая сегменты улично-дорожной сети
+        segments = [s.strip() for s in re.split(r'[,;/]', address) if s.strip()]
+        for seg in segments:
+            if is_street_segment(seg):
+                continue
+            seg_lower = seg.lower()
+            for pattern, s_name in self.non_city_settlements.items():
+                if pattern in seg_lower:
+                    return s_name
+
+        # 3. Поиск по явным префиксам населённых пунктов или районов в сплошном тексте
+        # (например: 'г. Северск', 'с. Подгорное', 'р-н Колпашевский', 'пгт Белый Яр')
+        addr_clean = address.lower()
+        for pattern, s_name in self.non_city_settlements.items():
+            if re.search(r'\b(?:г|гор|город|с|село|п|пос|посёлок|поселок|пгт|рп|р\.п\.|р-н|район)\.?\s*' + pattern, addr_clean):
+                return s_name
+
+        # 4. Поиск по координатным региональным эвристикам (например, SD-1075 для севера области)
         if lat is not None and lng is not None and self.regional_heuristics:
             try:
                 f_lat = float(lat)
