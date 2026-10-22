@@ -25,16 +25,16 @@
       --avito-chat-bg: #f0f2f5;
       --avito-chat-hover: #e4e6eb;
 
-      /* Mapped Primary Brand Variables */
-      --brand-yellow: #04e061;
-      --brand-yellow-rgb: 4, 224, 97;
-      --brand-yellow-hover: #03c856;
-      --brand-yellow-gradient: linear-gradient(135deg, #04e061 0%, #02b34c 100%);
-      --brand-yellow-matte: rgba(4, 224, 97, 0.12);
-      --brand-yellow-matte-hover: rgba(4, 224, 97, 0.2);
-      --brand-yellow-matte-border: rgba(4, 224, 97, 0.32);
-      --brand-yellow-glow: 0 4px 16px rgba(4, 224, 97, 0.28);
-      --brand-yellow-text: #ffffff;
+      /* Mapped Primary Brand Variables (Signature Warm Yellow) */
+      --brand-yellow: #f59e0b;
+      --brand-yellow-rgb: 245, 158, 11;
+      --brand-yellow-hover: #d97706;
+      --brand-yellow-gradient: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+      --brand-yellow-matte: rgba(245, 158, 11, 0.12);
+      --brand-yellow-matte-hover: rgba(245, 158, 11, 0.2);
+      --brand-yellow-matte-border: rgba(245, 158, 11, 0.32);
+      --brand-yellow-glow: 0 4px 16px rgba(245, 158, 11, 0.28);
+      --brand-yellow-text: #b45309;
       --accent-dark: #111418;
       
       --radius-sm: 8px;
@@ -70,15 +70,15 @@
       --text-sub: #7a8593;
       --border-light: #2b3340;
       
-      --brand-yellow: #04e061;
-      --brand-yellow-rgb: 4, 224, 97;
-      --brand-yellow-hover: #03c856;
-      --brand-yellow-gradient: linear-gradient(135deg, #04e061 0%, #02b34c 100%);
-      --brand-yellow-matte: rgba(4, 224, 97, 0.2);
-      --brand-yellow-matte-hover: rgba(4, 224, 97, 0.3);
-      --brand-yellow-matte-border: rgba(4, 224, 97, 0.44);
-      --brand-yellow-glow: 0 4px 18px rgba(4, 224, 97, 0.35);
-      --brand-yellow-text: #ffffff;
+      --brand-yellow: #fbbf24;
+      --brand-yellow-rgb: 251, 191, 36;
+      --brand-yellow-hover: #f59e0b;
+      --brand-yellow-gradient: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+      --brand-yellow-matte: rgba(251, 191, 36, 0.2);
+      --brand-yellow-matte-hover: rgba(251, 191, 36, 0.3);
+      --brand-yellow-matte-border: rgba(251, 191, 36, 0.44);
+      --brand-yellow-glow: 0 4px 18px rgba(251, 191, 36, 0.35);
+      --brand-yellow-text: #fbbf24;
       --accent-dark: #f7f8f9;
 
       --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4);
@@ -561,22 +561,24 @@
     }
     .vip-card-img-wrap {
       position: relative;
-      aspect-ratio: 4 / 5.2;
-      height: auto;
+      height: 150px;
+      min-height: 150px;
+      max-height: 150px;
       width: 100%;
-      border-radius: 5px 5px 0 0;
+      border-radius: 6px 6px 0 0;
       background: #0f172a;
       overflow: hidden;
     }
     .vip-card-img-wrap img {
       width: 100%;
-      height: 100%;
+      height: 150px;
       object-fit: cover;
       object-position: center center;
       display: block;
       image-rendering: -webkit-optimize-contrast;
       backface-visibility: hidden;
       transform: translateZ(0);
+      border-radius: 6px 6px 0 0;
     }
     .vip-card-body {
       padding: 9px 10px 11px;
@@ -598,12 +600,12 @@
       margin: 0 0 2px 0;
     }
     .vip-price {
-      font-size: 15.5px;
-      font-weight: 600;
+      font-size: 14.5px;
+      font-weight: 750;
       letter-spacing: -0.2px;
       color: var(--text-main, #111418);
       white-space: nowrap;
-      margin: 0 0 2px 0;
+      margin: 1px 0 2px 0;
     }
     .vip-metro {
       font-size: 12px;
@@ -1069,13 +1071,20 @@
       transform: translateY(-2px);
     }
     .offer-card.card-grid-layout .card-gallery-wrap {
-      aspect-ratio: 4 / 5.2;
-      height: auto;
+      height: 150px;
+      min-height: 150px;
+      max-height: 150px;
       width: 100%;
-      border-radius: 5px 5px 0 0;
+      border-radius: 6px 6px 0 0;
       flex-shrink: 0;
       overflow: hidden;
       position: relative;
+    }
+    .offer-card.card-grid-layout .gallery-slide-img {
+      height: 150px;
+      width: 100%;
+      object-fit: cover;
+      border-radius: 6px 6px 0 0;
     }
     .offer-card.card-grid-layout .desktop-only-content {
       display: none !important;
@@ -1083,29 +1092,50 @@
     .offer-card.card-grid-layout .card-mobile-body {
       display: flex !important;
       flex-direction: column !important;
-      gap: 3px !important;
-      padding: 10px 12px 12px !important;
+      gap: 2px !important;
+      padding: 9px 10px 11px !important;
       background: #ffffff !important;
       box-sizing: border-box !important;
     }
+    .offer-card.card-grid-layout .card-mobile-body .card-mobile-title-row {
+      display: flex !important;
+      align-items: flex-start !important;
+      justify-content: space-between !important;
+      gap: 6px !important;
+      width: 100% !important;
+    }
     .offer-card.card-grid-layout .card-mobile-body .card-mobile-title {
-      font-size: 13.5px !important;
+      font-size: 13px !important;
       font-weight: 400 !important;
-      line-height: 1.35 !important;
+      line-height: 1.3 !important;
       color: #111418 !important;
       display: -webkit-box !important;
       -webkit-line-clamp: 2 !important;
       -webkit-box-orient: vertical !important;
       overflow: hidden !important;
-      margin: 0 0 2px 0 !important;
+      margin: 0 !important;
+      flex: 1 !important;
+    }
+    .offer-card.card-grid-layout .card-mobile-body .card-inline-heart-btn {
+      background: transparent !important;
+      border: none !important;
+      padding: 0 !important;
+      margin-top: 1px !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      cursor: pointer !important;
+      flex-shrink: 0 !important;
+      width: 20px !important;
+      height: 20px !important;
     }
     .offer-card.card-grid-layout .card-mobile-body .card-mobile-price {
-      font-size: 16px !important;
-      font-weight: 600 !important;
+      font-size: 14.5px !important;
+      font-weight: 750 !important;
       line-height: 1.25 !important;
       color: #111418 !important;
       white-space: nowrap !important;
-      margin: 0 0 2px 0 !important;
+      margin: 2px 0 1px 0 !important;
     }
     .offer-card.card-grid-layout .card-mobile-body .card-mobile-location {
       font-size: 12px !important;
@@ -1122,21 +1152,12 @@
       display: none;
     }
 
-
     /* =======================================================
        EXACT JOYMEE PRODUCT DETAIL PAGE (PIXEL-PERFECT CLONE)
        ======================================================= */
     #feedView {
-      animation: feedFadeIn 0.2s var(--ease-out-apple) both;
-      will-change: opacity;
-    }
-    @keyframes feedFadeIn {
-      from {
-        opacity: 0.9;
-      }
-      to {
-        opacity: 1;
-      }
+      display: block;
+      animation: none !important;
     }
 
     #detailSection {
@@ -2919,21 +2940,30 @@
         border-color: var(--border-light, #e8eaed) !important;
       }
 
-      /* Avito photo tile: Taller portrait aspect ratio (4/5.2) showing full room height, sharper top corners (5px) */
+      /* Exact 150px photo tile with subtle 6px top corners */
       .offer-card .card-gallery-wrap,
       .offer-card.card-list-layout .card-gallery-wrap,
       .offer-card.card-grid-layout .card-gallery-wrap {
-        aspect-ratio: 4 / 5.2 !important;
-        height: auto !important;
-        min-height: 0 !important;
-        max-height: none !important;
+        aspect-ratio: unset !important;
+        height: 150px !important;
+        min-height: 150px !important;
+        max-height: 150px !important;
         width: 100% !important;
-        border-radius: 5px 5px 0 0 !important;
+        border-radius: 6px 6px 0 0 !important;
         transform: none !important;
         background: #0f172a !important;
         position: relative !important;
         overflow: hidden !important;
         flex-shrink: 0 !important;
+      }
+      .offer-card .gallery-slide-img,
+      .offer-card.card-grid-layout .gallery-slide-img {
+        height: 150px !important;
+        min-height: 150px !important;
+        max-height: 150px !important;
+        width: 100% !important;
+        object-fit: cover !important;
+        border-radius: 6px 6px 0 0 !important;
       }
       /* Prevent horizontal slider from hijacking vertical feed scrolling on mobile */
       .offer-card .gallery-slider {
@@ -2941,12 +2971,10 @@
         touch-action: pan-y !important;
         overflow-x: hidden !important;
       }
-      .offer-card .card-heart-btn {
-        pointer-events: auto !important;
-        top: 8px !important;
-        right: 8px !important;
-      }
-      .offer-card .gallery-arrow {
+      /* Clean photo surface: No overlays, counters or hearts on photo */
+      .offer-card .card-heart-btn,
+      .offer-card .gallery-arrow,
+      .offer-card .gallery-counter {
         display: none !important;
       }
       .offer-card .card-badge-owner {
@@ -2957,18 +2985,6 @@
         padding: 2px 6px !important;
         border-radius: 3px !important;
       }
-      .offer-card .gallery-counter {
-        bottom: 6px !important;
-        left: 6px !important;
-        right: auto !important;
-        font-size: 10px !important;
-        font-weight: 600 !important;
-        padding: 2px 6px !important;
-        border-radius: 3px !important;
-        background: rgba(17, 20, 24, 0.65) !important;
-        backdrop-filter: blur(4px) !important;
-        color: #ffffff !important;
-      }
 
       .desktop-only-content {
         display: none !important;
@@ -2977,36 +2993,61 @@
         display: none !important;
       }
 
-      /* Avito Exact Specification: Photo -> Title (regular) -> Price (semi-bold) -> District (gray) */
+      /* Avito Exact Specification: Photo (150px) -> Title + Heart -> Price (bolder 750) -> District (gray) */
       .card-mobile-body {
         display: flex !important;
         flex-direction: column !important;
-        padding: 9px 10px 11px !important;
+        padding: 8px 10px 10px !important;
         gap: 2px !important;
         background: #ffffff !important;
         box-sizing: border-box !important;
       }
-      /* 1. Title: Not bold, clear normal words, 2 lines clamp */
+      /* 1. Title Row: Title (regular, not bold, 13px) + Inline Heart to the right */
+      .card-mobile-title-row {
+        display: flex !important;
+        align-items: flex-start !important;
+        justify-content: space-between !important;
+        gap: 6px !important;
+        width: 100% !important;
+      }
       .card-mobile-title {
         font-size: 13px !important;
         font-weight: 400 !important;
-        line-height: 1.35 !important;
+        line-height: 1.3 !important;
         color: var(--text-main, #111418) !important;
         display: -webkit-box !important;
         -webkit-line-clamp: 2 !important;
         -webkit-box-orient: vertical !important;
         overflow: hidden !important;
-        margin: 0 0 2px 0 !important;
+        margin: 0 !important;
+        flex: 1 !important;
       }
-      /* 2. Price: Semi-bold on one single line (25 000 ₽ / мес.) */
+      .card-inline-heart-btn {
+        background: transparent !important;
+        border: none !important;
+        padding: 0 !important;
+        margin-top: 1px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        cursor: pointer !important;
+        flex-shrink: 0 !important;
+        width: 20px !important;
+        height: 20px !important;
+        transition: transform 0.15s ease !important;
+      }
+      .card-inline-heart-btn:active {
+        transform: scale(0.85) !important;
+      }
+      /* 2. Price: Bold 750, slightly smaller 14.5px, single line (25 000 ₽ / мес.) */
       .card-mobile-price {
-        font-size: 15.5px !important;
-        font-weight: 600 !important;
+        font-size: 14.5px !important;
+        font-weight: 750 !important;
         line-height: 1.25 !important;
         letter-spacing: -0.2px !important;
         color: var(--text-main, #111418) !important;
         white-space: nowrap !important;
-        margin: 0 0 2px 0 !important;
+        margin: 2px 0 1px 0 !important;
       }
       /* 3. Location: Subtle gray (Томск, р-н ...) */
       .card-mobile-location {
@@ -4283,27 +4324,26 @@
   flex: 1.25;
   height: 48px;
   padding: 0 18px;
-  background: var(--avito-green) !important;
-  color: #ffffff !important;
-  font-weight: 700;
+  background: var(--brand-yellow-gradient, linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)) !important;
+  color: #111418 !important;
+  font-weight: 750;
   font-size: 15px;
   border-radius: 12px;
   border: none;
-  box-shadow: 0 4px 14px rgba(4, 224, 97, 0.32) !important;
+  box-shadow: 0 4px 14px rgba(245, 158, 11, 0.32) !important;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
   cursor: pointer;
-  transition: background 0.15s ease, transform 0.15s ease;
+  transition: opacity 0.15s ease, transform 0.15s ease;
   text-decoration: none;
 }
 .joymee-seller-actions .joymee-btn-seller-call:hover {
-  background: var(--avito-green-hover) !important;
-  color: #ffffff !important;
+  opacity: 0.95;
+  color: #111418 !important;
 }
 .joymee-seller-actions .joymee-btn-seller-call:active {
-  background: var(--avito-green-active) !important;
   transform: scale(0.97);
 }
 .joymee-btn-seller-chat {
@@ -4381,25 +4421,24 @@
   flex: 1.25;
   height: 48px;
   border-radius: 12px;
-  background: var(--avito-green);
-  color: #ffffff !important;
+  background: var(--brand-yellow-gradient, linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%));
+  color: #111418 !important;
   font-size: 15px;
-  font-weight: 700;
+  font-weight: 750;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  box-shadow: 0 4px 14px rgba(4, 224, 97, 0.32);
+  box-shadow: 0 4px 14px rgba(245, 158, 11, 0.32);
   text-decoration: none;
   cursor: pointer;
   border: none;
-  transition: transform 0.15s ease, background 0.15s ease;
+  transition: transform 0.15s ease, opacity 0.15s ease;
 }
 .avito-btn-call:hover {
-  background: var(--avito-green-hover);
+  opacity: 0.95;
 }
 .avito-btn-call:active {
-  background: var(--avito-green-active);
   transform: scale(0.97);
 }
 .avito-btn-chat {

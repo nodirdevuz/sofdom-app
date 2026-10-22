@@ -68,7 +68,7 @@ export const ListingCard: React.FC<ListingCardProps> = ({
       className={`offer-card ${layoutMode === 'list' ? 'card-list-layout' : 'card-grid-layout'}`}
       onClick={handleOpen}
     >
-      {/* 1. Photo Gallery */}
+      {/* 1. Photo Gallery — Clean photo surface, no overlay icons or numbers */}
       <div className="card-gallery-wrap" onClick={handleOpen}>
         <div className="gallery-slider" ref={sliderRef} onScroll={handleScroll}>
           {offer.photos.slice(0, 3).map((p, idx) => (
@@ -90,32 +90,6 @@ export const ListingCard: React.FC<ListingCardProps> = ({
             />
           ))}
         </div>
-
-        {/* Avito Benchmark Heart Favorite Button */}
-        <button
-          className={`card-heart-btn ${isFav ? 'active' : ''} clickable`}
-          onClick={handleToggleFav}
-          aria-label={isFav ? "Удалить из избранного" : "Добавить в избранное"}
-          title={isFav ? "В избранном" : "В избранное"}
-        >
-          <svg width="18" height="18" viewBox="0 0 24 24" fill={isFav ? '#ff6163' : 'rgba(0,0,0,0.3)'} stroke={isFav ? '#ff6163' : '#ffffff'} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
-          </svg>
-        </button>
-
-        <button className="gallery-arrow left" onClick={(e) => scrollSlider(e, -1)} aria-label="Предыдущее фото">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <path d="m15 18-6-6 6-6" />
-          </svg>
-        </button>
-        <button className="gallery-arrow right" onClick={(e) => scrollSlider(e, 1)} aria-label="Следующее фото">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <path d="m9 18 6-6-6-6" />
-          </svg>
-        </button>
-        <span className="gallery-counter">
-          {activePhotoIdx + 1}/{offer.photos_count || offer.photos.length}
-        </span>
       </div>
 
       {/* 2. Desktop List View: Middle Specs (Hidden on mobile 2-tile view) */}
@@ -162,15 +136,28 @@ export const ListingCard: React.FC<ListingCardProps> = ({
         </div>
       </div>
 
-      {/* 4. Mobile 2-Tile Body (Avito Exact Hierarchy: Photo -> Title -> Price -> District) */}
+      {/* 4. Mobile 2-Tile Body (Avito Exact Hierarchy: Photo -> Title + Heart -> Price -> District) */}
       <div className="card-mobile-body">
-        {/* Шаг 1: Название квартиры (не жирное, обычными аккуратными словами) */}
-        <h3 className="card-mobile-title">{offer.title}</h3>
+        {/* Шаг 1: Название квартиры (не жирное, аккуратное) + Лайк рядом на одной строке */}
+        <div className="card-mobile-title-row">
+          <h3 className="card-mobile-title">{offer.title}</h3>
+          <button
+            type="button"
+            className={`card-inline-heart-btn ${isFav ? 'active' : ''} clickable`}
+            onClick={handleToggleFav}
+            aria-label={isFav ? "Удалить из избранного" : "Добавить в избранное"}
+            title={isFav ? "В избранном" : "В избранное"}
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill={isFav ? '#ff6163' : 'none'} stroke={isFav ? '#ff6163' : '#8f98a3'} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
+            </svg>
+          </button>
+        </div>
 
-        {/* Шаг 2: Цена на одной строке (чуть-чуть жирное) */}
+        {/* Шаг 2: Цена на одной строке (чуть меньше, жирнее) */}
         <div className="card-mobile-price">{formattedPrice}</div>
 
-        {/* Шаг 3: Район (на сером, незаметными: Томск, р-н ...) */}
+        {/* Шаг 3: Район внизу (Томск, р-н ...) */}
         <div className="card-mobile-location">{districtText}</div>
       </div>
     </article>

@@ -242,7 +242,6 @@ export const DetailPage: React.FC<DetailPageProps> = ({
           <span>Назад к объявлениям</span>
         </button>
         <div className="joymee-topbar-meta">
-          <span className="joymee-id-badge">№ {offer.id}</span>
           <span className="joymee-detail-time">{offer.time_ago || 'Сегодня'}</span>
         </div>
       </div>
@@ -340,18 +339,6 @@ export const DetailPage: React.FC<DetailPageProps> = ({
                 />
               ))}
             </div>
-
-            {/* SofDom Photo Shield in bottom right corner */}
-            <div className="detail-photo-shield" onClick={() => onOpenLightbox(activePhotoIdx)}>
-              <div className="shield-top">
-                <span className="shield-dot" />
-                <span>SofDom • Проверено</span>
-              </div>
-              <div className="shield-sub">
-                <span>№ {offer.id}</span>
-                <span className="shield-tag">Оригинал</span>
-              </div>
-            </div>
           </div>
 
           {/* Thumbnails row below photo */}
@@ -436,23 +423,6 @@ export const DetailPage: React.FC<DetailPageProps> = ({
                 <span>Написать</span>
               </button>
             </div>
-
-            {onToggleRented && (
-              <button
-                className={`joymee-btn-unpublish-toggle clickable ${isRented ? 'is-rented' : ''}`}
-                onClick={() => {
-                  const msg = isRented
-                    ? 'Вернуть объявление в активный поиск?'
-                    : 'Снять объявление с публикации? Оно перестанет показываться арендаторам в поиске.';
-                  if (window.confirm(msg)) {
-                    onToggleRented(offer.id);
-                  }
-                }}
-                title={isRented ? "Вернуть в активный поиск" : "Снять объявление с публикации"}
-              >
-                {isRented ? '↩ Вернуть в активный поиск' : '🏠 Я собственник: Снять с публикации (сдано)'}
-              </button>
-            )}
           </div>
         </div>
 
@@ -536,23 +506,6 @@ export const DetailPage: React.FC<DetailPageProps> = ({
                 <span>Написать</span>
               </button>
             </div>
-
-            {onToggleRented && (
-              <button
-                className={`joymee-btn-unpublish-toggle clickable ${isRented ? 'is-rented' : ''}`}
-                onClick={() => {
-                  const msg = isRented
-                    ? 'Вернуть объявление в активный поиск?'
-                    : 'Снять объявление с публикации? Оно перестанет показываться арендаторам в поиске.';
-                  if (window.confirm(msg)) {
-                    onToggleRented(offer.id);
-                  }
-                }}
-                title={isRented ? "Вернуть в активный поиск" : "Снять объявление с публикации"}
-              >
-                {isRented ? '↩ Вернуть в активный поиск' : '🏠 Я собственник: Снять с публикации (сдано)'}
-              </button>
-            )}
           </div>
 
           {/* Location Section */}

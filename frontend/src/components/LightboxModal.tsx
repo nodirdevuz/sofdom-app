@@ -217,9 +217,8 @@ export const LightboxModal: React.FC<LightboxModalProps> = ({
     >
       {/* 1. TOP BAR */}
       <div className="lightbox-topbar">
-        {/* Left: Property Title and SofDom ID */}
+        {/* Left: Property Title */}
         <div className="lightbox-title-meta">
-          <span className="lightbox-id-tag">№ {offerId}</span>
           <span className="lightbox-title-text" title={offerTitle}>
             {offerTitle}
           </span>
@@ -343,20 +342,6 @@ export const LightboxModal: React.FC<LightboxModalProps> = ({
               }
             }}
           />
-
-          {/* SOFDOM WATERMARK SHIELD:
-              Covers competitor watermarks (ЦИАН ID... / ru09) in bottom-right corner
-              with authoritative SofDom verification badge and internal listing ID */}
-          <div className="lightbox-photo-shield">
-            <div className="shield-top">
-              <span className="shield-dot" />
-              <span>SofDom • Проверено</span>
-            </div>
-            <div className="shield-sub">
-              <span>№ {offerId}</span>
-              <span className="shield-tag">Оригинал</span>
-            </div>
-          </div>
         </div>
 
         {/* Next Chevron Button */}

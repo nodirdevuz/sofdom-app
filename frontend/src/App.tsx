@@ -222,7 +222,11 @@ export const App: React.FC = () => {
 
     handleHash();
     window.addEventListener('hashchange', handleHash);
-    return () => window.removeEventListener('hashchange', handleHash);
+    window.addEventListener('popstate', handleHash);
+    return () => {
+      window.removeEventListener('hashchange', handleHash);
+      window.removeEventListener('popstate', handleHash);
+    };
   }, []);
 
   // Native iOS Left-to-Right Swipe to Go Back
@@ -405,7 +409,7 @@ export const App: React.FC = () => {
   const backToFeed = () => {
     setSelectedOfferId(null);
     if (window.location.hash) {
-      history.pushState('', document.title, window.location.pathname + window.location.search);
+      history.replaceState('', document.title, window.location.pathname + window.location.search);
     }
     requestAnimationFrame(() => {
       window.scrollTo({ top: savedFeedScrollY.current, behavior: 'instant' });
