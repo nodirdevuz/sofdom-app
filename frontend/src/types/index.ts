@@ -60,6 +60,8 @@ export interface FilterState {
   sortBy: 'new' | 'price_asc' | 'price_desc';
   minPrice?: number | null;
   maxPrice?: number | null;
+  minArea?: number | null;
+  maxArea?: number | null;
   districts?: string[];
   notFirstFloor?: boolean;
   hasRenovation?: boolean;

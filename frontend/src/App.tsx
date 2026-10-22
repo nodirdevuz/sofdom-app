@@ -11,6 +11,7 @@ import { DetailPage } from './components/DetailPage';
 import { LightboxModal } from './components/LightboxModal';
 import { ProfileModal } from './components/ProfileModal';
 import { FiltersModal } from './components/FiltersModal';
+import { FiltersPage } from './components/FiltersPage';
 import { MobileBottomNav } from './components/MobileBottomNav';
 import { YandexMap } from './components/YandexMap';
 import { useSwipeBack } from './hooks/useSwipeBack';
@@ -83,7 +84,7 @@ export const App: React.FC = () => {
   const [isMapVisible, setIsMapVisible] = useState<boolean>(false);
   const [isProfileOpen, setIsProfileOpen] = useState<boolean>(false);
   const [isFiltersOpen, setIsFiltersOpen] = useState<boolean>(false);
-  const [mobileTab, setMobileTab] = useState<'main' | 'map'>('main');
+  const [mobileTab, setMobileTab] = useState<'main' | 'map' | 'filters'>('main');
   const [visibleCount, setVisibleCount] = useState<number>(36);
 
   const resetFilter = () => {
@@ -96,6 +97,8 @@ export const App: React.FC = () => {
       sortBy: 'new',
       minPrice: null,
       maxPrice: null,
+      minArea: null,
+      maxArea: null,
       districts: [],
       notFirstFloor: false,
       hasRenovation: false
@@ -290,6 +293,11 @@ export const App: React.FC = () => {
       if (filter.minPrice && o.price_val < filter.minPrice) return false;
       if (filter.maxPrice && o.price_val > filter.maxPrice) return false;
 
+      // Area range filters
+      const numArea = typeof o.area === 'number' ? o.area : parseFloat(String(o.area));
+      if (filter.minArea && numArea && numArea < filter.minArea) return false;
+      if (filter.maxArea && numArea && numArea > filter.maxArea) return false;
+
       // District filters
       if (filter.districts && filter.districts.length > 0) {
         const matchesDistrict = filter.districts.some((d) => {
@@ -394,13 +402,16 @@ export const App: React.FC = () => {
     setLightbox((prev) => ({ ...prev, isOpen: false }));
   };
 
-  const handleMobileNav = (tab: 'main' | 'map') => {
+  const handleMobileNav = (tab: 'main' | 'map' | 'filters') => {
     setMobileTab(tab);
     if (tab === 'main') {
       backToFeed();
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } else if (tab === 'map') {
       setSelectedOfferId(null);
+    } else if (tab === 'filters') {
+      setSelectedOfferId(null);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
 
@@ -444,8 +455,23 @@ export const App: React.FC = () => {
         />
       )}
 
+      {/* FULL-PAGE FILTERS VIEW (Mobile tab: filters) */}
+      {mobileTab === 'filters' && !selectedOfferId && (
+        <FiltersPage
+          filter={filter}
+          onChangeFilter={(newFilter) => setFilter((prev) => ({ ...prev, ...newFilter }))}
+          totalResultsCount={filteredOffers.length}
+          onReset={resetFilter}
+          onApply={() => {
+            setMobileTab('main');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
+          lang={lang}
+        />
+      )}
+
       {/* FEED VIEW (Always preserved to prevent white flashes and preserve scroll position) */}
-      <div id="feedView" style={{ display: selectedOffer || (mobileTab === 'map' && !selectedOfferId) ? 'none' : 'block' }}>
+      <div id="feedView" style={{ display: selectedOffer || (mobileTab !== 'main' && !selectedOfferId) ? 'none' : 'block' }}>
           <TabsAndChips
             filter={filter}
             onChangeFilter={(newFilter) => setFilter((prev) => ({ ...prev, ...newFilter }))}
@@ -571,7 +597,6 @@ export const App: React.FC = () => {
           activeTab={mobileTab}
           onSelectTab={handleMobileNav}
           onOpenProfile={() => setIsProfileOpen(true)}
-          onOpenFilters={() => setIsFiltersOpen(true)}
           lang={lang}
         />
       )}

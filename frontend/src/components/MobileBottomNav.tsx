@@ -1,14 +1,12 @@
 import React, { useLayoutEffect, useRef, useState, useEffect } from 'react';
 import { Lang, I18N } from '../lib/i18n';
 
-export type NavTabId = 'main' | 'map' | 'add' | 'filters' | 'profile';
+export type NavTabId = 'main' | 'map' | 'filters' | 'profile';
 
 interface MobileBottomNavProps {
-  activeTab: 'main' | 'map';
-  onSelectTab: (tab: 'main' | 'map') => void;
+  activeTab: 'main' | 'map' | 'filters';
+  onSelectTab: (tab: 'main' | 'map' | 'filters') => void;
   onOpenProfile: () => void;
-  onOpenFilters?: () => void;
-  onOpenAdd?: () => void;
   lang?: Lang;
 }
 
@@ -33,8 +31,6 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
   activeTab,
   onSelectTab,
   onOpenProfile,
-  onOpenFilters,
-  onOpenAdd,
   lang = 'ru',
 }) => {
   const navRef = useRef<HTMLElement>(null);
@@ -66,27 +62,11 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
       ),
     },
     {
-      id: 'add',
-      label: t.nav.add,
-      icon: () => (
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-          <circle cx="12" cy="12" r="9" />
-          <line x1="12" y1="8" x2="12" y2="16" />
-          <line x1="8" y1="12" x2="16" y2="12" />
-        </svg>
-      ),
-    },
-    {
       id: 'filters',
       label: t.nav.filters,
-      icon: () => (
-        <svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <line x1="4" x2="20" y1="21" y2="21" />
-          <line x1="4" x2="20" y1="14" y2="14" />
-          <line x1="4" x2="20" y1="7" y2="7" />
-          <circle cx="8" cy="7" r="3" />
-          <circle cx="16" cy="14" r="3" />
-          <circle cx="10" cy="21" r="3" />
+      icon: (isActive) => (
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={isActive ? '2.2' : '1.9'} strokeLinecap="round" strokeLinejoin="round">
+          <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" fill={isActive ? '#FACC15' : 'none'} />
         </svg>
       ),
     },
@@ -102,8 +82,8 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
     },
   ];
 
-  // Map activeTab to index (defaults to 0 for main, 1 for map)
-  const activeIndex = activeTab === 'map' ? 1 : 0;
+  // Map activeTab to index
+  const activeIndex = Math.max(0, tabs.findIndex((t) => t.id === activeTab));
 
   // Exact fluid measurement logic from Komfort Go CapsuleNav
   useLayoutEffect(() => {
@@ -138,12 +118,8 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
       onSelectTab('main');
     } else if (tabId === 'map') {
       onSelectTab('map');
-    } else if (tabId === 'add') {
-      if (onOpenAdd) onOpenAdd();
-      else alert('Подать объявление: откроется форма добавления');
     } else if (tabId === 'filters') {
-      if (onOpenFilters) onOpenFilters();
-      else alert('Фильтры недвижимости');
+      onSelectTab('filters');
     } else if (tabId === 'profile') {
       onOpenProfile();
     }
