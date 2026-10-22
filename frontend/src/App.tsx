@@ -86,6 +86,29 @@ export const App: React.FC = () => {
   const [isFiltersOpen, setIsFiltersOpen] = useState<boolean>(false);
   const [mobileTab, setMobileTab] = useState<'main' | 'map' | 'filters'>('main');
   const [visibleCount, setVisibleCount] = useState<number>(36);
+  const [rentedOfferIds, setRentedOfferIds] = useState<string[]>(() => {
+    try {
+      const stored = localStorage.getItem('sofdom_rented_offers_v1');
+      return stored ? JSON.parse(stored) : [];
+    } catch (e) {
+      return [];
+    }
+  });
+
+  const toggleRentedStatus = (offerId: string) => {
+    setRentedOfferIds((prev) => {
+      const isAlready = prev.includes(offerId);
+      const next = isAlready ? prev.filter((id) => id !== offerId) : [...prev, offerId];
+      try {
+        localStorage.setItem('sofdom_rented_offers_v1', JSON.stringify(next));
+      } catch (e) {}
+      telemetry.track(isAlready ? 'listing_view' : 'photo_swipe', 4, {
+        offerId,
+        action: isAlready ? 'restored_to_search' : 'marked_rented_unpublish'
+      });
+      return next;
+    });
+  };
 
   const resetFilter = () => {
     setFilter({
@@ -259,6 +282,10 @@ export const App: React.FC = () => {
   // Filtered & sorted offers
   const filteredOffers = useMemo(() => {
     return offersList.filter((o) => {
+      // Exclude rented or archived listings from search catalog
+      if (rentedOfferIds.includes(o.id) || o.status === 'rented' || o.status === 'archived') {
+        return false;
+      }
       if (filter.dealType && (filter.dealType as string) !== 'all') {
         const isDaily = filter.dealType === 'Посуточная';
         const target = isDaily ? 'Посуточная' : 'Длительная аренда';
@@ -448,6 +475,8 @@ export const App: React.FC = () => {
       {selectedOffer && (
         <DetailPage
           offer={selectedOffer}
+          isRented={rentedOfferIds.includes(selectedOffer.id) || selectedOffer.status === 'rented'}
+          onToggleRented={toggleRentedStatus}
           onBackToFeed={backToFeed}
           onOpenLightbox={(idx) => openLightbox(idx, selectedOffer.photos)}
           similarOffers={similarOffers}

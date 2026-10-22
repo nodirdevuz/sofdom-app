@@ -7,6 +7,8 @@ import { telemetry } from '../lib/telemetry';
 
 interface DetailPageProps {
   offer: Offer;
+  isRented?: boolean;
+  onToggleRented?: (id: string) => void;
   onBackToFeed: () => void;
   onOpenLightbox: (startIdx: number) => void;
   similarOffers?: Offer[];
@@ -15,6 +17,8 @@ interface DetailPageProps {
 
 export const DetailPage: React.FC<DetailPageProps> = ({
   offer,
+  isRented = false,
+  onToggleRented,
   onBackToFeed,
   onOpenLightbox,
   similarOffers = [],
@@ -243,6 +247,28 @@ export const DetailPage: React.FC<DetailPageProps> = ({
         </div>
       </div>
 
+      {/* Rented / Unpublished Alert Banner */}
+      {isRented && (
+        <div className="joymee-rented-alert-banner">
+          <div className="rented-alert-badge-pill">✓ СДАНО</div>
+          <div className="rented-alert-content">
+            <div className="rented-alert-title">Квартира уже сдана и снята с публикации</div>
+            <div className="rented-alert-desc">
+              Собственник нашел жильца. Ниже представлены похожие свободные квартиры от проверенных хозяев.
+            </div>
+          </div>
+          {onToggleRented && (
+            <button
+              className="rented-alert-restore-btn clickable"
+              onClick={() => onToggleRented(offer.id)}
+              title="Вернуть объявление в активный поиск"
+            >
+              Вернуть в поиск
+            </button>
+          )}
+        </div>
+      )}
+
       {/* 2-Column Joymee Layout */}
       <div className="joymee-detail-grid">
         {/* LEFT COLUMN: Main Photo Carousel + Thumbs + Desktop Seller Card */}
@@ -410,6 +436,23 @@ export const DetailPage: React.FC<DetailPageProps> = ({
                 <span>Написать</span>
               </button>
             </div>
+
+            {onToggleRented && (
+              <button
+                className={`joymee-btn-unpublish-toggle clickable ${isRented ? 'is-rented' : ''}`}
+                onClick={() => {
+                  const msg = isRented
+                    ? 'Вернуть объявление в активный поиск?'
+                    : 'Снять объявление с публикации? Оно перестанет показываться арендаторам в поиске.';
+                  if (window.confirm(msg)) {
+                    onToggleRented(offer.id);
+                  }
+                }}
+                title={isRented ? "Вернуть в активный поиск" : "Снять объявление с публикации"}
+              >
+                {isRented ? '↩ Вернуть в активный поиск' : '🏠 Я собственник: Снять с публикации (сдано)'}
+              </button>
+            )}
           </div>
         </div>
 
@@ -493,6 +536,23 @@ export const DetailPage: React.FC<DetailPageProps> = ({
                 <span>Написать</span>
               </button>
             </div>
+
+            {onToggleRented && (
+              <button
+                className={`joymee-btn-unpublish-toggle clickable ${isRented ? 'is-rented' : ''}`}
+                onClick={() => {
+                  const msg = isRented
+                    ? 'Вернуть объявление в активный поиск?'
+                    : 'Снять объявление с публикации? Оно перестанет показываться арендаторам в поиске.';
+                  if (window.confirm(msg)) {
+                    onToggleRented(offer.id);
+                  }
+                }}
+                title={isRented ? "Вернуть в активный поиск" : "Снять объявление с публикации"}
+              >
+                {isRented ? '↩ Вернуть в активный поиск' : '🏠 Я собственник: Снять с публикации (сдано)'}
+              </button>
+            )}
           </div>
 
           {/* Location Section */}
@@ -585,47 +645,66 @@ export const DetailPage: React.FC<DetailPageProps> = ({
       )}
 
       {/* AVITO-BENCHMARK STICKY BOTTOM ACTION DOCK (Mobile Benchmark) */}
-      <div className="avito-sticky-dock">
-        <button
-          className={`avito-btn-fav ${isFav ? 'active' : ''} clickable`}
-          onClick={() => {
-            const next = !isFav;
-            setIsFav(next);
-            telemetry.track('favorite_toggle', 2, { offerId: offer.id, isFav: next });
-          }}
-          aria-label={isFav ? "Удалить из избранного" : "Добавить в избранное"}
-          title={isFav ? "В избранном" : "В избранное"}
-        >
-          <svg width="22" height="22" viewBox="0 0 24 24" fill={isFav ? '#ff6163' : 'none'} stroke={isFav ? '#ff6163' : 'var(--text-main)'} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
-          </svg>
-        </button>
+      <div className={`avito-sticky-dock ${isRented ? 'is-rented' : ''}`}>
+        {isRented ? (
+          <div className="avito-dock-rented-row">
+            <div className="avito-dock-rented-pill">
+              <span className="rented-dot"></span>
+              <span>Квартира сдана • Снято</span>
+            </div>
+            {onToggleRented && (
+              <button
+                className="avito-dock-restore-btn clickable"
+                onClick={() => onToggleRented(offer.id)}
+              >
+                Вернуть в поиск
+              </button>
+            )}
+          </div>
+        ) : (
+          <>
+            <button
+              className={`avito-btn-fav ${isFav ? 'active' : ''} clickable`}
+              onClick={() => {
+                const next = !isFav;
+                setIsFav(next);
+                telemetry.track('favorite_toggle', 2, { offerId: offer.id, isFav: next });
+              }}
+              aria-label={isFav ? "Удалить из избранного" : "Добавить в избранное"}
+              title={isFav ? "В избранном" : "В избранное"}
+            >
+              <svg width="22" height="22" viewBox="0 0 24 24" fill={isFav ? '#ff6163' : 'none'} stroke={isFav ? '#ff6163' : 'var(--text-main)'} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
+              </svg>
+            </button>
 
-        <a
-          href={`tel:${revealedPhone.replace(/[^0-9+]/g, '')}`}
-          className="avito-btn-call clickable"
-          onClick={() => telemetry.track('phone_call_click', 5, { offerId: offer.id, phone: revealedPhone })}
-        >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
-          </svg>
-          <span>Позвонить</span>
-        </a>
+            <a
+              href={`tel:${revealedPhone.replace(/[^0-9+]/g, '')}`}
+              className="avito-btn-call clickable"
+              onClick={() => telemetry.track('phone_call_click', 5, { offerId: offer.id, phone: revealedPhone })}
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+              </svg>
+              <span>Позвонить</span>
+            </a>
 
-        <button
-          className="avito-btn-chat clickable"
-          onClick={() => {
-            telemetry.track('chat_click', 3, { offerId: offer.id });
-            const cleanPhone = revealedPhone.replace(/[^0-9]/g, '');
-            const msg = encodeURIComponent(`Здравствуйте! Я по поводу аренды квартиры (${offer.title}, № ${offer.id}) на SofDom.`);
-            window.open(`https://wa.me/${cleanPhone}?text=${msg}`, '_blank');
-          }}
-        >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-          </svg>
-          <span>Написать</span>
-        </button>
+            <button
+              className="avito-btn-chat clickable"
+              onClick={() => {
+                telemetry.track('chat_click', 3, { offerId: offer.id });
+                const cleanPhone = revealedPhone.replace(/[^0-9]/g, '');
+                const msg = encodeURIComponent(`Здравствуйте! Я по поводу аренды квартиры (${offer.title}, № ${offer.id}) на SofDom.`);
+                window.open(`https://wa.me/${cleanPhone}?text=${msg}`, '_blank');
+              }}
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+              </svg>
+              <span>Написать</span>
+            </button>
+          </>
+        )}
       </div>
     </section>
   );

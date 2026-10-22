@@ -4498,3 +4498,127 @@
 .filters-page-apply-btn:active {
   transform: scale(0.98);
 }
+
+/* =========================================================
+   RENTED & UNPUBLISH LOGIC STYLES
+   ========================================================= */
+
+.joymee-rented-alert-banner {
+  background: #fff1f2;
+  border: 1px solid #fecdd3;
+  border-radius: 14px;
+  padding: 14px 18px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  box-shadow: 0 2px 8px rgba(225, 29, 72, 0.06);
+}
+.rented-alert-badge-pill {
+  background: #ef4444;
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 800;
+  padding: 4px 10px;
+  border-radius: 20px;
+  letter-spacing: 0.05em;
+  flex-shrink: 0;
+}
+.rented-alert-content {
+  flex: 1;
+}
+.rented-alert-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #991b1b;
+}
+.rented-alert-desc {
+  font-size: 12px;
+  color: #b91c1c;
+  margin-top: 2px;
+  line-height: 1.35;
+}
+.rented-alert-restore-btn {
+  background: #ffffff;
+  border: 1px solid #fca5a5;
+  color: #991b1b;
+  font-size: 12.5px;
+  font-weight: 700;
+  padding: 7px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+}
+.rented-alert-restore-btn:hover {
+  background: #fef2f2;
+}
+
+.joymee-btn-unpublish-toggle {
+  width: 100%;
+  margin-top: 12px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px dashed var(--border-light, #cbd5e1);
+  background: var(--bg-muted, #f8fafc);
+  color: var(--text-muted, #475569);
+  transition: all 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.joymee-btn-unpublish-toggle:hover {
+  background: var(--bg-hover, #f1f5f9);
+  border-color: #94a3b8;
+}
+.joymee-btn-unpublish-toggle.is-rented {
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  color: #065f46;
+}
+
+.avito-sticky-dock.is-rented {
+  background: #1e293b !important;
+  border-top-color: #334155 !important;
+}
+.avito-dock-rented-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: 12px;
+}
+.avito-dock-rented-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #f1f5f9;
+}
+.avito-dock-rented-pill .rented-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ef4444;
+  flex-shrink: 0;
+}
+.avito-dock-restore-btn {
+  background: #334155;
+  border: 1px solid #475569;
+  color: #f8fafc;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 8px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+}
+.avito-dock-restore-btn:hover {
+  background: #475569;
+}

@@ -38,6 +38,7 @@ export interface Offer {
   is_new?: boolean;
   is_top?: boolean;
   time_ago: string;
+  status?: 'active' | 'rented' | 'archived';
   lat: number;
   lng: number;
 }
