@@ -62,3 +62,16 @@
    * Статус задачи переводится в **`Done`**.
 4. **Как Оркестратор принимает задачу:**
    * Оркестратор открывает выполненную задачу (`Done`), читает отчёт исполнителя и проводит независимый аудит. При замечаниях переводит статус обратно в `Up next` с комментариями.
+
+## 🔔 Локальные уведомления о новых отчётах
+
+На macOS можно включить read-only LaunchAgent, который каждые 8 минут проверяет `Done` в Notion Tasks и показывает системное уведомление при появлении нового или изменённого блока отчёта. Он не меняет страницы, статусы, код или Git.
+
+```bash
+python3 backend/notion_report_watcher.py poll
+python3 backend/notion_report_watcher.py install
+python3 backend/notion_report_watcher.py status
+python3 backend/notion_report_watcher.py uninstall
+```
+
+При первом `poll` сохраняется тихий baseline существующих отчётов без уведомлений. Учётные данные читаются через существующий локальный Notion bridge; OAuth Notion MCP автоматически не переиспользуется. Состояние хранится отдельно от репозитория в `~/Library/Application Support/SofDom/NotionReportWatcher/`, логи — в `~/Library/Logs/SofDom/`. После переноса проекта на другой Mac LaunchAgent нужно установить там заново; на обоих Mac должны быть настроены локальный Notion bridge и доступ к базе Tasks. LaunchAgent работает, пока пользователь вошёл в macOS и компьютер не спит.
