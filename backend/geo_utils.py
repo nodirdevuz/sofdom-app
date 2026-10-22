@@ -54,6 +54,46 @@ def is_street_segment(segment: str) -> bool:
     return any(t in STREET_TYPE_MARKERS for t in tokens)
 
 
+# Маркеры номера/корпуса дома и помещений (не являются названием улицы)
+ADDRESS_HOUSE_MARKERS = {
+    'д', 'дом', 'к', 'корп', 'корпус', 'стр', 'строение',
+    'уч', 'участок', 'кв', 'квартира', 'пом', 'помещение'
+}
+
+PREFIX_STREET_MARKERS_REGEX = (
+    r'(?:ул|улиц[аеыу]|пер|переул(?:ок|ка|ке|ком)|пр|проезд[а-я]*|'
+    r'просп|проспект[а-я]*|пр-кт|пр-т|тр|тракт[а-я]*|тр-т|туп|тупик[а-я]*|'
+    r'бул|бульвар[а-я]*|наб|набережн[а-я]*|ш|шоссе|пл|площад[а-я]*|'
+    r'алле[яеи]|мкр|микрорайон[а-я]*|квартал[а-я]*|кв-л)\.?'
+)
+
+
+def normalize_compound_address_segments(address: str) -> str:
+    """
+    Разделяет составные сегменты адреса, где название населённого пункта
+    слитно записано перед маркером улицы без запятой:
+    например, 'Колпашево ул. Ленина, 10' -> 'Колпашево, ул. Ленина, 10'.
+    При этом не разбивает улицы в постфиксной записи с номером дома:
+    например, 'Северский проезд 5' или 'Колпашевская улица д. 7' остаются единым целым.
+    """
+    def repl(m) -> str:
+        prefix_word = m.group(1)
+        marker = m.group(2)
+        following = m.group(3)
+        marker_clean = re.sub(r'[^а-яёa-z]', '', marker.lower())
+        fol_clean = following.lower().rstrip('.,')
+
+        if fol_clean in ADDRESS_HOUSE_MARKERS:
+            return m.group(0)
+        if fol_clean.isdigit() and marker_clean not in {'мкр', 'микрорайон', 'квартал', 'квл'}:
+            return m.group(0)
+
+        return f'{prefix_word}, {marker} {following}'
+
+    pattern = r'([а-яёa-z0-9]+)\s+(' + PREFIX_STREET_MARKERS_REGEX + r')\s+([а-яёa-z0-9\-]+)'
+    return re.sub(pattern, repl, address, flags=re.I)
+
+
 @dataclass
 class RegionalCoordinateHeuristic:
     """
@@ -154,6 +194,9 @@ class CityProfile:
         """
         if not address:
             return None
+
+        # 0. Нормализация составных сегментов без запятых (например, 'Колпашево ул. Ленина' -> 'Колпашево, ул. Ленина')
+        address = normalize_compound_address_segments(address)
 
         # 1. Если в адресе явно указан основной город профиля (например, 'г. Томск', 'Томск') —
         # названия улиц, трактов и переулков не могут переопределить город.
