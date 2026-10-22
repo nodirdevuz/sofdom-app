@@ -36,7 +36,7 @@
   "filtered": 1,
   "items": [
     {
-      "id": "bezposr_196162",
+      "id": "SD-1001",
       "source": "bezposrednikov",
       "title": "2-к. квартира ⋅ 41.2 м² ⋅ 12/17 эт.",
       "raw_title": "2-к. квартира, 41.2 м², 12/17 эт.",
@@ -44,6 +44,7 @@
       "price_val": 28000,
       "price_unit": "₽/мес",
       "deposit": "10 000 ₽",
+      "status": "active",
       "rooms": "2",
       "area": 41.2,
       "floor_str": "12 из 17",
@@ -83,7 +84,7 @@
   "count": 162,
   "pins": [
     {
-      "id": "bezposr_196162",
+      "id": "SD-1001",
       "lat": 56.4421,
       "lng": 84.9912,
       "price": 28000,
@@ -91,6 +92,7 @@
       "rooms": 2,
       "district": "Пригород",
       "title": "2-к., 41.2 м²",
+      "status": "active",
       "photo": "https://tsk.s.bsps.ru/images/sobipro/galleries/ec/196162/3dbeb0.jpg"
     }
   ]
@@ -154,9 +156,12 @@ export interface TelemetryEvent {
 | `session_heartbeat` | Периодический пинг активности | `{ active_time_sec: 60 }` |
 | `session_end` | Закрытие или уход со страницы | `{ total_duration_sec: 185 }` |
 | `scroll_depth` | Преодоление порогов скролла | `{ depth: 25 | 50 | 75 | 100 }` |
-| `listing_view` | Клик по карточке в каталоге | `{ offer_id: "bezposr_196162", source: "bezposrednikov" }` |
-| `gallery_swipe` | Листание фотографий в карточке | `{ offer_id: "bezposr_196162", photo_index: 2 }` |
-| `phone_reveal_click` | **Раскрытие телефона (конверсия)** | `{ offer_id: "bezposr_196162", phone: "+7 (952) 880-19-61" }` |
+| `listing_view` | Клик по карточке в каталоге | `{ offerId: "SD-1001", title: "...", price: 28000 }` |
+| `favorite_toggle` | Добавление / удаление из избранного | `{ offerId: "SD-1001", isFavorite: true }` |
+| `unpublish_toggle` | Снятие с публикации / возврат в поиск | `{ offerId: "SD-1001", isRented: true }` |
+| `gallery_swipe` | Листание фотографий в карточке | `{ offerId: "SD-1001", photo_index: 2 }` |
+| `lightbox_open` | Полноэкранный просмотр Lightbox | `{ offerId: "SD-1001", initialIndex: 0 }` |
+| `phone_reveal_click` | **Раскрытие телефона (конверсия)** | `{ offerId: "SD-1001", phone: "+7 (952) 880-19-61" }` |
 
 ### 3.3. Реестр событий сбоев (Friction Log)
 
