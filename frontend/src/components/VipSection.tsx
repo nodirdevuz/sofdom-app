@@ -36,8 +36,8 @@ export const VipSection: React.FC<VipSectionProps> = ({ vips, onSelectVip }) => 
           <div key={vip.id} className="vip-card clickable" onClick={() => onSelectVip(vip.offer_ref || vip.id)}>
             <div className="vip-card-img-wrap">
               <img
-                src={vip.photo}
-                alt={vip.title}
+                src={vip.photo || FALLBACK_PHOTO_SVG}
+                alt={vip.photo ? vip.title : 'Фотографии не предоставлены'}
                 loading="lazy"
                 onError={(e) => {
                   const target = e.currentTarget;

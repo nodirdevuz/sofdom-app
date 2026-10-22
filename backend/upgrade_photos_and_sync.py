@@ -1,15 +1,18 @@
 #!/usr/bin/env python3
 """
 upgrade_photos_and_sync.py
-1. Ingests 8 brand new live direct-owner listings from tomsk.bezposrednikov.ru.
-2. Replaces all low-res (208x208) Avito photo URLs with verified high-resolution (1024x768+) photos.
-3. Upgrades VIP section photos to high-res luxury interiors.
-4. Synchronizes frontend, admin, and SQLite database.
+Синхронизирует каталог объявлений и защищает привязку фотографий к объявлениям.
+- Новые партнёрские объявления добавляются только со своими фото из своей галереи источника
+  (совпадение sid в пути URL); фото из чужих галерей отбрасываются.
+- Повторяющиеся URL внутри одной галереи удаляются без изменения порядка.
+- VIP-карточки получают фото только если ID галереи в URL совпадает с ID referencируемого
+  объявления; при неподтверждённой привязке фото остаётся пустым (не подставляется фото
+  другой карточки и не используется общий пул).
+- Не заменяет фото низкого разрешения, не берёт фото по цене/району, не меняет базу SQLite.
 """
 
 import json
 import re
-import urllib.request
 import sqlite3
 from datetime import datetime
 
@@ -298,6 +301,71 @@ def own_gallery_photos(photos: list, listing_id: str) -> list:
     return [p for p in unique_preserve_order(photos) if token in p]
 
 
+def vip_photo_for(listing_id: str, photo: str) -> str:
+    """
+    Возвращает фото для VIP-карточки только если ID галереи в URL совпадает
+    с ID referencируемого объявления. При неподтверждённой привязке возвращает
+    пустую строку — фото другой карточки не подставляется.
+    """
+    if not photo:
+        return ""
+    return photo if own_gallery_photos([photo], listing_id) else ""
+
+
+# VIP-карточки: {id, offer_ref, photo}. Каждая запись ссылается на объявление
+# по offer_ref; фото допустимо только из галереи этого же объявления (совпадение sid в URL).
+UPGRADED_VIPS = [
+    {
+        "id": "bezposr_186542",
+        "offer_ref": "bezposr_186542",
+        "title": "1-к. квартира ⋅ 52 м² ⋅ 4/7 эт.",
+        "price": "32 000 ₽ / мес",
+        "metro": "Советский район • ул. Фрунзе, 18",
+        "photo": "https://tsk.s.bsps.ru/images/sobipro/galleries/98/186542/44d1174e.jpg"
+    },
+    {
+        "id": "bezposr_197869",
+        "offer_ref": "bezposr_197869",
+        "title": "3-к. квартира ⋅ 101 м² ⋅ 1/6 эт.",
+        "price": "65 000 ₽ / мес",
+        "metro": "Советский район • ул. Гоголя, 40",
+        "photo": "https://tsk.s.bsps.ru/images/sobipro/galleries/4e/197869/3aa304.jpg"
+    },
+    {
+        "id": "bezposr_196225",
+        "offer_ref": "bezposr_196225",
+        "title": "2-к. квартира ⋅ 56 м² ⋅ 5/19 эт.",
+        "price": "45 000 ₽ / мес",
+        "metro": "Советский район • ул. Киевская, 1",
+        "photo": "https://tsk.s.bsps.ru/images/sobipro/galleries/a8/196225/417ba2.jpg"
+    },
+    {
+        "id": "bezposr_175402",
+        "offer_ref": "bezposr_175402",
+        "title": "Студия ⋅ 27 м² ⋅ 5/9 эт.",
+        "price": "28 000 ₽ / мес",
+        "metro": "Кировский район • ул. Савиных, 4а",
+        "photo": "https://tsk.s.bsps.ru/images/sobipro/galleries/ec/196162/3dbeb0.jpg"
+    },
+    {
+        "id": "bezposr_198241",
+        "offer_ref": "bezposr_198241",
+        "title": "2-к. квартира ⋅ 44.2 м² ⋅ 8/9 эт.",
+        "price": "45 000 ₽ / мес",
+        "metro": "Советский район • пр-кт Фрунзе, 102",
+        "photo": "https://tsk.s.bsps.ru/images/sobipro/galleries/87/198241/8fb4b7.jpg"
+    }
+]
+
+
+def prepare_vips() -> list:
+    """Возвращает VIP-карточки с очищенными фото: чужое назначение отбрасывается."""
+    return [
+        {**vip, "photo": vip_photo_for(vip["offer_ref"], vip.get("photo", ""))}
+        for vip in UPGRADED_VIPS
+    ]
+
+
 def main():
     offers_path = '/Users/macbookairm5/Desktop/Проекты/SofDom/frontend/src/data/offers.ts'
     with open(offers_path, 'r', encoding='utf-8') as f:
@@ -326,49 +394,9 @@ def main():
 
     print(f'Added {added_count} brand-new partner listings. Total offers now: {len(offers)}')
 
-    # Upgraded VIP section with high-res photos
-    upgraded_vips = [
-        {
-            "id": "bezposr_186542",
-            "offer_ref": "bezposr_186542",
-            "title": "1-к. квартира ⋅ 52 м² ⋅ 4/7 эт.",
-            "price": "32 000 ₽ / мес",
-            "metro": "Советский район • ул. Фрунзе, 18",
-            "photo": "https://tsk.s.bsps.ru/images/sobipro/galleries/98/186542/44d1174e.jpg"
-        },
-        {
-            "id": "bezposr_197869",
-            "offer_ref": "bezposr_197869",
-            "title": "3-к. квартира ⋅ 101 м² ⋅ 1/6 эт.",
-            "price": "65 000 ₽ / мес",
-            "metro": "Советский район • ул. Гоголя, 40",
-            "photo": "https://tsk.s.bsps.ru/images/sobipro/galleries/4e/197869/3aa304.jpg"
-        },
-        {
-            "id": "bezposr_196225",
-            "offer_ref": "bezposr_196225",
-            "title": "2-к. квартира ⋅ 56 м² ⋅ 5/19 эт.",
-            "price": "45 000 ₽ / мес",
-            "metro": "Советский район • ул. Киевская, 1",
-            "photo": "https://tsk.s.bsps.ru/images/sobipro/galleries/a8/196225/417ba2.jpg"
-        },
-        {
-            "id": "bezposr_175402",
-            "offer_ref": "bezposr_175402",
-            "title": "Студия ⋅ 27 м² ⋅ 5/9 эт.",
-            "price": "28 000 ₽ / мес",
-            "metro": "Кировский район • ул. Савиных, 4а",
-            "photo": "https://tsk.s.bsps.ru/images/sobipro/galleries/ec/196162/3dbeb0.jpg"
-        },
-        {
-            "id": "bezposr_198241",
-            "offer_ref": "bezposr_198241",
-            "title": "2-к. квартира ⋅ 44.2 м² ⋅ 8/9 эт.",
-            "price": "45 000 ₽ / мес",
-            "metro": "Советский район • пр-кт Фрунзе, 102",
-            "photo": "https://tsk.s.bsps.ru/images/sobipro/galleries/87/198241/8fb4b7.jpg"
-        }
-    ]
+    # Upgraded VIP section: фото только из своей галереи источника;
+    # чужое назначение (в т.ч. bezposr_175402 -> галерея 196162) отбрасывается.
+    upgraded_vips = prepare_vips()
 
     # Save to frontend
     new_frontend_ts = f"""import {{ Offer, VipOffer }} from '../types';

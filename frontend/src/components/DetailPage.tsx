@@ -66,6 +66,7 @@ export const DetailPage: React.FC<DetailPageProps> = ({
   const p = offer.photos;
 
   const scrollToPhoto = (idx: number) => {
+    if (p.length === 0) return;
     const nextIdx = (idx + p.length) % p.length;
     setActivePhotoIdx(nextIdx);
     if (mainSliderRef.current) {
@@ -88,11 +89,13 @@ export const DetailPage: React.FC<DetailPageProps> = ({
 
   const prevPhoto = (e?: React.SyntheticEvent) => {
     if (e) e.stopPropagation();
+    if (p.length === 0) return;
     scrollToPhoto(activePhotoIdx - 1);
   };
 
   const nextPhoto = (e?: React.SyntheticEvent) => {
     if (e) e.stopPropagation();
+    if (p.length === 0) return;
     scrollToPhoto(activePhotoIdx + 1);
   };
 
@@ -279,27 +282,37 @@ export const DetailPage: React.FC<DetailPageProps> = ({
               ref={mainSliderRef}
               onScroll={handleMainSliderScroll}
             >
-              {p.map((imgUrl, i) => (
-                <div
-                  key={i}
-                  className="joymee-main-photo-slide"
-                  onClick={() => onOpenLightbox(i)}
-                >
+              {p.length === 0 ? (
+                <div className="joymee-main-photo-slide">
                   <img
-                    src={imgUrl}
-                    alt={`${offer.title} ${i + 1}`}
-                    loading={i === 0 ? 'eager' : 'lazy'}
-                    onError={(e) => {
-                      const target = e.currentTarget;
-                      if (!target.dataset.fallback) {
-                        target.dataset.fallback = '1';
-                        target.src = FALLBACK_PHOTO_SVG;
-                        telemetry.trackFriction('broken_photo_cdn', 'DetailPage', { offerId: offer.id, url: imgUrl });
-                      }
-                    }}
+                    src={FALLBACK_PHOTO_SVG}
+                    alt="Фотографии не предоставлены"
+                    loading="eager"
                   />
                 </div>
-              ))}
+              ) : (
+                p.map((imgUrl, i) => (
+                  <div
+                    key={i}
+                    className="joymee-main-photo-slide"
+                    onClick={() => onOpenLightbox(i)}
+                  >
+                    <img
+                      src={imgUrl}
+                      alt={`${offer.title} ${i + 1}`}
+                      loading={i === 0 ? 'eager' : 'lazy'}
+                      onError={(e) => {
+                        const target = e.currentTarget;
+                        if (!target.dataset.fallback) {
+                          target.dataset.fallback = '1';
+                          target.src = FALLBACK_PHOTO_SVG;
+                          telemetry.trackFriction('broken_photo_cdn', 'DetailPage', { offerId: offer.id, url: imgUrl });
+                        }
+                      }}
+                    />
+                  </div>
+                ))
+              )}
             </div>
 
             <button

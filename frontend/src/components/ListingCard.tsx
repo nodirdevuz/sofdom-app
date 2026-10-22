@@ -77,24 +77,34 @@ export const ListingCard: React.FC<ListingCardProps> = ({
       {/* 1. Photo Gallery — Clean photo surface, no overlay icons or numbers */}
       <div className="card-gallery-wrap" onClick={handleOpen}>
         <div className="gallery-slider" ref={sliderRef} onScroll={handleScroll}>
-          {offer.photos.slice(0, 3).map((p, idx) => (
+          {offer.photos.length === 0 ? (
             <img
-              key={idx}
               className="gallery-slide-img"
-              src={p}
-              alt={offer.title}
+              src={FALLBACK_PHOTO_SVG}
+              alt="Фотографии не предоставлены"
               loading="lazy"
               decoding="async"
-              onError={(e) => {
-                const target = e.currentTarget;
-                if (!target.dataset.fallback) {
-                  target.dataset.fallback = '1';
-                  target.src = FALLBACK_PHOTO_SVG;
-                  telemetry.trackFriction('broken_photo_cdn', 'ListingCard', { offerId: offer.id, url: p });
-                }
-              }}
             />
-          ))}
+          ) : (
+            offer.photos.slice(0, 3).map((p, idx) => (
+              <img
+                key={idx}
+                className="gallery-slide-img"
+                src={p}
+                alt={offer.title}
+                loading="lazy"
+                decoding="async"
+                onError={(e) => {
+                  const target = e.currentTarget;
+                  if (!target.dataset.fallback) {
+                    target.dataset.fallback = '1';
+                    target.src = FALLBACK_PHOTO_SVG;
+                    telemetry.trackFriction('broken_photo_cdn', 'ListingCard', { offerId: offer.id, url: p });
+                  }
+                }}
+              />
+            ))
+          )}
         </div>
       </div>
 
