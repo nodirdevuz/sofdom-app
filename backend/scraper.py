@@ -272,7 +272,15 @@ class RealtyScraper:
                     addr = re.sub(r'<[^>]+>', '', a_m.group(1)).strip() if a_m else 'г. Томск'
 
                     photos = re.findall(r'href=\"(//tsk\.s\.bsps\.ru/images/sobipro/galleries/[^\"]+\.jpg)\"', block)
-                    full_photos = ['https:' + p for p in set(photos)]
+                    # Дубли внутри одной галереи убираются без изменения исходного порядка.
+                    # set() здесь неприемлем: он перемешивает порядок изображений от источника.
+                    seen_photos = set()
+                    ordered_photos = []
+                    for p in photos:
+                        if p not in seen_photos:
+                            seen_photos.add(p)
+                            ordered_photos.append(p)
+                    full_photos = ['https:' + p for p in ordered_photos]
 
                     desc_m = re.search(r'<div itemprop=\"description\">(.*?)</div>', block, re.DOTALL)
                     desc = re.sub(r'<[^>]+>', ' ', desc_m.group(1)).strip() if desc_m else ''

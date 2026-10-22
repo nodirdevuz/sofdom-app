@@ -152,10 +152,7 @@ export const App: React.FC = () => {
       .then((data) => {
         if (data && data.apartments && data.apartments.length > 0) {
           const mapped: Offer[] = data.apartments.map((a: any, i: number) => {
-            const photos = a.photos && a.photos.length > 0 ? a.photos : [
-              'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800&auto=format&fit=crop&q=80',
-              'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&auto=format&fit=crop&q=80'
-            ];
+            const photos = a.photos && a.photos.length > 0 ? a.photos : [];
             const pPhone = a.phone || a.phone_display || `+7 (952) 880-${1000 + i}`;
             return {
               id: a.id,
@@ -269,11 +266,8 @@ export const App: React.FC = () => {
       metro_walk: '5 мин',
       desc_short: 'Уютная квартира от собственника без комиссий.',
       full_desc: 'Сдается напрямую от собственника. Вся необходимая мебель и техника в наличии. Чистый подъезд, тихий двор.',
-      photos: [
-        'https://tsk.s.bsps.ru/images/sobipro/galleries/ec/196162/3dbeb0.jpg',
-        'https://tsk.s.bsps.ru/images/sobipro/galleries/a8/196225/417ba2.jpg'
-      ],
-      photos_count: 2,
+      photos: [],
+      photos_count: 0,
       owner_name: 'Собственник',
       phone: '+7 (952) 880-12-34',
       is_owner: true,

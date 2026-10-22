@@ -271,41 +271,32 @@ NEW_PARTNER_LISTINGS = [
     }
 ]
 
-# High-resolution photo gallery pool for replacement
-HIGH_RES_GALLERY_POOL = [
-    [
-        "https://images.cdn-cian.ru/images/1-komnatnaya-kvartira-tomsk-frunze-prospekt-2065842101-1.jpg",
-        "https://images.cdn-cian.ru/images/1-komnatnaya-kvartira-tomsk-frunze-prospekt-2065842101-2.jpg",
-        "https://images.cdn-cian.ru/images/1-komnatnaya-kvartira-tomsk-frunze-prospekt-2065842101-3.jpg",
-        "https://images.cdn-cian.ru/images/1-komnatnaya-kvartira-tomsk-frunze-prospekt-2065842101-4.jpg"
-    ],
-    [
-        "https://images.cdn-cian.ru/images/2-komnatnaya-kvartira-tomsk-lenina-prospekt-2064931202-1.jpg",
-        "https://images.cdn-cian.ru/images/2-komnatnaya-kvartira-tomsk-lenina-prospekt-2064931202-2.jpg",
-        "https://images.cdn-cian.ru/images/2-komnatnaya-kvartira-tomsk-lenina-prospekt-2064931202-3.jpg"
-    ],
-    [
-        "https://images.cdn-cian.ru/images/kvartira-studiya-tomsk-komsomolskiy-prospekt-2061293841-1.jpg",
-        "https://images.cdn-cian.ru/images/kvartira-studiya-tomsk-komsomolskiy-prospekt-2061293841-2.jpg",
-        "https://images.cdn-cian.ru/images/kvartira-studiya-tomsk-komsomolskiy-prospekt-2061293841-3.jpg"
-    ],
-    [
-        "https://tsk.s.bsps.ru/images/sobipro/galleries/98/186542/44d1174e.jpg",
-        "https://tsk.s.bsps.ru/images/sobipro/galleries/98/186542/824add9e.jpg",
-        "https://tsk.s.bsps.ru/images/sobipro/galleries/98/186542/56203b71.jpg",
-        "https://tsk.s.bsps.ru/images/sobipro/galleries/98/186542/9c0d8b8e.jpg"
-    ],
-    [
-        "https://tsk.s.bsps.ru/images/sobipro/galleries/4e/197869/3aa304.jpg",
-        "https://tsk.s.bsps.ru/images/sobipro/galleries/4e/197869/6d5126.jpg",
-        "https://tsk.s.bsps.ru/images/sobipro/galleries/4e/197869/915830.jpg"
-    ],
-    [
-        "https://tsk.s.bsps.ru/images/sobipro/galleries/a8/196225/417ba2.jpg",
-        "https://tsk.s.bsps.ru/images/sobipro/galleries/ec/196162/3dbeb0.jpg",
-        "https://tsk.s.bsps.ru/images/sobipro/galleries/ec/196162/4fa12c.jpg"
-    ]
-]
+def unique_preserve_order(photos: list) -> list:
+    """Убирает повторяющиеся URL внутри одной галереи, не меняя порядка от источника."""
+    seen = set()
+    ordered = []
+    for p in photos:
+        if p not in seen:
+            seen.add(p)
+            ordered.append(p)
+    return ordered
+
+
+def listing_source_sid(listing_id: str) -> str:
+    """Внутренний ID источника (sid) из идентификатора объявления bezposr_<sid>."""
+    return str(listing_id).replace("bezposr_", "", 1)
+
+
+def own_gallery_photos(photos: list, listing_id: str) -> list:
+    """
+    Оставляет только фото из галереи именно этой записи источника.
+    Принадлежность доказывается совпадением sid в пути URL, а не доменом CDN.
+    Фото из чужих галерей и без доказанной связи отбрасываются.
+    """
+    sid = listing_source_sid(listing_id)
+    token = f"/{sid}/"
+    return [p for p in unique_preserve_order(photos) if token in p]
+
 
 def main():
     offers_path = '/Users/macbookairm5/Desktop/Проекты/SofDom/frontend/src/data/offers.ts'
@@ -319,28 +310,17 @@ def main():
     offers = json.loads(m.group(1))
     print(f'Initial offers count: {len(offers)}')
 
-    # Upgrade low-res photos in existing offers
-    replaced_count = 0
-    pool_idx = 0
-    for o in offers:
-        p_urls = o.get('photos', [])
-        is_low_res = any('img.avito.st' in u and 'ra-' in u for u in p_urls)
-        if is_low_res:
-            # Replace with a high-resolution pool gallery
-            replacement_gallery = HIGH_RES_GALLERY_POOL[pool_idx % len(HIGH_RES_GALLERY_POOL)]
-            pool_idx += 1
-            o['photos'] = replacement_gallery
-            o['photos_count'] = len(replacement_gallery)
-            replaced_count += 1
-
-    print(f'Upgraded low-res photo galleries in {replaced_count} offers')
-
-    # Add new partner listings
+    # Add new partner listings. Фото берутся только из своей галереи источника;
+    # чужое назначение между объявлениями отключено.
     existing_ids = {o['id'] for o in offers}
     added_count = 0
     for new_lot in NEW_PARTNER_LISTINGS:
         if new_lot['id'] not in existing_ids:
-            offers.insert(0, new_lot) # Put fresh partner listings at the top of the feed!
+            lot_photos = own_gallery_photos(new_lot.get('photos', []), new_lot['id'])
+            new_lot = dict(new_lot)
+            new_lot['photos'] = lot_photos
+            new_lot['photos_count'] = len(lot_photos)
+            offers.insert(0, new_lot)
             existing_ids.add(new_lot['id'])
             added_count += 1
 
