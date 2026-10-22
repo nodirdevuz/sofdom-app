@@ -778,16 +778,22 @@ def list_apartments_geo(
     Возвращает гео-точки для карты и радиусного поиска.
 
     Политика точности (provenance):
-    - 'exact': проверенные координаты от подтверждённого источника. Участвуют в радиусном поиске
-      и имеют вычисленный distance_km.
-    - 'approximate': центроид населённого пункта или района (поддерживается моделью, но текущие парсеры
-      не генерируют). На карте отображаются, но НЕ включаются в поиск по точному радиусу (distance_km=None).
-    - 'unknown': локальный fallback без проверенной точки; не имеет distance_km и исключается из радиуса.
+    - 'exact': подлинные координаты получены от подтверждённого источника (Циан) и валидированы
+      в границах города. Они участвуют в радиусном поиске и отображают расстояние (distance_km).
+      Позиционирование отражает координаты источника без обещания точности «до дома/подъезда»
+      (если источник не предоставил доказанных метаданных accuracy='exact'/'house').
+    - 'approximate': центроид населённого пункта или района (поддерживается моделью данных/API/UI,
+      но текущие парсеры его не генерируют). На карте отображается с визуальной меткой приблизительности,
+      но НЕ включается в точный поиск по радиусу (distance_km=None).
+    - 'unknown': локальный offline-fallback без подтверждённой привязки; визуально помечается как
+      непроверенная (метка '?'), не имеет distance_km и исключается из радиусного поиска.
     - 'none' и синтетические заглушки центра исключаются из карты.
 
     Spatial pre-filter:
     - При наличии center_lat, center_lng и radius_km формируется bounding box в SQL.
-      Это исключает ситуацию, когда дешёвые объекты за пределами радиуса вытесняют близкие квартиры через LIMIT.
+      Чтобы точки в углах прямоугольника bbox (за пределами круга) не могли вытеснить подходящие
+      квартиры внутри радиуса, SQL LIMIT при радиусном поиске НЕ применяется: финальный LIMIT
+      применяется строго в Python ПОСЛЕ точной проверки haversine-расстояния и сортировки.
     - Если radius_km передан без координат центра, радиусная фильтрация не применяется.
     """
     with get_connection(db_path) as conn:
@@ -846,10 +852,10 @@ def list_apartments_geo(
             params.extend([r_min_lat, r_max_lat, r_min_lng, r_max_lng])
             if has_precision:
                 query += " AND geo_precision = 'exact'"
-
-        sql_limit = max(limit * 3, 250) if has_radius_filter else limit
-        query += " ORDER BY is_secret_early_access DESC, price ASC LIMIT ?"
-        params.append(sql_limit)
+            query += " ORDER BY is_secret_early_access DESC, price ASC"
+        else:
+            query += " ORDER BY is_secret_early_access DESC, price ASC LIMIT ?"
+            params.append(limit)
 
         cursor.execute(query, params)
         rows = cursor.fetchall()

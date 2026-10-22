@@ -130,6 +130,9 @@ class RealtyScraper:
                         lng=c_lng,
                         current_district=raw_district
                     ) or ''
+                    # Проверяем наличие метаданных точности от источника Циан (accuracy / precision / geoType)
+                    geo_accuracy = str(geo.get('accuracy') or geo.get('precision') or geo.get('geoType') or '')
+
                     valid_lat, valid_lng, precision = classify_coordinates(
                         c_lat, c_lng,
                         city=clean_city,

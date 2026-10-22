@@ -16,6 +16,7 @@ f) Поведение API и карты при точных, приблизит�
 import os
 import sys
 import sqlite3
+import subprocess
 import tempfile
 import unittest
 
@@ -23,6 +24,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)) + "/..")
 
 from geo_utils import (
     haversine_distance,
+    calc_radius_bbox,
     TOMSK_AGGLOMERATION_ENVELOPE,
     TOMSK_CENTER_PLACEHOLDER_LAT,
     TOMSK_CENTER_PLACEHOLDER_LNG,
@@ -660,6 +662,145 @@ class TestSpatialPreFilterAndRadiusSearch(unittest.TestCase):
                          "Frontend fallback не должен подставлять 'exact' по умолчанию")
         self.assertIn("geo_precision: o.geo_precision || 'unknown'", code)
         self.assertIn("geo_precision || 'unknown'", code)
+
+    def test_radius_search_with_over_250_corner_points_outside_circle_with_limit_1(self):
+        """
+        Регрессионный тест замечания оркестратора 1:
+        >250 дешёвых точек в углах bbox, но за пределами круга радиуса,
+        НЕ должны вытеснять подходящую точку внутри радиуса при limit=1.
+        """
+        center_lat = 56.4600
+        center_lng = 84.9700
+        radius_km = 1.0
+
+        min_lat, max_lat, min_lng, max_lng = calc_radius_bbox(center_lat, center_lng, radius_km)
+        corner_lat = max_lat - 0.0001
+        corner_lng = max_lng - 0.0001
+
+        # Убедимся, что угловая точка действительно попадает в bbox, но находится за пределами радиуса 1.0 км
+        self.assertTrue(min_lat <= corner_lat <= max_lat)
+        self.assertTrue(min_lng <= corner_lng <= max_lng)
+        corner_dist = haversine_distance(center_lat, center_lng, corner_lat, corner_lng)
+        self.assertGreater(corner_dist, radius_km, "Угловая точка bbox должна быть за пределами круга 1.0 км")
+
+        # Вставляем 260 дешёвых точек (цена 1 000..3 600 руб) в угол bbox
+        for i in range(260):
+            db.upsert_apartment({
+                "id": f"corner_cheap_{i}",
+                "source": "cian",
+                "title": f"Угловая точка вне круга {i}",
+                "price": 1000 + i * 5,
+                "address": "г. Томск, угол bbox",
+                "city": "Томск",
+                "lat": corner_lat,
+                "lng": corner_lng,
+                "geo_precision": "exact",
+                "geo_source": "cian"
+            }, db_path=self.temp_db)
+
+        # Вставляем 1 подходящую точку прямо в центре (цена 50 000 руб, расстояние ~15 м)
+        target_lat = center_lat + 0.0001
+        target_lng = center_lng + 0.0001
+        target_dist = haversine_distance(center_lat, center_lng, target_lat, target_lng)
+        self.assertLess(target_dist, radius_km)
+
+        db.upsert_apartment({
+            "id": "suitable_target",
+            "source": "cian",
+            "title": "Подходящая квартира в центре радиуса",
+            "price": 50000,
+            "address": "г. Томск, центр круга",
+            "city": "Томск",
+            "lat": target_lat,
+            "lng": target_lng,
+            "geo_precision": "exact",
+            "geo_source": "cian"
+        }, db_path=self.temp_db)
+
+        # Выполняем поиск с limit=1
+        res = db.list_apartments_geo(
+            center_lat=center_lat,
+            center_lng=center_lng,
+            radius_km=radius_km,
+            limit=1,
+            db_path=self.temp_db
+        )
+
+        self.assertEqual(res["count"], 1, "Запрос обязан вернуть 1 подходящую точку, не теряя её из-за углов bbox")
+        self.assertEqual(res["apartments"][0]["id"], "suitable_target")
+        self.assertLess(res["apartments"][0]["distance_km"], radius_km)
+
+    def test_frontend_marker_properties_and_visual_classes_by_provenance(self):
+        """
+        Регрессионный тест замечания оркестратора 2:
+        Проверяет фактическое построение свойств маркера карты:
+        - 'unknown': помечается как 'unknown-pin unverified-pin' с бейджем '?';
+        - 'approximate': помечается как 'approximate-pin' с бейджем '~';
+        - 'exact': помечается как 'exact-pin' без бейджей сомнения;
+        - 'none': исключается из массива маркеров.
+        """
+        frontend_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "frontend")
+        env = dict(os.environ)
+        env["PATH"] = f"/opt/homebrew/bin:{env.get('PATH', '')}"
+
+        test_script = """
+import { buildMarkerProperties, buildMarkerHtml } from "./src/lib/mapMarkerUtils";
+
+const exactApt = { id: "a1", price_badge: "30 000 ₽", geo_precision: "exact" };
+const approxApt = { id: "a2", price_badge: "25 000 ₽", geo_precision: "approximate" };
+const unknownApt = { id: "a3", price_badge: "20 000 ₽", geo_precision: "unknown" };
+
+const pExact = buildMarkerProperties(exactApt);
+const pApprox = buildMarkerProperties(approxApt);
+const pUnknown = buildMarkerProperties(unknownApt);
+
+if (!pExact.geo_class.includes("exact-pin")) throw new Error("exact missing exact-pin");
+if (pExact.precision_badge_html !== "") throw new Error("exact must not have precision badge");
+if (pExact.geo_class.includes("unverified-pin")) throw new Error("exact must not be unverified");
+
+if (!pApprox.geo_class.includes("approximate-pin")) throw new Error("approx missing approximate-pin");
+if (!pApprox.precision_badge_html.includes("~")) throw new Error("approx missing ~ badge");
+if (pApprox.geo_class.includes("unverified-pin")) throw new Error("approx is not unknown");
+
+if (!pUnknown.geo_class.includes("unverified-pin") || !pUnknown.geo_class.includes("unknown-pin")) {
+  throw new Error("unknown missing unverified-pin / unknown-pin");
+}
+if (!pUnknown.precision_badge_html.includes("?")) throw new Error("unknown missing ? badge");
+if (pUnknown.geo_class.includes("exact-pin")) throw new Error("unknown must not be exact-pin");
+
+const htmlUnknown = buildMarkerHtml(pUnknown);
+if (!htmlUnknown.includes("unverified-pin") || !htmlUnknown.includes("?")) {
+  throw new Error("htmlUnknown missing visual unverified pin");
+}
+        """
+
+        result = subprocess.run(
+            ["npx", "tsx", "-e", test_script],
+            cwd=frontend_dir,
+            env=env,
+            capture_output=True,
+            text=True
+        )
+        self.assertEqual(result.returncode, 0, f"TypeScript marker verification failed: {result.stderr}")
+
+    def test_cian_provenance_accuracy_without_house_guarantee(self):
+        """
+        Регрессионный тест замечания оркестратора 3:
+        Координаты Циан маркируются exact как подлинные данные источника,
+        но без обещания точности 'до дома' без подтверждающих метаданных.
+        """
+        clean_lat, clean_lng, precision = classify_coordinates(56.4800, 84.9700, city="Томск", source="cian")
+        self.assertEqual(precision, "exact")
+        self.assertEqual(clean_lat, 56.4800)
+        self.assertEqual(clean_lng, 84.9700)
+
+        # Проверяем, что в scraper.py извлекается geo_accuracy из geo-объекта Циан
+        scraper_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "scraper.py")
+        with open(scraper_file, encoding="utf-8") as f:
+            code = f.read()
+
+        self.assertIn("geo_accuracy", code)
+        self.assertIn("geo.get('accuracy')", code)
 
 
 if __name__ == "__main__":

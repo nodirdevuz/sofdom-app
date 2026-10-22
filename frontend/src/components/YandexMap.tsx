@@ -4,6 +4,7 @@ import {
   fetchMapApartments,
   MapApartment,
 } from '../services/mapService';
+import { buildMarkerProperties } from '../lib/mapMarkerUtils';
 import { MapListingPreview } from './MapListingPreview';
 import { Lang, I18N } from '../lib/i18n';
 
@@ -225,8 +226,9 @@ export const YandexMap: React.FC<Props> = ({
 
       const priceLayout = ym.templateLayoutFactory.createClass(
         '<div style="position:relative;transform:translate(-50%,-100%);margin-top:-2px;pointer-events:auto;">' +
-          '<div class="price-pin-bubble $[properties.is_secret_class] $[properties.is_active_class]" data-id="$[properties.apartmentId]">' +
+          '<div class="price-pin-bubble $[properties.is_secret_class] $[properties.is_active_class] $[properties.geo_class]" data-id="$[properties.apartmentId]" data-precision="$[properties.geo_precision]">' +
             '<span class="price-pin-text">$[properties.price_badge]</span>' +
+            '$[properties.precision_badge_html]' +
             '<div class="price-pin-arrow"></div>' +
           '</div>' +
         '</div>',
@@ -258,39 +260,37 @@ export const YandexMap: React.FC<Props> = ({
         }
       );
 
-      const placemarks = apts.map((apt) => {
-        const isActive = activeId === apt.id;
-        const pm = new ym.Placemark(
-          [apt.lat, apt.lng],
-          {
-            price_badge: apt.price_badge,
-            is_secret_class: apt.is_secret ? 'secret-pin' : '',
-            is_active_class: isActive ? 'active-pin' : '',
-            apartmentId: apt.id,
-          },
-          {
-            iconLayout: priceLayout,
-            iconOffset: [0, 0],
-            iconShape: {
-              type: 'Rectangle',
-              coordinates: [
-                [-48, -42],
-                [48, 2],
-              ],
-            },
-            hasBalloon: false,
-            zIndex: isActive ? 1000 : 100,
-          }
-        );
+      const placemarks = apts
+        .filter((apt) => apt.geo_precision !== 'none')
+        .map((apt) => {
+          const isActive = activeId === apt.id;
+          const markerProps = buildMarkerProperties(apt, isActive);
+          const pm = new ym.Placemark(
+            [apt.lat, apt.lng],
+            markerProps,
+            {
+              iconLayout: priceLayout,
+              iconOffset: [0, 0],
+              iconShape: {
+                type: 'Rectangle',
+                coordinates: [
+                  [-48, -42],
+                  [48, 2],
+                ],
+              },
+              hasBalloon: false,
+              zIndex: isActive ? 1000 : 100,
+            }
+          );
 
-        pm.events.add('click', (e: any) => {
-          e.stopPropagation?.();
-          lastPinClickTimeRef.current = Date.now();
-          handleSelectApartmentById(apt.id);
+          pm.events.add('click', (e: any) => {
+            e.stopPropagation?.();
+            lastPinClickTimeRef.current = Date.now();
+            handleSelectApartmentById(apt.id);
+          });
+
+          return pm;
         });
-
-        return pm;
-      });
 
       clusterer.add(placemarks);
     },

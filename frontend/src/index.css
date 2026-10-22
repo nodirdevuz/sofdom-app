@@ -3269,6 +3269,70 @@
   border-top-color: #f97316;
 }
 
+/* Непроверенные точки fallback (без доказанной provenance) */
+.price-pin-bubble.unknown-pin,
+.price-pin-bubble.unverified-pin {
+  background: #f1f5f9;
+  color: #475569;
+  border: 1.5px dashed #94a3b8;
+  box-shadow: 0 2px 8px rgba(100, 116, 139, 0.2);
+}
+.price-pin-bubble.unknown-pin .price-pin-arrow,
+.price-pin-bubble.unverified-pin .price-pin-arrow {
+  border-top-color: #94a3b8;
+}
+
+/* Приблизительные точки (центроид района) */
+.price-pin-bubble.approximate-pin {
+  background: #fef3c7;
+  color: #92400e;
+  border: 1.5px solid #d97706;
+  box-shadow: 0 2px 8px rgba(217, 119, 6, 0.25);
+}
+.price-pin-bubble.approximate-pin .price-pin-arrow {
+  border-top-color: #d97706;
+}
+
+/* Метки-бейджы внутри пузырька цены на карте */
+.pin-badge-unverified {
+  font-size: 10px;
+  font-weight: 800;
+  background: #cbd5e1;
+  color: #334155;
+  border-radius: 4px;
+  padding: 1px 4px;
+  margin-left: 2px;
+}
+.pin-badge-approx {
+  font-size: 11px;
+  font-weight: 800;
+  background: #fde68a;
+  color: #78350f;
+  border-radius: 4px;
+  padding: 1px 4px;
+  margin-left: 2px;
+}
+
+/* Бейджи в карточке-шторке MapListingPreview */
+.sheet-badge-unverified {
+  background: #f1f5f9;
+  color: #475569;
+  border: 1px dashed #94a3b8;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 6px;
+}
+.sheet-badge-approx {
+  background: #fef3c7;
+  color: #92400e;
+  border: 1px solid #d97706;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 6px;
+}
+
 /* Top bar with district filter chips */
 .map-top-bar {
   position: absolute;

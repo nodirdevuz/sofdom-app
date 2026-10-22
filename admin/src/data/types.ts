@@ -41,6 +41,13 @@ export interface Offer {
   status?: 'active' | 'rented' | 'archived';
   lat: number;
   lng: number;
+  /**
+   * Уровень достоверности геоданных:
+   * - 'exact': точка получена от источника (Циан). Отражает координаты источника без обещания точности до дома.
+   * - 'approximate': центроид района.
+   * - 'unknown': локальный fallback без подтверждённой привязки.
+   * - 'none': координат нет.
+   */
   geo_precision?: 'exact' | 'approximate' | 'unknown' | 'none';
   is_approximate?: boolean;
 }

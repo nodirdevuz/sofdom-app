@@ -69,6 +69,12 @@ export const MapListingPreview: React.FC<Props> = ({
               {apartment.is_secret && (
                 <span className="sheet-badge-secret">{t.map.earlyAccess}</span>
               )}
+              {apartment.geo_precision === 'unknown' && (
+                <span className="sheet-badge-unverified" title="Точка не подтверждена источником">⚠️ Не проверено</span>
+              )}
+              {apartment.geo_precision === 'approximate' && (
+                <span className="sheet-badge-approx" title="Указан только район">📍 Район (приблизительно)</span>
+              )}
             </div>
           </div>
 
