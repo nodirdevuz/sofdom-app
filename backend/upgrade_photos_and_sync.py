@@ -312,12 +312,15 @@ def vip_photo_for(listing_id: str, photo: str) -> str:
     return photo if own_gallery_photos([photo], listing_id) else ""
 
 
-# VIP-карточки: {id, offer_ref, photo}. Каждая запись ссылается на объявление
-# по offer_ref; фото допустимо только из галереи этого же объявления (совпадение sid в URL).
+# VIP-карточки: {id, offer_ref, source_ref, photo}.
+# offer_ref — локальный id объявления из каталога OFFERS (используется для навигации).
+# source_ref — id источника (bezposr_XXXX), по которому проверяется привязка фото к своей галерее.
+# Фото допустимо только если sid в пути URL совпадает с source_ref.
 UPGRADED_VIPS = [
     {
         "id": "bezposr_186542",
-        "offer_ref": "bezposr_186542",
+        "offer_ref": "SD-1008",
+        "source_ref": "bezposr_186542",
         "title": "1-к. квартира ⋅ 52 м² ⋅ 4/7 эт.",
         "price": "32 000 ₽ / мес",
         "metro": "Советский район • ул. Фрунзе, 18",
@@ -325,7 +328,8 @@ UPGRADED_VIPS = [
     },
     {
         "id": "bezposr_197869",
-        "offer_ref": "bezposr_197869",
+        "offer_ref": "SD-1006",
+        "source_ref": "bezposr_197869",
         "title": "3-к. квартира ⋅ 101 м² ⋅ 1/6 эт.",
         "price": "65 000 ₽ / мес",
         "metro": "Советский район • ул. Гоголя, 40",
@@ -333,7 +337,8 @@ UPGRADED_VIPS = [
     },
     {
         "id": "bezposr_196225",
-        "offer_ref": "bezposr_196225",
+        "offer_ref": "SD-1031",
+        "source_ref": "bezposr_196225",
         "title": "2-к. квартира ⋅ 56 м² ⋅ 5/19 эт.",
         "price": "45 000 ₽ / мес",
         "metro": "Советский район • ул. Киевская, 1",
@@ -341,7 +346,8 @@ UPGRADED_VIPS = [
     },
     {
         "id": "bezposr_175402",
-        "offer_ref": "bezposr_175402",
+        "offer_ref": "SD-1001",
+        "source_ref": "bezposr_175402",
         "title": "Студия ⋅ 27 м² ⋅ 5/9 эт.",
         "price": "28 000 ₽ / мес",
         "metro": "Кировский район • ул. Савиных, 4а",
@@ -349,7 +355,8 @@ UPGRADED_VIPS = [
     },
     {
         "id": "bezposr_198241",
-        "offer_ref": "bezposr_198241",
+        "offer_ref": "SD-1019",
+        "source_ref": "bezposr_198241",
         "title": "2-к. квартира ⋅ 44.2 м² ⋅ 8/9 эт.",
         "price": "45 000 ₽ / мес",
         "metro": "Советский район • пр-кт Фрунзе, 102",
@@ -361,7 +368,7 @@ UPGRADED_VIPS = [
 def prepare_vips() -> list:
     """Возвращает VIP-карточки с очищенными фото: чужое назначение отбрасывается."""
     return [
-        {**vip, "photo": vip_photo_for(vip["offer_ref"], vip.get("photo", ""))}
+        {**vip, "photo": vip_photo_for(vip["source_ref"], vip.get("photo", ""))}
         for vip in UPGRADED_VIPS
     ]
 

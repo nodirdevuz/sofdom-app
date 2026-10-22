@@ -50,6 +50,7 @@ export interface VipOffer {
   metro: string;
   photo: string;
   offer_ref?: string;
+  source_ref?: string;
 }
 
 export interface FilterState {

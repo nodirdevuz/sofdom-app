@@ -315,30 +315,34 @@ export const DetailPage: React.FC<DetailPageProps> = ({
               )}
             </div>
 
-            <button
-              className="joymee-arrow-btn joymee-arrow-left"
-              onClick={(e) => {
-                e.stopPropagation();
-                prevPhoto();
-              }}
-              aria-label="Предыдущее фото"
-            >
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                <path d="m15 18-6-6 6-6" />
-              </svg>
-            </button>
-            <button
-              className="joymee-arrow-btn joymee-arrow-right"
-              onClick={(e) => {
-                e.stopPropagation();
-                nextPhoto();
-              }}
-              aria-label="Следующее фото"
-            >
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                <path d="m9 18 6-6-6-6" />
-              </svg>
-            </button>
+            {p.length > 0 && (
+              <>
+                <button
+                  className="joymee-arrow-btn joymee-arrow-left"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    prevPhoto();
+                  }}
+                  aria-label="Предыдущее фото"
+                >
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                    <path d="m15 18-6-6 6-6" />
+                  </svg>
+                </button>
+                <button
+                  className="joymee-arrow-btn joymee-arrow-right"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    nextPhoto();
+                  }}
+                  aria-label="Следующее фото"
+                >
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                    <path d="m9 18 6-6-6-6" />
+                  </svg>
+                </button>
+              </>
+            )}
 
             <div className="joymee-dashes-row">
               {p.map((_, i) => (
