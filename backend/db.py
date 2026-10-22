@@ -9,6 +9,7 @@ Handles users, subscriptions, daily limits, apartment listings, favorites, and u
 import sqlite3
 import json
 import os
+import math
 from datetime import datetime, date, timedelta
 
 from geo_utils import (
@@ -422,14 +423,14 @@ def upsert_apartment(item: dict, db_path=DB_PATH):
         raw_lat = item.get("lat")
         raw_lng = item.get("lng")
         source = item.get("source", "avito")
+        raw_accuracy = item.get("geo_accuracy") or item.get("accuracy")
         clean_city = detect_city(item.get("address"), raw_city=item.get("city", "Томск"), lat=raw_lat, lng=raw_lng)
         clean_lat, clean_lng, precision = classify_coordinates(
             raw_lat, raw_lng,
             city=clean_city,
-            source=source
+            source=source,
+            accuracy=raw_accuracy
         )
-        geo_precision = item.get("geo_precision") or precision
-        geo_source = item.get("geo_source") or (source if geo_precision != "none" else "none")
 
         raw_dist = item.get("district", "")
         clean_dist = detect_tomsk_district(
@@ -445,7 +446,9 @@ def upsert_apartment(item: dict, db_path=DB_PATH):
         # 1. Невалидные, нулевые координаты или координаты из неподтверждённых источников (Авито, БезПосредников)
         #    НИКОГДА не могут сохранять или получать статус 'exact' или 'approximate'.
         # 2. Если координат нет, метаданные provenance строго сбрасываются в 'none'.
-        # 3. geo_observed_at фиксирует время подтверждения координат текущим запуском.
+        # 3. Координаты Циан без подтверждённого признака точности до дома сохраняются как 'unknown'.
+        # 4. geo_observed_at фиксирует время подтверждения координат ТОЛЬКО если передано источником (live fetch).
+        #    При локальной обработке/тестах без источника geo_observed_at остаётся NULL или сохраняется из базы.
         if clean_lat is None or clean_lng is None:
             clean_lat = None
             clean_lng = None
@@ -453,13 +456,16 @@ def upsert_apartment(item: dict, db_path=DB_PATH):
             geo_source = "none"
             geo_observed_at = None
         else:
-            if item.get("geo_precision") == "approximate":
+            if item.get("geo_precision") == "approximate" or precision == "approximate":
                 geo_precision = "approximate"
                 geo_source = item.get("geo_source") or source
+            elif precision == "exact":
+                geo_precision = "exact"
+                geo_source = item.get("geo_source") or source
             else:
-                geo_precision = precision
-                geo_source = source if precision != "none" else "none"
-            geo_observed_at = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
+                geo_precision = "unknown"
+                geo_source = item.get("geo_source") or source
+            geo_observed_at = item.get("geo_observed_at")
 
         cursor.execute("""
         INSERT INTO apartments (
@@ -486,7 +492,11 @@ def upsert_apartment(item: dict, db_path=DB_PATH):
             lng = excluded.lng,
             geo_precision = excluded.geo_precision,
             geo_source = excluded.geo_source,
-            geo_observed_at = excluded.geo_observed_at
+            geo_observed_at = CASE
+                WHEN excluded.lat IS NULL THEN NULL
+                WHEN excluded.geo_observed_at IS NOT NULL THEN excluded.geo_observed_at
+                ELSE apartments.geo_observed_at
+            END
         """, {
             "id": str(item["id"]),
             "source": source,
@@ -728,8 +738,12 @@ def enrich_tomsk_geo(db_path=DB_PATH):
                 geo_source = "none"
                 geo_observed_at = None
             else:
+                if r["geo_precision"] == "approximate":
+                    precision = "approximate"
                 geo_source = source if precision != "none" else "none"
-                geo_observed_at = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
+                # ВАЖНО: При локальной нормализации время наблюдения НЕ обновляется на текущее!
+                # Сохраняем существующее значение r["geo_observed_at"] или оставляем NULL.
+                geo_observed_at = r["geo_observed_at"]
 
             # 3. Определяем район: для других городов район Томска НЕДОПУСТИМ;
             # для Томска fallback на 'Советский район' ИСКЛЮЧЁН.
@@ -748,8 +762,9 @@ def enrich_tomsk_geo(db_path=DB_PATH):
             coords_changed = (clean_lat != current_lat or clean_lng != current_lng)
             prec_changed = (r["geo_precision"] != precision)
             src_changed = (r["geo_source"] != geo_source)
+            obs_changed = (r["geo_observed_at"] != geo_observed_at)
 
-            if dist_changed or city_changed or coords_changed or prec_changed or src_changed:
+            if dist_changed or city_changed or coords_changed or prec_changed or src_changed or obs_changed:
                 cursor.execute("""
                 UPDATE apartments
                 SET city = ?, district = ?, lat = ?, lng = ?, geo_precision = ?, geo_source = ?,
@@ -778,24 +793,77 @@ def list_apartments_geo(
     Возвращает гео-точки для карты и радиусного поиска.
 
     Политика точности (provenance):
-    - 'exact': подлинные координаты получены от подтверждённого источника (Циан) и валидированы
-      в границах города. Они участвуют в радиусном поиске и отображают расстояние (distance_km).
-      Позиционирование отражает координаты источника без обещания точности «до дома/подъезда»
-      (если источник не предоставил доказанных метаданных accuracy='exact'/'house').
-    - 'approximate': центроид населённого пункта или района (поддерживается моделью данных/API/UI,
-      но текущие парсеры его не генерируют). На карте отображается с визуальной меткой приблизительности,
-      но НЕ включается в точный поиск по радиусу (distance_km=None).
-    - 'unknown': локальный offline-fallback без подтверждённой привязки; визуально помечается как
-      непроверенная (метка '?'), не имеет distance_km и исключается из радиусного поиска.
+    - 'exact': числовые координаты получены от источника (Циан/verified) с подтверждённым
+      признаком точности до адреса/дома. Они участвуют в точном радиусном поиске и отображают
+      расстояние (distance_km).
+    - 'unknown': валидные координаты от источника (Циан), но без подтверждённой точности до дома.
+      Отображаются на карте с визуальным предупреждением (знак '?'), но исключаются из строгого
+      радиусного поиска.
+    - 'approximate': центроид района или населённого пункта. Отображаются на карте с меткой '~',
+      но исключаются из строгого радиусного поиска (distance_km=None).
     - 'none' и синтетические заглушки центра исключаются из карты.
 
-    Spatial pre-filter:
-    - При наличии center_lat, center_lng и radius_km формируется bounding box в SQL.
-      Чтобы точки в углах прямоугольника bbox (за пределами круга) не могли вытеснить подходящие
-      квартиры внутри радиуса, SQL LIMIT при радиусном поиске НЕ применяется: финальный LIMIT
-      применяется строго в Python ПОСЛЕ точной проверки haversine-расстояния и сортировки.
-    - Если radius_km передан без координат центра, радиусная фильтрация не применяется.
+    Валидация параметров:
+    - limit: целое число от 1 до 1000;
+    - radius_km: число от >0 до <=50.0 км; если передан без center_lat/center_lng — возвращает ValueError;
+    - center_lat / center_lng: конечные числа в диапазонах [-90..90] и [-180..180];
+    - bbox: 4 конечных числа min_lat,min_lng,max_lat,max_lng с проверкой min <= max.
+
+    Безопасность чтения из БД:
+    - При радиусном поиске SQL spatial pre-filter сужает выборку до bounding box.
+    - Кандидаты считываются пакетами по 250 (fetchmany) с потолком MAX_CANDIDATES = 5000,
+      что предотвращает неконтролируемый объём памяти при этом гарантируя точность
+      внутри радиуса.
     """
+    # 1. Валидация limit
+    if not isinstance(limit, int) or isinstance(limit, bool) or limit < 1 or limit > 1000:
+        raise ValueError("Параметр limit должен быть целым числом в диапазоне от 1 до 1000")
+
+    # 2. Валидация radius_km и координат центра
+    if radius_km is not None:
+        try:
+            r_val = float(radius_km)
+        except (ValueError, TypeError):
+            raise ValueError("Параметр radius_km должен быть числовым значением")
+        if not math.isfinite(r_val) or r_val <= 0 or r_val > 50.0:
+            raise ValueError("Параметр radius_km должен быть положительным числом не более 50.0 км")
+        radius_km = r_val
+
+        if center_lat is None or center_lng is None:
+            raise ValueError("Параметр radius_km требует указания координат центра (center_lat и center_lng)")
+
+    if center_lat is not None or center_lng is not None:
+        if center_lat is None or center_lng is None:
+            raise ValueError("Координаты центра должны содержать как широту (center_lat), так и долготу (center_lng)")
+        try:
+            c_lat = float(center_lat)
+            c_lng = float(center_lng)
+        except (ValueError, TypeError):
+            raise ValueError("Координаты центра должны быть числовыми значениями")
+        if not (math.isfinite(c_lat) and -90.0 <= c_lat <= 90.0):
+            raise ValueError("Широта центра (center_lat) должна быть числом от -90 до 90")
+        if not (math.isfinite(c_lng) and -180.0 <= c_lng <= 180.0):
+            raise ValueError("Долгота центра (center_lng) должна быть числом от -180 до 180")
+        center_lat = c_lat
+        center_lng = c_lng
+
+    # 3. Валидация bbox
+    parsed_bbox = None
+    if bbox:
+        try:
+            parts = [float(p.strip()) for p in bbox.split(",")]
+            if len(parts) != 4 or not all(math.isfinite(p) for p in parts):
+                raise ValueError("bbox должен содержать 4 конечных числа")
+            b_min_lat, b_min_lng, b_max_lat, b_max_lng = parts
+            if not (-90.0 <= b_min_lat <= 90.0 and -90.0 <= b_max_lat <= 90.0 and
+                    -180.0 <= b_min_lng <= 180.0 and -180.0 <= b_max_lng <= 180.0):
+                raise ValueError("Координаты bbox выходят за допустимые границы (-90..90, -180..180)")
+            if b_min_lat > b_max_lat or b_min_lng > b_max_lng:
+                raise ValueError("Минимальные координаты bbox не могут превышать максимальные")
+            parsed_bbox = (b_min_lat, b_min_lng, b_max_lat, b_max_lng)
+        except Exception as e:
+            raise ValueError(f"Некорректный формат bbox: {e}")
+
     with get_connection(db_path) as conn:
         cursor = conn.cursor()
 
@@ -834,15 +902,10 @@ def list_apartments_geo(
         if is_secret_only:
             query += " AND is_secret_early_access = 1"
 
-        if bbox:
-            try:
-                parts = [float(p.strip()) for p in bbox.split(",")]
-                if len(parts) == 4:
-                    min_lat, min_lng, max_lat, max_lng = parts
-                    query += " AND lat >= ? AND lat <= ? AND lng >= ? AND lng <= ?"
-                    params.extend([min_lat, max_lat, min_lng, max_lng])
-            except Exception:
-                pass
+        if parsed_bbox:
+            min_lat, min_lng, max_lat, max_lng = parsed_bbox
+            query += " AND lat >= ? AND lat <= ? AND lng >= ? AND lng <= ?"
+            params.extend([min_lat, max_lat, min_lng, max_lng])
 
         # Spatial pre-filter для радиусного поиска:
         has_radius_filter = (center_lat is not None and center_lng is not None and radius_km is not None)
@@ -858,70 +921,116 @@ def list_apartments_geo(
             params.append(limit)
 
         cursor.execute(query, params)
-        rows = cursor.fetchall()
-
-        cursor.execute("SELECT district, count(*) as count FROM apartments WHERE district IS NOT NULL AND district != '' GROUP BY district")
-        district_counts = [dict(r) for r in cursor.fetchall()]
 
         points = []
-        for r in rows:
-            apt = dict(r)
-            a_lat, a_lng = apt["lat"], apt["lng"]
+        if has_radius_filter:
+            # Читаем кандидатов пакетами по 250, чтобы защитить память от неконтролируемого объёма,
+            # с ограничением MAX_CANDIDATES = 5000 (в Томске активный рынок < 2000 объявлений).
+            MAX_CANDIDATES = 5000
+            CHUNK_SIZE = 250
+            total_read = 0
 
-            # Проверяем, не является ли это синтетической заглушкой центра
-            if is_center_placeholder(a_lat, a_lng):
-                continue
-
-            geo_prec = apt.get("geo_precision") or ("exact" if (a_lat and a_lng and not is_center_placeholder(a_lat, a_lng)) else "none")
-            if geo_prec == "none":
-                continue
-
-            is_approx = (geo_prec != "exact")
-            dist_km = None
-            if center_lat is not None and center_lng is not None:
-                if not is_approx:
+            while total_read < MAX_CANDIDATES:
+                batch = cursor.fetchmany(CHUNK_SIZE)
+                if not batch:
+                    break
+                for r in batch:
+                    total_read += 1
+                    apt = dict(r)
+                    a_lat, a_lng = apt["lat"], apt["lng"]
+                    if is_center_placeholder(a_lat, a_lng):
+                        continue
+                    geo_prec = apt.get("geo_precision") or "none"
+                    if geo_prec != "exact":
+                        continue
                     dist_km = haversine_distance(center_lat, center_lng, a_lat, a_lng)
-                    if radius_km is not None and dist_km > radius_km:
-                        continue
-                else:
-                    # Приблизительные точки НЕ квалифицируются для точного поиска рядом по радиусу
-                    if radius_km is not None:
+                    if dist_km > radius_km:
                         continue
 
-            try:
-                photos = json.loads(apt.get("photos_json") or "[]")
-                first_photo = photos[0] if photos else ""
-                photos_count = len(photos)
-            except Exception:
-                first_photo = ""
-                photos_count = 0
+                    try:
+                        photos = json.loads(apt.get("photos_json") or "[]")
+                        first_photo = photos[0] if photos else ""
+                        photos_count = len(photos)
+                    except Exception:
+                        first_photo = ""
+                        photos_count = 0
 
-            points.append({
-                "id": apt["id"],
-                "lat": a_lat,
-                "lng": a_lng,
-                "title": apt["title"],
-                "price": apt["price"],
-                "price_badge": f"{apt['price']:,}".replace(",", " ") + " ₽",
-                "deposit": apt["deposit"],
-                "rooms": apt["rooms"],
-                "area": apt["area"],
-                "floor_str": f"{apt['floor']}/{apt['total_floors']} эт.",
-                "address": apt["address"],
-                "district": apt["district"] or "Томск",
-                "photo": first_photo,
-                "photos_count": photos_count,
-                "is_secret": bool(apt["is_secret_early_access"]),
-                "distance_km": dist_km,
-                "geo_precision": geo_prec,
-                "is_approximate": is_approx
-            })
+                    points.append({
+                        "id": apt["id"],
+                        "lat": a_lat,
+                        "lng": a_lng,
+                        "title": apt["title"],
+                        "price": apt["price"],
+                        "price_badge": f"{apt['price']:,}".replace(",", " ") + " ₽",
+                        "deposit": apt["deposit"],
+                        "rooms": apt["rooms"],
+                        "area": apt["area"],
+                        "floor_str": f"{apt['floor']}/{apt['total_floors']} эт.",
+                        "address": apt["address"],
+                        "district": apt["district"] or "Томск",
+                        "photo": first_photo,
+                        "photos_count": photos_count,
+                        "is_secret": bool(apt["is_secret_early_access"]),
+                        "distance_km": dist_km,
+                        "geo_precision": geo_prec,
+                        "is_approximate": False
+                    })
+        else:
+            rows = cursor.fetchall()
+            for r in rows:
+                apt = dict(r)
+                a_lat, a_lng = apt["lat"], apt["lng"]
+
+                if is_center_placeholder(a_lat, a_lng):
+                    continue
+
+                geo_prec = apt.get("geo_precision") or ("exact" if (a_lat and a_lng and not is_center_placeholder(a_lat, a_lng)) else "none")
+                if geo_prec == "none":
+                    continue
+
+                is_approx = (geo_prec != "exact")
+                dist_km = None
+                if center_lat is not None and center_lng is not None:
+                    if not is_approx:
+                        dist_km = haversine_distance(center_lat, center_lng, a_lat, a_lng)
+
+                try:
+                    photos = json.loads(apt.get("photos_json") or "[]")
+                    first_photo = photos[0] if photos else ""
+                    photos_count = len(photos)
+                except Exception:
+                    first_photo = ""
+                    photos_count = 0
+
+                points.append({
+                    "id": apt["id"],
+                    "lat": a_lat,
+                    "lng": a_lng,
+                    "title": apt["title"],
+                    "price": apt["price"],
+                    "price_badge": f"{apt['price']:,}".replace(",", " ") + " ₽",
+                    "deposit": apt["deposit"],
+                    "rooms": apt["rooms"],
+                    "area": apt["area"],
+                    "floor_str": f"{apt['floor']}/{apt['total_floors']} эт.",
+                    "address": apt["address"],
+                    "district": apt["district"] or "Томск",
+                    "photo": first_photo,
+                    "photos_count": photos_count,
+                    "is_secret": bool(apt["is_secret_early_access"]),
+                    "distance_km": dist_km,
+                    "geo_precision": geo_prec,
+                    "is_approximate": is_approx
+                })
 
         if center_lat is not None and center_lng is not None:
             # Точные расстояния сортируются первыми по возрастанию; точки без точного расстояния идут следом
-            points.sort(key=lambda p: (0 if p["distance_km"] is not None else 1, p["distance_km"] or 999999))
+            points.sort(key=lambda p: (0 if p["distance_km"] is not None else 1, p["distance_km"] or 999999, -int(p["is_secret"]), p["price"]))
 
         points = points[:limit]
+
+        cursor.execute("SELECT district, count(*) as count FROM apartments WHERE district IS NOT NULL AND district != '' GROUP BY district")
+        district_counts = [dict(r) for r in cursor.fetchall()]
 
         return {
             "count": len(points),

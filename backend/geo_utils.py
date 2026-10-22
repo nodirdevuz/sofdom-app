@@ -245,18 +245,19 @@ def classify_coordinates(
     lat: Optional[float],
     lng: Optional[float],
     city: str = "Томск",
-    source: str = "none"
+    source: str = "none",
+    accuracy: Optional[str] = None
 ) -> Tuple[Optional[float], Optional[float], str]:
     """
     Классифицирует координаты и определяет уровень их точности (provenance):
-      - 'exact': числовые координаты получены напрямую от подтверждённого источника (Циан)
-        и прошли географическую валидацию (диапазон и конверт города).
-        ВАЖНО: Статус 'exact' подтверждает подлинность происхождения геоданных из источника,
-        но НЕ обещает пользователю точность «до дома/подъезда» без явных подтверждающих
-        метаданных точности (accuracy/house) от источника.
+      - 'exact': числовые координаты получены от источника (Циан/verified) с подтверждённым
+        признаком точности до адреса/дома (accuracy='exact'/'house'/'building'/'address').
+      - 'unknown': валидные числовые координаты получены от источника (Циан), но точный уровень
+        привязки (до дома vs до улицы) не подтверждён явными метаданными источника.
+        Сохраняются для отображения на карте с предупреждающей меткой '?', но исключаются
+        из строгого поиска по радиусу.
       - 'approximate': центроид района или населённого пункта (поддерживается на уровне
         модели данных/API/UI, но текущие продакшен-сборщики его НЕ генерируют);
-      - 'unknown': локальный fallback без подтверждённой привязки;
       - 'none': координаты отсутствуют, невалидны, являются заглушкой центра или
         получены из источников, не передающих координаты (Авито, БезПосредников).
 
@@ -275,7 +276,9 @@ def classify_coordinates(
     if abs(f_lat) < 1e-6 and abs(f_lng) < 1e-6:
         return None, None, "none"
 
-    # Невалидные географические диапазоны
+    # Невалидные географические диапазоны или нечисловые значения
+    if not (math.isfinite(f_lat) and math.isfinite(f_lng)):
+        return None, None, "none"
     if not (-90.0 <= f_lat <= 90.0 and -180.0 <= f_lng <= 180.0):
         return None, None, "none"
 
@@ -289,7 +292,7 @@ def classify_coordinates(
     if source in ("avito", "bezposrednikov", "legacy"):
         return None, None, "none"
 
-    # Только проверенные источники могут иметь статус 'exact'
+    # Проверенные источники (Циан, проверенные модератором / тестами)
     verified_sources = ("cian", "verified", "test_verified")
     if source in verified_sources or source.startswith("cian"):
         # Проверка географической согласованности с заявленным городом:
@@ -297,7 +300,26 @@ def classify_coordinates(
         # (например, Колпашево 58.31 N при city='Томск'), то они не могут считаться точкой Томска.
         if city == "Томск" and not is_in_tomsk_envelope(f_lat, f_lng):
             return None, None, "none"
-        return round(f_lat, 6), round(f_lng, 6), "exact"
+
+        # Прямо проверенные источники модерации или тестов
+        if source in ("verified", "test_verified"):
+            return round(f_lat, 6), round(f_lng, 6), "exact"
+
+        # Для Циан: статус 'exact' присваивается ТОЛЬКО при наличии подтверждённого признака
+        # точности до дома/адреса от источника (accuracy / precision / geoType).
+        acc_str = str(accuracy or "").strip().lower()
+        if acc_str in ("exact", "house", "exact_house", "building", "address", "точно", "дом"):
+            return round(f_lat, 6), round(f_lng, 6), "exact"
+        elif acc_str in ("approximate", "district", "centroid", "locality"):
+            return round(f_lat, 6), round(f_lng, 6), "approximate"
+        else:
+            # Координаты от Циан валидны, но их точность до дома не подтверждена.
+            # Сохраняем для карты как 'unknown' с визуальным предупреждением,
+            # исключая из строгого радиусного поиска.
+            return round(f_lat, 6), round(f_lng, 6), "unknown"
+
+    if source in ("approximate", "district_centroid"):
+        return round(f_lat, 6), round(f_lng, 6), "approximate"
 
     # Для неизвестных или не проверенных источников числовая валидность не даёт права заявлять exact
     return None, None, "none"

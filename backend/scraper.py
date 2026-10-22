@@ -136,8 +136,11 @@ class RealtyScraper:
                     valid_lat, valid_lng, precision = classify_coordinates(
                         c_lat, c_lng,
                         city=clean_city,
-                        source='cian'
+                        source='cian',
+                        accuracy=geo_accuracy
                     )
+
+                    now_iso = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
 
                     items.append({
                         'id': f"cian_{o.get('id')}",
@@ -158,6 +161,8 @@ class RealtyScraper:
                         'lng': valid_lng,
                         'geo_precision': precision,
                         'geo_source': 'cian' if precision != 'none' else 'none',
+                        'geo_accuracy': geo_accuracy,
+                        'geo_observed_at': (now_iso if valid_lat is not None else None),
                         'phone': phone_str,
                         'owner_name': 'Собственник',
                         'photos': photos[:8],

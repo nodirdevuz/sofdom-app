@@ -134,30 +134,43 @@ def get_apartments_map(
     bbox: Optional[str] = Query(None, description="min_lat,min_lng,max_lat,max_lng"),
     lat: Optional[float] = Query(None, description="Широта пользователя (Где я стою)"),
     lng: Optional[float] = Query(None, description="Долгота пользователя (Где я стою)"),
-    radius_km: Optional[float] = Query(None, description="Радиус поиска в км от точки"),
+    radius_km: Optional[float] = Query(None, gt=0, le=50.0, description="Радиус поиска в км от точки"),
     district: Optional[str] = Query(None, description="Район Томска (Кировский, Советский, Ленинский, Октябрьский)"),
     rooms: Optional[str] = Query(None),
     price_min: Optional[int] = Query(None),
     price_max: Optional[int] = Query(None),
     is_secret_only: bool = False,
-    limit: int = 250
+    limit: int = Query(250, ge=1, le=1000)
 ):
     """
     Высокоскоростной Geo-эндпоинт для интерактивной карты.
     Возвращает метки цен (желтые бейджи), координаты, районы Томска и точное расстояние от пользователя.
     """
-    return db.list_apartments_geo(
-        bbox=bbox,
-        center_lat=lat,
-        center_lng=lng,
-        radius_km=radius_km,
-        district=district,
-        rooms=rooms,
-        price_min=price_min,
-        price_max=price_max,
-        is_secret_only=is_secret_only,
-        limit=limit
-    )
+    if radius_km is not None and (lat is None or lng is None):
+        raise HTTPException(
+            status_code=400,
+            detail="Параметр radius_km требует указания координат центра (lat и lng)"
+        )
+    if (lat is not None and lng is None) or (lng is not None and lat is None):
+        raise HTTPException(
+            status_code=400,
+            detail="Координаты центра должны содержать как широту (lat), так и долготу (lng)"
+        )
+    try:
+        return db.list_apartments_geo(
+            bbox=bbox,
+            center_lat=lat,
+            center_lng=lng,
+            radius_km=radius_km,
+            district=district,
+            rooms=rooms,
+            price_min=price_min,
+            price_max=price_max,
+            is_secret_only=is_secret_only,
+            limit=limit
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
 @app.get("/api/apartments")
 def list_apartments(
