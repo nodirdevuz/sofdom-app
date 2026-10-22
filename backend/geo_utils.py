@@ -1,30 +1,120 @@
 """
 geo_utils.py
-Географические утилиты, правила районирования и валидация координат для SofDom (Томск).
+Географические утилиты, правила районирования и валидация координат для SofDom.
 
 Приоритет: точность и происхождение геолокации.
 Исключает назначение фиктивных координат центра, синтетический jitter на hash(id),
-и ошибочное присвоение районов Томска объектам за пределами города (например, Колпашево).
+и ошибочное присвоение районов одного города объектам за пределами его границ.
+
+Архитектура:
+Поддержка профилей городов (CityProfile) через реестр (CityRegistry).
+В текущей продуктовой фазе активен и валидирован профиль Томска (TOMSK_PROFILE).
+Общая геологика (валидация координат, районирование, радиусный поиск) отделена
+от городских справочников и конвертов, позволяя расширять список городов через
+регистрацию профилей без модификации алгоритмического ядра.
 """
 
 import math
 import re
-from typing import Optional, Tuple
+from dataclasses import dataclass, field
+from typing import Optional, Tuple, Dict, Set, List, Any, NamedTuple
 
 
-# --- Документированные географические границы ---
+# --- Модели конфигурации города (City Profile Architecture) ---
+
+class DistrictRule(NamedTuple):
+    """Правило сопоставления района: название, центроид (lat, lng), ключевые слова адреса."""
+    name: str
+    centroid_lat: float
+    centroid_lng: float
+    keywords: Tuple[str, ...]
+
+
+@dataclass
+class CityProfile:
+    """
+    Профиль города: инкапсулирует границы, центроиды, заглушки центра,
+    районы и локальные правила районирования/распознавания населённых пунктов.
+    """
+    name: str
+    aliases: Tuple[str, ...]
+    envelope: Dict[str, float]
+    center_lat: float
+    center_lng: float
+    placeholder_centers: Tuple[Tuple[float, float], ...]
+    districts: Set[str]
+    district_rules: List[DistrictRule]
+    non_city_settlements: Dict[str, str] = field(default_factory=dict)
+    suburbs: Tuple[str, ...] = ("Пригород",)
+
+    def is_in_envelope(self, lat: Optional[float], lng: Optional[float]) -> bool:
+        """Проверяет, попадают ли координаты в диагностический конверт агломерации города."""
+        if lat is None or lng is None:
+            return False
+        try:
+            f_lat = float(lat)
+            f_lng = float(lng)
+            return (self.envelope["min_lat"] <= f_lat <= self.envelope["max_lat"] and
+                    self.envelope["min_lng"] <= f_lng <= self.envelope["max_lng"])
+        except (ValueError, TypeError):
+            return False
+
+    def is_placeholder(self, lat: Optional[float], lng: Optional[float], tolerance: float = 0.001) -> bool:
+        """Проверяет, являются ли координаты синтетической заглушкой центра города."""
+        if lat is None or lng is None:
+            return False
+        try:
+            f_lat = float(lat)
+            f_lng = float(lng)
+            for p_lat, p_lng in self.placeholder_centers:
+                if abs(f_lat - p_lat) < tolerance and abs(f_lng - p_lng) < tolerance:
+                    return True
+            return False
+        except (ValueError, TypeError):
+            return False
+
+    def detect_district(
+        self,
+        address: Optional[str],
+        title: Optional[str] = "",
+        lat: Optional[float] = None,
+        lng: Optional[float] = None,
+        current_district: Optional[str] = None
+    ) -> Optional[str]:
+        """
+        Определяет район города по правилам ключевых слов адреса.
+        Если координаты заданы и лежат вне конверта города — район не присваивается.
+        Никогда не назначает fallback-район без подтверждения ключевыми словами.
+        """
+        if lat is not None and lng is not None and not self.is_in_envelope(lat, lng):
+            return None
+
+        text_lower = f"{address or ''} {title or ''}".lower()
+
+        # 1. Поиск по правилам ключевых слов района
+        for rule in self.district_rules:
+            if any(kw in text_lower for kw in rule.keywords):
+                return rule.name
+
+        # 2. Если уже был район из проверенного источника и он входит в официальные районы города
+        if current_district and current_district in self.districts:
+            # Для Томска: отсекаем исторический синтетический fallback 'Советский район' без оснований в тексте
+            if current_district == "Советский район" and self.name == "Томск":
+                soviet_kws = ["фрунзе", "комсомольск", "сибирск", "алтайск", "нечевск",
+                              "никитин", "шевченко", "герцен", "кулагин", "тверск",
+                              "гогол", "крылов", "чкалов", "советский"]
+                if any(kw in text_lower for kw in soviet_kws):
+                    return current_district
+                return None
+            return current_district
+
+        return None
+
+
+# --- Профиль Томска (Единственный активный город текущего этапа) ---
 
 # Диагностический конверт (bounding envelope) Томска и прилегающей агломерации
 # (включая Северск, Зональную Станцию, Кисловку, Тимирязевское, Богашёво, Левобережный).
-# Источник и назначение:
-#   Используется исключительно как первичный диагностический фильтр согласованности,
-#   чтобы отличать объекты Томской агломерации (радиус ~20-25 км от центра)
-#   от удалённых населённых пунктов Томской области (Колпашево ~300 км, Асино ~100 км,
-#   Стрежевой ~900 км, Белый Яр ~300 км и др.).
-# Пограничные случаи:
-#   Не является официальным муниципальным полигоном границы города.
-#   Объекты вне конверта не считаются находящимися в черте Томска,
-#   но могут иметь точные координаты в своём населённом пункте.
 TOMSK_AGGLOMERATION_ENVELOPE = {
     "min_lat": 56.30,
     "max_lat": 56.70,
@@ -66,31 +156,78 @@ TOMSK_CITY_DISTRICTS = {
 }
 
 # Правила сопоставления адреса с районами Томска и центроиды районов
-TOMSK_DISTRICT_RULES = [
-    ("Кировский район", 56.460, 84.970, [
+TOMSK_DISTRICT_RULES: List[DistrictRule] = [
+    DistrictRule("Кировский район", 56.460, 84.970, (
         "усов", "киров", "красноармейск", "мокрушин", "елизаров", "нахимов", "котовск",
         "учебн", "вершинин", "дзержинск", "студенческ", "южн", "буревестник", "тимаков",
         "тгу", "тпу", "сибгму", "лагерный", "южная", "кировский"
-    ]),
-    ("Советский район", 56.478, 84.985, [
+    )),
+    DistrictRule("Советский район", 56.478, 84.985, (
         "фрунзе", "комсомольск", "сибирск", "алтайск", "нечевск", "никитин", "шевченко",
         "герцен", "кулагин", "тверск", "гогол", "крылов", "чкалов", "советский"
-    ]),
-    ("Ленинский район", 56.515, 84.960, [
+    )),
+    DistrictRule("Ленинский район", 56.515, 84.960, (
         "мир", "79 гвардейск", "каштак", "войков", "говоров", "смирнов", "березов",
         "пролетарск", "большая подгорн", "черемошник", "интернационалист", "карла маркс",
         "5-й арми", "ленинский"
-    ]),
-    ("Октябрьский район", 56.508, 85.030, [
+    )),
+    DistrictRule("Октябрьский район", 56.508, 85.030, (
         "иркутск", "лазо", "герасименко", "солнечн", "зеленые горк", "зелёные горк",
         "беринг", "клюев", "архитектор", "пушкин", "мичурин", "энтузиаст", "бауман",
         "черноморск", "октябрьский"
-    ]),
-    ("Пригород", 56.425, 85.015, [
+    )),
+    DistrictRule("Пригород", 56.425, 85.015, (
         "зональн", "южные ворот", "кисловк", "левобережн", "тимирязев", "северск"
-    ])
+    ))
 ]
 
+TOMSK_PROFILE = CityProfile(
+    name="Томск",
+    aliases=("томск", "tomsk", "г. томск", "город томск", "г.томск"),
+    envelope=TOMSK_AGGLOMERATION_ENVELOPE,
+    center_lat=56.4977,
+    center_lng=84.9744,
+    placeholder_centers=((56.4977, 84.9744),),
+    districts=TOMSK_CITY_DISTRICTS,
+    district_rules=TOMSK_DISTRICT_RULES,
+    non_city_settlements=KNOWN_NON_TOMSK_SETTLEMENTS,
+    suburbs=("Пригород",)
+)
+
+
+# --- Реестр профилей городов (City Registry) ---
+
+CITY_REGISTRY: Dict[str, CityProfile] = {}
+
+
+def register_city_profile(profile: CityProfile) -> None:
+    """Регистрирует профиль города в глобальном реестре."""
+    CITY_REGISTRY[profile.name.lower()] = profile
+    for alias in profile.aliases:
+        CITY_REGISTRY[alias.lower()] = profile
+
+
+def get_city_profile(city: Optional[str]) -> Optional[CityProfile]:
+    """
+    Возвращает профиль города по названию или псевдониму.
+    Если город не зарегистрирован или None — возвращает None.
+    """
+    if not city:
+        return None
+    return CITY_REGISTRY.get(city.strip().lower())
+
+
+def list_registered_cities() -> List[str]:
+    """Возвращает отсортированный список официально зарегистрированных городов."""
+    unique_names = {p.name for p in CITY_REGISTRY.values()}
+    return sorted(unique_names)
+
+
+# Регистрируем единственный активный профиль текущего этапа — Томск
+register_city_profile(TOMSK_PROFILE)
+
+
+# --- Общие географические алгоритмы и функции ---
 
 def haversine_distance(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
     """Вычисляет расстояние между двумя географическими координатами в километрах."""
@@ -101,119 +238,6 @@ def haversine_distance(lat1: float, lon1: float, lat2: float, lon2: float) -> fl
          math.cos(math.radians(lat1)) * math.cos(math.radians(lat2)) *
          math.sin(dlon / 2) ** 2)
     return round(2 * R * math.asin(math.sqrt(a)), 2)
-
-
-def is_center_placeholder(lat: Optional[float], lng: Optional[float]) -> bool:
-    """Проверяет, являются ли координаты синтетической заглушкой центра Томска."""
-    if lat is None or lng is None:
-        return False
-    try:
-        return (abs(float(lat) - TOMSK_CENTER_PLACEHOLDER_LAT) < 0.001 and
-                abs(float(lng) - TOMSK_CENTER_PLACEHOLDER_LNG) < 0.001)
-    except (ValueError, TypeError):
-        return False
-
-
-def is_in_tomsk_envelope(lat: Optional[float], lng: Optional[float]) -> bool:
-    """Проверяет, попадают ли координаты в широкий диагностический конверт агломерации Томска."""
-    if lat is None or lng is None:
-        return False
-    try:
-        f_lat = float(lat)
-        f_lng = float(lng)
-        env = TOMSK_AGGLOMERATION_ENVELOPE
-        return (env["min_lat"] <= f_lat <= env["max_lat"] and
-                env["min_lng"] <= f_lng <= env["max_lng"])
-    except (ValueError, TypeError):
-        return False
-
-
-def detect_city(
-    address: Optional[str],
-    raw_city: Optional[str] = None,
-    lat: Optional[float] = None,
-    lng: Optional[float] = None
-) -> str:
-    """
-    Определяет реальный населённый пункт объявления по адресу, сырому городу и координатам.
-    Предотвращает запись 'Томск' для объектов из других городов области (Колпашево, Северск и т.д.).
-    """
-    addr_clean = (address or "").lower()
-
-    # 1. Проверка по ключевым словам других населённых пунктов области
-    for pattern, city_name in KNOWN_NON_TOMSK_SETTLEMENTS.items():
-        if pattern in addr_clean:
-            return city_name
-
-    # 2. Если адрес прямо содержит 'Северск'
-    if "северск" in addr_clean:
-        return "Северск"
-
-    # 3. Если координаты заведомо далеко за пределами Томска (например, Колпашево ~58.3°)
-    if lat is not None and lng is not None:
-        try:
-            f_lat = float(lat)
-            f_lng = float(lng)
-            if f_lat > 57.5 and f_lng < 84.0:
-                # Север/северо-запад области (Колпашевский, Парабельский районы)
-                if "колпашев" in addr_clean or "нефтеразведчик" in addr_clean:
-                    return "Колпашево"
-        except (ValueError, TypeError):
-            pass
-
-    # 4. Если указан raw_city и он не является дефолтным Томском
-    if raw_city and raw_city.strip() and raw_city.strip() != "Томск":
-        return raw_city.strip()
-
-    return "Томск"
-
-
-def detect_tomsk_district(
-    address: Optional[str],
-    title: Optional[str] = "",
-    city: str = "Томск",
-    lat: Optional[float] = None,
-    lng: Optional[float] = None,
-    current_district: Optional[str] = None
-) -> Optional[str]:
-    """
-    Определяет район Томска по правилам ключевых слов адреса.
-
-    Критически важные гарантии:
-    1. Не назначает районы Томска объектам вне Томска (Колпашево, Асино и др.).
-    2. НИКОГДА не назначает 'Советский район' в качестве безусловного fallback.
-       Если район определить невозможно — возвращается None.
-    """
-    # Если город не Томск и не Пригород — район Томска недопустим
-    if city and city not in ("Томск", "Пригород"):
-        return None
-
-    # Если координаты заданы и лежат далеко вне Томска — район Томска недопустим
-    if lat is not None and lng is not None and not is_in_tomsk_envelope(lat, lng):
-        return None
-
-    text_lower = f"{address or ''} {title or ''}".lower()
-
-    # Сопоставление по правилам
-    for d_name, _, _, keywords in TOMSK_DISTRICT_RULES:
-        if any(kw in text_lower for kw in keywords):
-            return d_name
-
-    # Если уже был район из достоверного источника и он совпадает с районами Томска
-    if current_district and current_district in TOMSK_CITY_DISTRICTS:
-        # Проверяем, не был ли это ошибочный fallback 'Советский район' без оснований
-        if current_district == "Советский район":
-            # Проверяем, есть ли хотя бы косвенные признаки
-            soviet_kws = ["фрунзе", "комсомольск", "сибирск", "алтайск", "нечевск",
-                          "никитин", "шевченко", "герцен", "кулагин", "тверск",
-                          "гогол", "крылов", "чкалов", "советский"]
-            if any(kw in text_lower for kw in soviet_kws):
-                return current_district
-            # Иначе это был фиктивный fallback — очищаем
-            return None
-        return current_district
-
-    return None
 
 
 def calc_radius_bbox(
@@ -241,25 +265,165 @@ def calc_radius_bbox(
     return min_lat, max_lat, min_lng, max_lng
 
 
+def is_center_placeholder(
+    lat: Optional[float],
+    lng: Optional[float],
+    city: Optional[str] = "Томск"
+) -> bool:
+    """
+    Проверяет, являются ли координаты синтетической заглушкой центра.
+    Если профиль города найден — проверяет по его placeholder_centers.
+    Если профиль не найден или city не передан — проверяет по заглушкам всех
+    зарегистрированных профилей (для безопасного отсева фиктивных точек).
+    """
+    if lat is None or lng is None:
+        return False
+    profile = get_city_profile(city) if city else None
+    if profile:
+        return profile.is_placeholder(lat, lng)
+    seen = set()
+    for p in CITY_REGISTRY.values():
+        if p.name not in seen:
+            seen.add(p.name)
+            if p.is_placeholder(lat, lng):
+                return True
+    return False
+
+
+def is_in_city_envelope(
+    lat: Optional[float],
+    lng: Optional[float],
+    city: Optional[str] = "Томск"
+) -> bool:
+    """
+    Проверяет, попадают ли координаты в диагностический конверт профиля города.
+    Если для города нет зарегистрированного профиля — возвращает False
+    (неизвестный город никогда ошибочно не проверяется по конверту Томска).
+    """
+    profile = get_city_profile(city)
+    if profile is None:
+        return False
+    return profile.is_in_envelope(lat, lng)
+
+
+def is_in_tomsk_envelope(lat: Optional[float], lng: Optional[float]) -> bool:
+    """Обратная совместимость: проверяет попадание в конверт Томска."""
+    return TOMSK_PROFILE.is_in_envelope(lat, lng)
+
+
+def detect_city(
+    address: Optional[str],
+    raw_city: Optional[str] = None,
+    lat: Optional[float] = None,
+    lng: Optional[float] = None,
+    default_city: str = "Томск"
+) -> str:
+    """
+    Определяет реальный населённый пункт объявления по адресу, сырому городу и координатам.
+    Предотвращает запись 'Томск' для объектов из других городов области (Колпашево, Северск и т.д.).
+    Если raw_city явно указан и не является дефолтным (например, другой город) — возвращает его.
+    """
+    addr_clean = (address or "").lower()
+
+    # 1. Если указан raw_city и он не является дефолтным городом и не пустой
+    if raw_city and raw_city.strip() and raw_city.strip() != default_city:
+        return raw_city.strip()
+
+    # 2. Проверка по населённым пунктам профиля по умолчанию (для Томска — населённые пункты Томской области)
+    profile = get_city_profile(default_city)
+    non_city = profile.non_city_settlements if profile else KNOWN_NON_TOMSK_SETTLEMENTS
+    for pattern, city_name in non_city.items():
+        if pattern in addr_clean:
+            return city_name
+
+    # 3. Если адрес прямо содержит 'Северск'
+    if "северск" in addr_clean:
+        return "Северск"
+
+    # 4. Если координаты заведомо далеко за пределами Томска (например, Колпашево ~58.3°)
+    if profile and profile.name == "Томск" and lat is not None and lng is not None:
+        try:
+            f_lat = float(lat)
+            f_lng = float(lng)
+            if f_lat > 57.5 and f_lng < 84.0:
+                if "колпашев" in addr_clean or "нефтеразведчик" in addr_clean:
+                    return "Колпашево"
+        except (ValueError, TypeError):
+            pass
+
+    return default_city
+
+
+def detect_district(
+    address: Optional[str],
+    title: Optional[str] = "",
+    city: Optional[str] = "Томск",
+    lat: Optional[float] = None,
+    lng: Optional[float] = None,
+    current_district: Optional[str] = None
+) -> Optional[str]:
+    """
+    Определяет район города по правилам зарегистрированного профиля города.
+    Если город не зарегистрирован (или None) — возвращает None, исключая
+    ошибочное присвоение районов Томска объектам из других/неизвестных городов.
+    """
+    profile = get_city_profile(city)
+    if profile is None:
+        # Для пригорода Томска пробуем профиль Томска
+        if city and city in TOMSK_PROFILE.suburbs:
+            profile = TOMSK_PROFILE
+        else:
+            return None
+
+    return profile.detect_district(
+        address=address,
+        title=title,
+        lat=lat,
+        lng=lng,
+        current_district=current_district
+    )
+
+
+def detect_tomsk_district(
+    address: Optional[str],
+    title: Optional[str] = "",
+    city: str = "Томск",
+    lat: Optional[float] = None,
+    lng: Optional[float] = None,
+    current_district: Optional[str] = None
+) -> Optional[str]:
+    """Обратная совместимость: определяет район через detect_district."""
+    return detect_district(
+        address=address,
+        title=title,
+        city=city,
+        lat=lat,
+        lng=lng,
+        current_district=current_district
+    )
+
+
 def classify_coordinates(
     lat: Optional[float],
     lng: Optional[float],
-    city: str = "Томск",
+    city: Optional[str] = "Томск",
     source: str = "none",
     accuracy: Optional[str] = None
 ) -> Tuple[Optional[float], Optional[float], str]:
     """
     Классифицирует координаты и определяет уровень их точности (provenance):
       - 'exact': числовые координаты получены от источников с подтверждённой точностью
-        до адреса/дома (источники: 'verified', 'test_verified').
+        до адреса/дома (источники: 'verified', 'test_verified') И подтверждены
+        в рамках зарегистрированного профиля города (внутри диагностического конверта).
+        Отсутствие профиля города НИКОГДА не даёт статус 'exact'.
       - 'unknown': валидные числовые координаты получены от источника (Циан), но точный уровень
         привязки (до дома vs до улицы/района) не подтверждён провайдером в открытых метаданных.
-        Сохраняются для отображения на карте с предупреждающей меткой '?', но исключаются
-        из строгого поиска по радиусу во избежание ложной точности.
-      - 'approximate': центроид района или населённого пункта (поддерживается на уровне
-        модели данных/API/UI, но текущие продакшен-сборщики его НЕ генерируют);
-      - 'none': координаты отсутствуют, невалидны, являются заглушкой центра или
-        получены из источников, не передающих координаты (Авито, БезПосредников).
+        Сохраняются для карты с меткой '?', но исключаются из строгого радиусного поиска.
+        Для неизвестных городов не проверяются по конверту Томска, сохраняя статус 'unknown'.
+      - 'approximate': центроид района или населённого пункта.
+      - 'none': координаты отсутствуют, невалидны, являются заглушкой центра,
+        получены из неподтверждённых источников (Авито, БезПосредников) или
+        лежат вне конверта города.
 
     Возвращает (clean_lat, clean_lng, precision).
     """
@@ -282,35 +446,38 @@ def classify_coordinates(
     if not (-90.0 <= f_lat <= 90.0 and -180.0 <= f_lng <= 180.0):
         return None, None, "none"
 
-    # Синтетическая точка центра Томска (56.4977, 84.9744)
-    if is_center_placeholder(f_lat, f_lng):
+    profile = get_city_profile(city)
+
+    # Проверка на синтетическую заглушку центра города
+    if is_center_placeholder(f_lat, f_lng, city=city):
         return None, None, "none"
 
-    # Источники Авито и БезПосредников в текущих сборщиках не предоставляют проверенные
-    # координаты объектов (ранее им присваивался центр Томска или синтетический jitter).
-    # Без подтверждённой внешней provenance их координаты считаются недостоверными ('none').
+    # Источники Авито и БезПосредников
     if source in ("avito", "bezposrednikov", "legacy"):
         return None, None, "none"
 
     # Проверенные модерацией или тестами источники с подтверждённой точностью до дома
     if source in ("verified", "test_verified"):
-        if city == "Томск" and not is_in_tomsk_envelope(f_lat, f_lng):
+        # Без зарегистрированного профиля города невозможно валидировать границы;
+        # отсутствие профиля города НИКОГДА не повышает статус до exact
+        if profile is None:
+            return None, None, "none"
+        if not profile.is_in_envelope(f_lat, f_lng):
             return None, None, "none"
         return round(f_lat, 6), round(f_lng, 6), "exact"
 
-    # Источник Циан: в публичных поисковых выдачах Циан координаты присутствуют,
-    # но признак гарантированной точности до дома (а не улицы/района) провайдером
-    # в текущем открытом API не подтверждён фикстурами.
-    # Поэтому координаты Циан сохраняются для отображения на карте, но строго
-    # маркируются как 'unknown' (с бейджем '?' на клиенте) и не допускаются
-    # в строгий поиск по радиусу во избежание ложной точности.
+    # Источник Циан: координаты сохраняются для карты с меткой '?',
+    # но строго маркируются как 'unknown' и исключаются из строгого радиусного поиска
     if source == "cian" or source.startswith("cian"):
-        if city == "Томск" and not is_in_tomsk_envelope(f_lat, f_lng):
-            return None, None, "none"
+        # Если профиль зарегистрирован (Томск) — проверяем согласованность с конвертом города
+        if profile is not None:
+            if not profile.is_in_envelope(f_lat, f_lng):
+                return None, None, "none"
+        # Для неизвестного города координаты Циан не проверяются по конверту Томска,
+        # но строго остаются 'unknown' (отсутствие профиля не даёт exact)
         return round(f_lat, 6), round(f_lng, 6), "unknown"
 
     if source in ("approximate", "district_centroid"):
         return round(f_lat, 6), round(f_lng, 6), "approximate"
 
-    # Для неизвестных или не проверенных источников числовая валидность не даёт права заявлять exact
     return None, None, "none"

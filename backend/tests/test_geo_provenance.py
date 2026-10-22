@@ -29,10 +29,19 @@ from geo_utils import (
     TOMSK_CENTER_PLACEHOLDER_LAT,
     TOMSK_CENTER_PLACEHOLDER_LNG,
     detect_city,
+    detect_district,
     detect_tomsk_district,
     classify_coordinates,
     is_center_placeholder,
     is_in_tomsk_envelope,
+    is_in_city_envelope,
+    CityProfile,
+    DistrictRule,
+    TOMSK_PROFILE,
+    get_city_profile,
+    list_registered_cities,
+    register_city_profile,
+    CITY_REGISTRY,
 )
 import db
 
@@ -1427,6 +1436,174 @@ class TestRadiusCandidateChunking(unittest.TestCase):
         # а между собой они должны отсортироваться: secret=1 (30k) -> secret=0 (30k) -> secret=0 (40k)
         self.assertEqual(returned_ids, ["pt_close_secret", "pt_close_regular", "pt_close_expensive"])
         self.assertNotIn("pt_far", returned_ids)
+
+
+class TestCityProfileArchitectureAndExtensibility(unittest.TestCase):
+    """
+    Поведенческие тесты архитектуры профилей городов (CityProfile / CityRegistry).
+    Гарантирует:
+    1. Профиль Томска зарегистрирован и извлекается по имени и всем алиасам.
+    2. В текущем этапе активен только Томск (нет хардкода Новосибирска, Москвы и др.).
+    3. Неизвестные/будущие города не наследуют конверт Томска.
+    4. Неизвестные города ни при каких условиях не получают районы Томска.
+    5. Координаты Циан для неизвестных городов не фильтруются томским конвертом,
+       но строго остаются 'unknown' (отсутствие профиля никогда не повышает точность).
+    6. Отсутствие профиля города строго запрещает присвоение точности 'exact'.
+    7. Будущий профиль города может быть зарегистрирован без правки общего алгоритма.
+    8. Все существующие кейсы Томска сохраняются в неизменном виде.
+    """
+
+    def test_tomsk_profile_registration_and_aliases(self):
+        """Профиль Томска доступен по основному имени и всем документированным псевдонимам."""
+        profile = get_city_profile("Томск")
+        self.assertIsNotNone(profile)
+        self.assertEqual(profile.name, "Томск")
+        self.assertIs(profile, TOMSK_PROFILE)
+
+        # Проверка регистра и алиасов
+        self.assertIs(get_city_profile("томск"), TOMSK_PROFILE)
+        self.assertIs(get_city_profile("Tomsk"), TOMSK_PROFILE)
+        self.assertIs(get_city_profile(" г. Томск "), TOMSK_PROFILE)
+        self.assertIs(get_city_profile("город томск"), TOMSK_PROFILE)
+        self.assertIs(get_city_profile("г.томск"), TOMSK_PROFILE)
+
+        # Список зарегистрированных городов содержит ровно Томск на текущем этапе
+        self.assertEqual(list_registered_cities(), ["Томск"])
+
+    def test_unknown_and_future_cities_have_no_profile_currently(self):
+        """Города, не запущенные в текущем этапе, не имеют профилей и не придумываются отсебятиной."""
+        for city_name in ["Новосибирск", "Москва", "Санкт-Петербург", "Красноярск", "Барнаул", "", None]:
+            self.assertIsNone(get_city_profile(city_name))
+
+    def test_unknown_city_does_not_inherit_tomsk_envelope(self):
+        """Координаты неизвестного города не проверяются ошибочно по конверту Томска."""
+        # Координаты в Красноярске (56.01, 92.86) для города 'Красноярск'
+        self.assertFalse(is_in_city_envelope(56.01, 92.86, city="Красноярск"))
+
+        # Даже если координаты физически лежат в черте Томска, для города 'Красноярск'
+        # envelope профиля отсутствует, поэтому возвращается False (нет ложной привязки)
+        self.assertFalse(is_in_city_envelope(56.48, 84.95, city="Красноярск"))
+
+        # Но для Томска те же координаты возвращают True
+        self.assertTrue(is_in_city_envelope(56.48, 84.95, city="Томск"))
+
+    def test_unknown_city_never_gets_tomsk_districts(self):
+        """Объекты неизвестного или другого города ни при каких условиях не получают районы Томска."""
+        # Улица Кирова есть во многих городах, но для Красноярска район Томска недопустим
+        self.assertIsNone(detect_district("г. Красноярск, ул. Кирова, 15", city="Красноярск"))
+        self.assertIsNone(detect_tomsk_district("г. Красноярск, ул. Кирова, 15", city="Красноярск"))
+
+        # Проспект Фрунзе для Новосибирска не должен становиться Советским районом Томска
+        self.assertIsNone(detect_district("г. Новосибирск, пр. Фрунзе, 20", city="Новосибирск"))
+
+        # Даже если передан current_district='Советский район', для чужого города он сбрасывается в None
+        self.assertIsNone(detect_district("ул. Ленина, 1", city="Красноярск", current_district="Советский район"))
+
+        # А для Томска сопоставление районов штатно работает
+        self.assertEqual(detect_district("г. Томск, ул. Кирова, 15", city="Томск"), "Кировский район")
+        self.assertEqual(detect_district("г. Томск, пр. Фрунзе, 20", city="Томск"), "Советский район")
+
+    def test_unknown_city_cian_coords_not_filtered_by_tomsk_envelope_and_stay_unknown(self):
+        """
+        Координаты Циан для неизвестного города не отбрасываются томским конвертом,
+        но строго сохраняют статус 'unknown' (отсутствие профиля не повышает точность).
+        """
+        # Координаты в Красноярске (56.01, 92.86) далеко за пределами конверта Томска (84.6-85.4)
+        c_lat, c_lng, prec = classify_coordinates(56.012345, 92.865432, city="Красноярск", source="cian")
+        self.assertIsNotNone(c_lat)
+        self.assertIsNotNone(c_lng)
+        self.assertEqual(c_lat, 56.012345)
+        self.assertEqual(c_lng, 92.865432)
+        # КРИТИЧЕСКИ ВАЖНО: статус строго unknown, а не exact
+        self.assertEqual(prec, "unknown")
+
+    def test_unknown_city_profile_absence_never_elevates_to_exact(self):
+        """
+        Отсутствие зарегистрированного профиля города строго запрещает получение статуса 'exact',
+        поскольку невозможно валидировать границы и привязку объекта.
+        """
+        # Даже если источник заявляет 'verified', без профиля города exact недопустим
+        c_lat, c_lng, prec = classify_coordinates(56.01, 92.86, city="Красноярск", source="verified")
+        self.assertIsNone(c_lat)
+        self.assertIsNone(c_lng)
+        self.assertEqual(prec, "none")
+
+        c_lat2, c_lng2, prec2 = classify_coordinates(56.48, 84.95, city="Красноярск", source="test_verified")
+        self.assertIsNone(c_lat2)
+        self.assertIsNone(c_lng2)
+        self.assertEqual(prec2, "none")
+
+    def test_extensibility_future_city_profile_registration_without_core_modification(self):
+        """
+        Демонстрация масштабируемости: новый город подключается через регистрацию CityProfile
+        без модификации общего алгоритмического ядра geo_utils.py.
+        """
+        test_city_profile = CityProfile(
+            name="Тестоград",
+            aliases=("тестоград", "testograd"),
+            envelope={"min_lat": 50.0, "max_lat": 51.0, "min_lng": 80.0, "max_lng": 81.0},
+            center_lat=50.5,
+            center_lng=80.5,
+            placeholder_centers=((50.5000, 80.5000),),
+            districts={"Центральный район", "Заречный район"},
+            district_rules=[
+                DistrictRule("Центральный район", 50.51, 80.51, ("центральн", "главн")),
+                DistrictRule("Заречный район", 50.55, 80.55, ("заречн", "речн"))
+            ],
+            non_city_settlements={"посёлок": "Посёлок"}
+        )
+
+        try:
+            # Регистрируем профиль в реестре
+            register_city_profile(test_city_profile)
+
+            # 1. Профиль извлекается по имени и алиасу
+            self.assertIs(get_city_profile("Тестоград"), test_city_profile)
+            self.assertIs(get_city_profile("testograd"), test_city_profile)
+
+            # 2. Конверт нового города работает через общую функцию
+            self.assertTrue(is_in_city_envelope(50.52, 80.52, city="Тестоград"))
+            self.assertFalse(is_in_city_envelope(56.48, 84.95, city="Тестоград"))
+
+            # 3. Районирование нового города работает через общую функцию
+            dist = detect_district("ул. Главная, 5", city="Тестоград")
+            self.assertEqual(dist, "Центральный район")
+
+            # 4. Проверенные координаты в конверте нового города получают exact
+            c_lat, c_lng, prec = classify_coordinates(50.52, 80.52, city="Тестоград", source="verified")
+            self.assertEqual(prec, "exact")
+            self.assertEqual(c_lat, 50.52)
+
+            # 5. Заглушка центра нового города корректно отсекается
+            c_lat_p, _, prec_p = classify_coordinates(50.5000, 80.5000, city="Тестоград", source="cian")
+            self.assertEqual(prec_p, "none")
+            self.assertIsNone(c_lat_p)
+        finally:
+            # Очищаем реестр, возвращая к строго единственному профилю Томска
+            CITY_REGISTRY.pop("тестоград", None)
+            CITY_REGISTRY.pop("testograd", None)
+
+    def test_tomsk_existing_geo_behavior_fully_preserved(self):
+        """Все существующие инварианты Томска сохраняются в неизменном виде."""
+        # 1. Проверенный источник в Томске -> exact
+        lat, lng, prec = classify_coordinates(56.480000, 84.950000, city="Томск", source="verified")
+        self.assertEqual(prec, "exact")
+        self.assertEqual(lat, 56.48)
+
+        # 2. Циан в Томске -> unknown (не exact)
+        lat_c, lng_c, prec_c = classify_coordinates(56.480000, 84.950000, city="Томск", source="cian")
+        self.assertEqual(prec_c, "unknown")
+        self.assertEqual(lat_c, 56.48)
+
+        # 3. Циан вне конверта Томска (Колпашево) -> none
+        lat_k, lng_k, prec_k = classify_coordinates(58.31, 82.90, city="Томск", source="cian")
+        self.assertEqual(prec_k, "none")
+        self.assertIsNone(lat_k)
+
+        # 4. Заглушка центра Томска -> none
+        lat_z, lng_z, prec_z = classify_coordinates(56.4977, 84.9744, city="Томск", source="cian")
+        self.assertEqual(prec_z, "none")
+        self.assertIsNone(lat_z)
 
 
 if __name__ == "__main__":
