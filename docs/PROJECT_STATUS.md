@@ -19,6 +19,8 @@
 
 **Последний связанный коммит:** `08f6218 fix: persist only verified partner photos` (предыдущие этапы: `c762009`, `b4743a5`, `b9dc6b9`).
 
+**Обновление 2026-10-24 (нормализованная связь фото↔объявление).** Добавлена таблица `photos` (`backend/db.py`): у каждой фотографии свой стабильный `photo_id`, который содержит `apartment_id`, и внешний ключ `FOREIGN KEY(apartment_id) REFERENCES apartments(id) ON DELETE CASCADE`. Теперь фотография жёстко принадлежит одному объявлению и не может «утечь» в чужое. `apartments.photos_json` остаётся как кэш отображения; таблица `photos` — источник истины. `upsert_apartment` синхронизирует фото в той же транзакции; `get_apartment_by_id` отдаёт `photos_detailed` (`photo_id`, `url`, `position`). Миграция/бэкфилл: `backend/migrate_photos_table.py` (идемпотентно; на рабочей базе: 170 объявлений → 1044 фото, целостность OK). Тесты: `backend/tests/test_photo_linkage.py` (8, offline). Попутно починен падавший на старой базе `init_db` (не хватало `url` и ещё 4 колонок в мягкой миграции). Рабочая `realty.db` выведена из-под git и в `.gitignore`.
+
 **Проверено 2026-10-22:** `python3 -m unittest backend.tests.test_photo_integrity -q` — 22 теста OK; frontend `npm run build` — успешно; admin `npm test -- --run` — 28 тестов OK, `npm run typecheck` и `npm run build` — успешно; `git diff --check 08f6218^ 08f6218` — чисто.
 
 **Не закрыто:** совпадение `sid` подтверждает только формальную принадлежность URL галерее источника, но не подлинность/актуальность изображения. Не выполнялась визуальная проверка каждой фотографии.

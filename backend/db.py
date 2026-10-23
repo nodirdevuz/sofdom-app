@@ -12,6 +12,7 @@ import os
 import math
 import heapq
 import re
+import hashlib
 from datetime import datetime, date, timedelta
 from urllib.parse import parse_qs, urlparse
 
@@ -201,6 +202,27 @@ def init_db(db_path=DB_PATH):
         );
         """)
 
+        # --- Photos: one row per photo, with its own stable ID, hard-linked to
+        # exactly one apartment via a foreign key. This guarantees every photo
+        # belongs to its own listing and cannot leak to another one. photos_json
+        # on apartments stays as a denormalised display cache; this table is the
+        # source of truth for photo<->listing integrity.
+        cursor.execute("""
+        CREATE TABLE IF NOT EXISTS photos (
+            photo_id TEXT PRIMARY KEY,
+            apartment_id TEXT NOT NULL,
+            url TEXT NOT NULL,
+            position INTEGER NOT NULL DEFAULT 0,
+            source TEXT,
+            source_gallery_id TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE(apartment_id, url),
+            FOREIGN KEY (apartment_id) REFERENCES apartments(id) ON DELETE CASCADE
+        );
+        """)
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_photos_apartment ON photos(apartment_id);")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_photos_apartment_pos ON photos(apartment_id, position);")
+
         # Check if new columns need to be added to users
         cursor.execute("PRAGMA table_info(users)")
         user_cols = [row["name"] for row in cursor.fetchall()]
@@ -220,6 +242,11 @@ def init_db(db_path=DB_PATH):
         existing_cols = [row["name"] for row in cursor.fetchall()]
 
         cols_to_add = [
+            ("is_secret_early_access", "INTEGER DEFAULT 0"),
+            ("phone", "TEXT"),
+            ("photos_json", "TEXT DEFAULT '[]'"),
+            ("description", "TEXT DEFAULT ''"),
+            ("url", "TEXT DEFAULT ''"),
             ("secret_until", "TIMESTAMP"),
             ("district", "TEXT"),
             ("rooms", "TEXT DEFAULT '1-комн'"),
@@ -469,6 +496,163 @@ def mask_phone(phone: str) -> str:
 def re_digits(text: str) -> str:
     return "".join(c for c in str(text) if c.isdigit())
 
+def _photo_id(apartment_id: str, url: str) -> str:
+    """Stable, collision-resistant photo id that embeds its apartment.
+
+    Same (apartment, url) always yields the same id, so re-syncing a listing is
+    idempotent and reordering photos never reassigns a photo to another listing.
+    """
+    digest = hashlib.sha1(f"{apartment_id}|{url}".encode("utf-8")).hexdigest()[:12]
+    return f"{apartment_id}-ph-{digest}"
+
+
+def _extract_gallery_id(url: str) -> str:
+    """Best-effort provenance: the source gallery/folder a photo URL belongs to.
+
+    Used only as metadata to detect cross-listing contamination; never guesses.
+    """
+    if not url:
+        return ""
+    try:
+        path = urlparse(url).path or ""
+    except Exception:
+        return ""
+    # Avito: /image/1/1.<token> ; Cian: /images/<slug>-<id>-<idx>.jpg ;
+    # BezPosrednikov: /galleries/<hash>/<lot_id>/<photo>.jpg
+    m = re.search(r"/galleries/[^/]+/(\d+)/", path)
+    if m:
+        return m.group(1)
+    m = re.search(r"/images/([a-z0-9-]+?)-\d+\.(?:jpg|jpeg|png|webp)", path, re.I)
+    if m:
+        return m.group(1)
+    return ""
+
+
+def sync_apartment_photos(cursor, apartment_id: str, source: str, photos) -> int:
+    """Make the photos table match `photos` (ordered list of URLs) for one listing.
+
+    Strictly scoped to this apartment_id: only its own rows are touched. Returns
+    the number of photos now linked to the listing. Must run inside an open
+    transaction where the apartment row already exists (FK target).
+    """
+    apartment_id = str(apartment_id)
+    if isinstance(photos, str):
+        try:
+            photos = json.loads(photos or "[]")
+        except Exception:
+            photos = []
+    if not isinstance(photos, list):
+        photos = []
+
+    # Normalise: keep order, drop blanks, de-duplicate within this listing.
+    seen = set()
+    clean = []
+    for u in photos:
+        if not isinstance(u, str):
+            continue
+        u = u.strip()
+        if not u or u in seen:
+            continue
+        seen.add(u)
+        clean.append(u)
+
+    keep_ids = []
+    for pos, url in enumerate(clean):
+        pid = _photo_id(apartment_id, url)
+        keep_ids.append(pid)
+        cursor.execute(
+            """
+            INSERT INTO photos (photo_id, apartment_id, url, position, source, source_gallery_id)
+            VALUES (:pid, :aid, :url, :pos, :source, :gid)
+            ON CONFLICT(photo_id) DO UPDATE SET
+                position = excluded.position,
+                source = excluded.source,
+                source_gallery_id = excluded.source_gallery_id
+            """,
+            {
+                "pid": pid,
+                "aid": apartment_id,
+                "url": url,
+                "pos": pos,
+                "source": source,
+                "gid": _extract_gallery_id(url),
+            },
+        )
+
+    # Remove photos that no longer belong to this listing (only its own rows).
+    if keep_ids:
+        placeholders = ",".join("?" for _ in keep_ids)
+        cursor.execute(
+            f"DELETE FROM photos WHERE apartment_id = ? AND photo_id NOT IN ({placeholders})",
+            [apartment_id, *keep_ids],
+        )
+    else:
+        cursor.execute("DELETE FROM photos WHERE apartment_id = ?", (apartment_id,))
+
+    return len(clean)
+
+
+def get_apartment_photos(apartment_id: str, db_path=DB_PATH) -> list:
+    """Ordered list of this listing's photos as {photo_id, url, position}."""
+    with get_connection(db_path) as conn:
+        cursor = conn.cursor()
+        cursor.execute(
+            "SELECT photo_id, url, position FROM photos WHERE apartment_id = ? ORDER BY position ASC",
+            (str(apartment_id),),
+        )
+        return [dict(r) for r in cursor.fetchall()]
+
+
+def backfill_photos(db_path=DB_PATH) -> dict:
+    """One-time/idempotent backfill of the photos table from apartments.photos_json.
+
+    Safe to re-run: uses the same deterministic ids and per-listing scoping.
+    Returns a summary with counts for verification.
+    """
+    init_db(db_path)
+    apartments_seen = 0
+    photos_linked = 0
+    with get_connection(db_path) as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT id, source, photos_json FROM apartments")
+        rows = cursor.fetchall()
+        for row in rows:
+            apartments_seen += 1
+            photos_linked += sync_apartment_photos(
+                cursor, row["id"], row["source"], row["photos_json"]
+            )
+        conn.commit()
+    return {
+        "apartments": apartments_seen,
+        "photos_linked": photos_linked,
+    }
+
+
+def check_photo_integrity(db_path=DB_PATH) -> dict:
+    """Verify photo<->listing linkage. Returns a report; empty problem lists = OK."""
+    with get_connection(db_path) as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT COUNT(*) AS n FROM photos")
+        total = cursor.fetchone()["n"]
+        # Orphans: a photo pointing at a non-existent apartment (FK should prevent).
+        cursor.execute(
+            "SELECT COUNT(*) AS n FROM photos p LEFT JOIN apartments a ON p.apartment_id = a.id WHERE a.id IS NULL"
+        )
+        orphans = cursor.fetchone()["n"]
+        # Any photo_id that does not embed its own apartment_id (linkage broken).
+        cursor.execute("SELECT photo_id, apartment_id FROM photos")
+        mismatched = [
+            r["photo_id"] for r in cursor.fetchall()
+            if not str(r["photo_id"]).startswith(f"{r['apartment_id']}-ph-")
+        ]
+        return {
+            "total_photos": total,
+            "orphans": orphans,
+            "mismatched_ids": len(mismatched),
+            "ok": orphans == 0 and len(mismatched) == 0,
+        }
+
+
 def upsert_apartment(item: dict, db_path=None):
     target_db = db_path or DB_PATH
     with get_connection(target_db) as conn:
@@ -584,6 +768,18 @@ def upsert_apartment(item: dict, db_path=None):
             "description": item.get("description", ""),
             "url": item.get("url", "")
         })
+
+        # Keep the normalised photos table in sync with this listing's photos,
+        # in the same transaction so the row and its photos commit atomically.
+        if isinstance(item.get("photos"), list):
+            photos_for_sync = item.get("photos")
+        else:
+            try:
+                photos_for_sync = json.loads(item.get("photos_json", "[]") or "[]")
+            except Exception:
+                photos_for_sync = []
+        sync_apartment_photos(cursor, item["id"], source, photos_for_sync)
+
         conn.commit()
 
 def list_apartments(
@@ -701,6 +897,12 @@ def get_apartment_by_id(apartment_id: str, user_id: int = None, db_path=DB_PATH)
             apt["photos"] = json.loads(apt.get("photos_json") or "[]")
         except Exception:
             apt["photos"] = []
+        # Structured, ID-linked photos (source of truth for photo<->listing).
+        cursor.execute(
+            "SELECT photo_id, url, position FROM photos WHERE apartment_id = ? ORDER BY position ASC",
+            (apartment_id,),
+        )
+        apt["photos_detailed"] = [dict(r) for r in cursor.fetchall()]
         return apt
 
 def get_system_stats(db_path=DB_PATH) -> dict:
