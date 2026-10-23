@@ -28,6 +28,18 @@
   - Распределенная сеть `https://{00..99}.img.avito.st/image/1/{token}`.
   - Поддерживается прямое масштабирование по URL-шаблону: замена суффикса размера на `/1280x960` отдает оригинальный кадр без сжатия.
 
+> **ПРОВЕРЕНО В КОДЕ (dex, jadx, 2026-10-24).** Ниже — строки, реально найденные в `classes*.dex` приложения Avito 226.0 (поиск по извлечённым dex, не по ресурсам). Проверка: `unzip classes*.dex` → `strings` → `LC_ALL=C grep -a`.
+>
+> - **База API:** `https://m.avito.ru/api` (также `https://app.avito.ru/api`, статистика `https://stats.avito.ru/api`).
+> - **Обязательный публичный ключ приложения:** `key=ZaeC8aidairahqu2Eeb1quee9einaeFieboocohX` (зашит в клиент, нужен в каждом запросе мобильного API).
+> - **Телефон объявления (ДА, существует):** `GET /api/2/items/{itemId}/phone?key=…` → модель ответа `ItemPhoneResult` / `PhoneResponse`, поля `phoneNumber`, `phone_number`, **`obfuscated`**, `PhoneLink`.
+> - **Звонок внутри приложения:** `/api/2/items/{advertId}/call` и `/api/2/items/{advertId}/call/confirm`; контакты — `/api/2/items/{itemId}/contacts/services`.
+> - **Карточка объявления:** `/api/19/items/{itemId}` или `card/items/{itemId}`. **Поиск:** `/api/10/items/search/deeplink`, `/api/1/items/count`.
+> - **«Ранний доступ» — это ПЛАТНАЯ услуга Avito:** классы `EarlyAccessSecretItemsPaidDeepLinkHandler`, `EarlyAccessSecretItemsPaidLink`, `LtrSecretItemsModal`; эндпоинт `realty/earlyAccess/secret_items/paid`. То есть Avito сам продаёт ранний доступ.
+> - **ВАЖНО про номер:** в ответе часто приходит `obfuscated` (закодированный) номер или **`AnonymousNumber`** — подменный номер Avito (в приложении есть целый экран `AnonymousNumberDialogFragment`). То есть `/phone` не всегда отдаёт прямой номер хозяина: это может быть прокси-номер звонилки Avito. Прямой номер гарантированно есть у Циан (в JSON) и у БезПосредников (через наш аккаунт).
+> - **WebSocket:** `socket.avito.ru/socket` (реал-тайм канал; для сбора объявлений не обязателен).
+> - **CDN фото подтверждён:** реальные ссылки вида `https://70.img.avito.st/image/1/1.<token>` встречаются в коде.
+
 ### Б. ЦИАН (Cian Android Client v2.449.0)
 - **Точки входа:** REST API `https://api.cian.ru/v2/offers/` и GraphQL эндпоинт `https://api.cian.ru/graphql`.
 - **Фильтрация собственников:**
@@ -35,6 +47,8 @@
   - Эмуляция заголовка `User-Agent: Cian/2.449.0 (Android 14; Mobile)`.
 - **CDN изображений:**
   - Галереи доступны через `https://images.cdn-cian.ru/images/{slug}-{id}-{idx}.jpg`. Ссылки отдаются в высоком разрешении без водяных знаков риелторов.
+
+> **ПРОВЕРЕНО В КОДЕ (dex, 2026-10-24).** Фильтр «от собственника» реально существует: в коде классы `FromHomeownerCheckboxModel`, `EXTRA_DEMAND_IS_HOMEOWNER`, `FROM_HOMEOWNER`, `DaggerHomeownerOffersComponent`. Строка `is_by_homeowner` присутствует. Хосты `www.cian.ru`, `my.cian.ru`; настройки через `ru.cian.runtimesettings`. Регион Томской области в текущем бэкенде SofDom — **4620** (см. `backend/scraper.py`/`geo_utils.py`), а не 4610. Телефон у Циан приходит прямо в JSON объявления (`phones[0].number`) — отдельный запрос не нужен.
 
 ### В. БезПосредников (Bsps Android Client v2.0.0)
 - **Архитектура:**
@@ -44,6 +58,8 @@
   - Сессионный Cookie-пул поддерживается модулем `avito_session_manager.py` с автоматической ротацией User-Agent.
 - **CDN галерей:**
   - Изображения размещаются по адресу `https://tsk.s.bsps.ru/images/sobipro/galleries/{hash}/{lot_id}/{photo_id}.jpg`.
+
+> **КАК РЕАЛЬНО БЕРЁТСЯ НОМЕР (код SofDom, 2026-10-24).** Телефон хозяина достаётся функцией `unlock_bezposrednikov_phone()` в `backend/scraper.py`: запрос с TLS-маскировкой (`curl_cffi`, `impersonate`) и cookie-сессией **личного аккаунта владельца** (`BEZPOSREDNIKOV_COOKIE`), номер извлекается из `href="tel:…"` на странице. Это наш собственный залогиненный аккаунт, а не чужой. Фото и данные — из HTML каталога `tomsk.bezposrednikov.ru`.
 
 ---
 
