@@ -9,9 +9,13 @@ import os
 import re
 import sys
 import unittest
+import tempfile
+from unittest.mock import MagicMock, patch
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)) + "/..")
 
+import db
+from scraper import RealtyScraper
 from upgrade_photos_and_sync import (
     unique_preserve_order,
     own_gallery_photos,
@@ -30,8 +34,6 @@ SCRAPER_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "s
 OFFERS_TS_PATH = os.path.join(
     os.path.dirname(os.path.abspath(__file__)), "..", "..", "frontend", "src", "data", "offers.ts"
 )
-
-
 def catalog_offer_ids() -> set:
     """Загружает множество локальных id объявлений из каталога frontend offers.ts."""
     with open(OFFERS_TS_PATH, encoding="utf-8") as f:
@@ -374,6 +376,7 @@ class TestPartnerListingsSync(unittest.TestCase):
         for lot_id in ["bezposr_186542", "bezposr_197177", "bezposr_197869"]:
             params = partner_db_params(prepared_by_id[lot_id])
             photos = json.loads(params[18])
+            self.assertEqual(params[22], lot_id)
             self.assertGreater(len(photos), 0)
             sid = listing_source_sid(lot_id)
             for photo in photos:
@@ -408,6 +411,525 @@ class TestPartnerListingsSync(unittest.TestCase):
         self.assertEqual(cleaned["photos_count"], 1)
         self.assertEqual(dummy["photos"], original_photos)
         self.assertEqual(dummy["photos_count"], 2)
+
+
+class TestCianPhotoExtraction(unittest.TestCase):
+    """Тестирование извлечения, дедупликации и изоляции фото из объявлений ЦИАН."""
+
+    def setUp(self):
+        self.scraper = RealtyScraper(avito_session=MagicMock())
+
+    def test_cian_extracts_photos_from_offer(self):
+        offer = {
+            "id": 101,
+            "title": "1-к. квартира",
+            "photos": [
+                {"fullUrl": "https://images.cdn-cian.ru/images/flat-101-1.jpg"},
+                {"fullUrl": "https://images.cdn-cian.ru/images/flat-101-2.jpg"},
+            ],
+            "bargainTerms": {"priceRur": 25000, "clientFee": 0},
+        }
+        item = self.scraper.parse_cian_offer(offer)
+        self.assertIsNotNone(item)
+        self.assertEqual(
+            item["photos"],
+            [
+                "https://images.cdn-cian.ru/images/flat-101-1.jpg",
+                "https://images.cdn-cian.ru/images/flat-101-2.jpg",
+            ],
+        )
+
+    def test_cian_deduplicates_photos_preserving_order(self):
+        offer = {
+            "id": 102,
+            "photos": [
+                {"fullUrl": "https://images.cdn-cian.ru/images/photo-A.jpg"},
+                {"fullUrl": "https://images.cdn-cian.ru/images/photo-B.jpg"},
+                {"fullUrl": "https://images.cdn-cian.ru/images/photo-A.jpg"},
+                {"fullUrl": "https://images.cdn-cian.ru/images/photo-C.jpg"},
+                {"fullUrl": "https://images.cdn-cian.ru/images/photo-B.jpg"},
+            ],
+            "bargainTerms": {"priceRur": 30000, "clientFee": 0},
+        }
+        item = self.scraper.parse_cian_offer(offer)
+        self.assertEqual(
+            item["photos"],
+            [
+                "https://images.cdn-cian.ru/images/photo-A.jpg",
+                "https://images.cdn-cian.ru/images/photo-B.jpg",
+                "https://images.cdn-cian.ru/images/photo-C.jpg",
+            ],
+        )
+
+    def test_cian_filters_invalid_urls(self):
+        offer = {
+            "id": 103,
+            "photos": [
+                {"fullUrl": "https://images.cdn-cian.ru/images/valid.jpg"},
+                {"fullUrl": ""},
+                {"fullUrl": "   "},
+                {"fullUrl": "ftp://malformed.ru/img.jpg"},
+                {"fullUrl": None},
+                None,
+                {"fullUrl": "http://images.cdn-cian.ru/images/valid-http.jpg"},
+            ],
+            "bargainTerms": {"priceRur": 20000, "clientFee": 0},
+        }
+        item = self.scraper.parse_cian_offer(offer)
+        self.assertEqual(
+            item["photos"],
+            [
+                "https://images.cdn-cian.ru/images/valid.jpg",
+                "http://images.cdn-cian.ru/images/valid-http.jpg",
+            ],
+        )
+
+    def test_cian_empty_photos_stays_empty(self):
+        offer = {
+            "id": 104,
+            "photos": [],
+            "bargainTerms": {"priceRur": 22000, "clientFee": 0},
+        }
+        item = self.scraper.parse_cian_offer(offer)
+        self.assertEqual(item["photos"], [])
+
+    def test_cian_each_offer_receives_only_its_own_photos(self):
+        offer1 = {
+            "id": 201,
+            "photos": [{"fullUrl": "https://images.cdn-cian.ru/images/offer-201.jpg"}],
+            "bargainTerms": {"priceRur": 25000, "clientFee": 0},
+        }
+        offer2 = {
+            "id": 202,
+            "photos": [{"fullUrl": "https://images.cdn-cian.ru/images/offer-202.jpg"}],
+            "bargainTerms": {"priceRur": 35000, "clientFee": 0},
+        }
+        item1 = self.scraper.parse_cian_offer(offer1)
+        item2 = self.scraper.parse_cian_offer(offer2)
+        self.assertNotIn(item2["photos"][0], item1["photos"])
+        self.assertNotIn(item1["photos"][0], item2["photos"])
+
+
+class TestAvitoPhotoExtraction(unittest.TestCase):
+    """Тестирование извлечения, дедупликации и изоляции фото из карточек Авито."""
+
+    def test_avito_extracts_and_deduplicates_photos(self):
+        html = """
+        <html><body>
+        <div data-marker="catalog-serp">
+            <div data-marker="item" data-item-id="888001">
+                <div data-marker="item-title">1-к. квартира, 38 м², 3/10 эт.</div>
+                <meta content="27000" itemProp="price" />
+                <img src="https://10.img.avito.st/image/1/photo_1.jpg" />
+                <img src="https://10.img.avito.st/image/1/photo_2.jpg" />
+                <img src="https://10.img.avito.st/image/1/photo_1.jpg" />
+            </div>
+        </div>
+        </body></html>
+        """
+        mock_session = MagicMock()
+        mock_resp = MagicMock()
+        mock_resp.status_code = 200
+        mock_resp.text = html
+        mock_session.get.return_value = mock_resp
+        scraper = RealtyScraper(avito_session=mock_session)
+        items = scraper.fetch_avito_tomsk()
+        self.assertEqual(len(items), 1)
+        self.assertEqual(
+            items[0]["photos"],
+            [
+                "https://10.img.avito.st/image/1/photo_1.jpg",
+                "https://10.img.avito.st/image/1/photo_2.jpg",
+            ],
+        )
+
+    def test_avito_empty_photos_when_card_has_no_images(self):
+        html = """
+        <html><body>
+        <div data-marker="catalog-serp">
+            <div data-marker="item" data-item-id="888002">
+                <div data-marker="item-title">Студия, 25 м²</div>
+                <meta content="18000" itemProp="price" />
+            </div>
+        </div>
+        </body></html>
+        """
+        mock_session = MagicMock()
+        mock_resp = MagicMock()
+        mock_resp.status_code = 200
+        mock_resp.text = html
+        mock_session.get.return_value = mock_resp
+        scraper = RealtyScraper(avito_session=mock_session)
+        items = scraper.fetch_avito_tomsk()
+        self.assertEqual(len(items), 1)
+        self.assertEqual(items[0]["photos"], [])
+
+    def test_avito_photos_isolated_between_cards(self):
+        html = """
+        <html><body>
+        <div data-marker="catalog-serp">
+            <div data-marker="item" data-item-id="888003">
+                <div data-marker="item-title">Квартира 1</div>
+                <meta content="20000" itemProp="price" />
+                <img src="https://10.img.avito.st/image/1/photo_card_1.jpg" />
+            </div>
+            <div data-marker="item" data-item-id="888004">
+                <div data-marker="item-title">Квартира 2</div>
+                <meta content="30000" itemProp="price" />
+                <img src="https://20.img.avito.st/image/1/photo_card_2.jpg" />
+            </div>
+        </div>
+        </body></html>
+        """
+        mock_session = MagicMock()
+        mock_resp = MagicMock()
+        mock_resp.status_code = 200
+        mock_resp.text = html
+        mock_session.get.return_value = mock_resp
+        scraper = RealtyScraper(avito_session=mock_session)
+        items = scraper.fetch_avito_tomsk()
+        self.assertEqual(len(items), 2)
+        self.assertEqual(items[0]["photos"], ["https://10.img.avito.st/image/1/photo_card_1.jpg"])
+        self.assertEqual(items[1]["photos"], ["https://20.img.avito.st/image/1/photo_card_2.jpg"])
+
+
+class TestBezposrednikovPhotoExtraction(unittest.TestCase):
+    """Тестирование извлечения фото БезПосредников: строгая привязка к sid своей галереи."""
+
+    def setUp(self):
+        self.scraper = RealtyScraper(avito_session=MagicMock())
+
+    def test_bezposrednikov_extracts_only_own_sid_gallery_photos(self):
+        html = """
+        <html><body>
+        <div id="spEntries" class="sEnLiEntries">
+            <div class="sEnLiCell" data-sid="186542">
+                <div class="sEnLiTitle"><a href="/realty/186542">1-к. квартира, 52 м²</a></div>
+                <span itemprop="price">32 000</span>
+                <a href="//tsk.s.bsps.ru/images/sobipro/galleries/98/186542/pic1.jpg">1</a>
+                <a href="//tsk.s.bsps.ru/images/sobipro/galleries/98/186542/pic2.jpg">2</a>
+                <!-- Чужое фото из другой галереи внутри блока -->
+                <a href="//tsk.s.bsps.ru/images/sobipro/galleries/4e/197869/foreign.jpg">чужое</a>
+            </div><!-- cell -->
+        </div>
+        </body></html>
+        """
+        mock_client = MagicMock()
+        mock_resp = MagicMock()
+        mock_resp.status_code = 200
+        mock_resp.text = html
+        mock_client.get.return_value = mock_resp
+        with patch("scraper.requests", mock_client):
+            items = self.scraper.fetch_bezposrednikov_tomsk(pages=1)
+        self.assertEqual(len(items), 1)
+        self.assertEqual(
+            items[0]["photos"],
+            [
+                "https://tsk.s.bsps.ru/images/sobipro/galleries/98/186542/pic1.jpg",
+                "https://tsk.s.bsps.ru/images/sobipro/galleries/98/186542/pic2.jpg",
+            ],
+        )
+        for photo in items[0]["photos"]:
+            self.assertIn("/186542/", photo)
+            self.assertNotIn("/197869/", photo)
+
+    def test_bezposrednikov_deduplicates_photos_preserving_order(self):
+        html = """
+        <html><body>
+        <div id="spEntries" class="sEnLiEntries">
+            <div class="sEnLiCell" data-sid="197177">
+                <div class="sEnLiTitle"><a href="/realty/197177">1-к. квартира, 21 м²</a></div>
+                <span itemprop="price">25 000</span>
+                <a href="//tsk.s.bsps.ru/images/sobipro/galleries/c2/197177/a.jpg">a</a>
+                <a href="//tsk.s.bsps.ru/images/sobipro/galleries/c2/197177/b.jpg">b</a>
+                <a href="//tsk.s.bsps.ru/images/sobipro/galleries/c2/197177/a.jpg">a_dup</a>
+            </div><!-- cell -->
+        </div>
+        </body></html>
+        """
+        mock_client = MagicMock()
+        mock_resp = MagicMock()
+        mock_resp.status_code = 200
+        mock_resp.text = html
+        mock_client.get.return_value = mock_resp
+        with patch("scraper.requests", mock_client):
+            items = self.scraper.fetch_bezposrednikov_tomsk(pages=1)
+        self.assertEqual(len(items), 1)
+        self.assertEqual(
+            items[0]["photos"],
+            [
+                "https://tsk.s.bsps.ru/images/sobipro/galleries/c2/197177/a.jpg",
+                "https://tsk.s.bsps.ru/images/sobipro/galleries/c2/197177/b.jpg",
+            ],
+        )
+
+    def test_bezposrednikov_empty_photos_when_no_own_gallery(self):
+        html = """
+        <html><body>
+        <div id="spEntries" class="sEnLiEntries">
+            <div class="sEnLiCell" data-sid="192989">
+                <div class="sEnLiTitle"><a href="/realty/192989">Квартира без фото</a></div>
+                <span itemprop="price">20 000</span>
+            </div><!-- cell -->
+        </div>
+        </body></html>
+        """
+        mock_client = MagicMock()
+        mock_resp = MagicMock()
+        mock_resp.status_code = 200
+        mock_resp.text = html
+        mock_client.get.return_value = mock_resp
+        with patch("scraper.requests", mock_client):
+            items = self.scraper.fetch_bezposrednikov_tomsk(pages=1)
+        self.assertEqual(len(items), 1)
+        self.assertEqual(items[0]["photos"], [])
+
+
+class TestPhotoDatabasePersistenceAndLifecycle(unittest.TestCase):
+    """Тестирование сохранения в БД, жизненного цикла обновления и очистки устаревших фото."""
+
+    def setUp(self):
+        self.temp_db_file = tempfile.NamedTemporaryFile(suffix=".db", delete=False)
+        self.temp_db_path = self.temp_db_file.name
+        self.temp_db_file.close()
+        db.init_db(self.temp_db_path)
+
+    def tearDown(self):
+        if os.path.exists(self.temp_db_path):
+            try:
+                os.remove(self.temp_db_path)
+            except OSError:
+                pass
+
+    def test_upsert_apartment_saves_and_retrieves_photos(self):
+        item = {
+            "id": "cian_3001",
+            "source": "cian",
+            "title": "1-к квартира",
+            "price": 25000,
+            "address": "Томск, ул. Ленина, 1",
+            "photos": [
+                "https://images.cdn-cian.ru/images/3001_1.jpg",
+                "https://images.cdn-cian.ru/images/3001_2.jpg",
+            ],
+        }
+        db.upsert_apartment(item, db_path=self.temp_db_path)
+        fetched = db.get_apartment_by_id("cian_3001", db_path=self.temp_db_path)
+        self.assertIsNotNone(fetched)
+        self.assertEqual(
+            fetched["photos"],
+            [
+                "https://images.cdn-cian.ru/images/3001_1.jpg",
+                "https://images.cdn-cian.ru/images/3001_2.jpg",
+            ],
+        )
+
+    def test_upsert_apartment_overwrites_with_new_photos_on_rescrape(self):
+        item_v1 = {
+            "id": "avito_4001",
+            "source": "avito",
+            "title": "2-к квартира",
+            "price": 30000,
+            "address": "Томск, ул. Кирова, 10",
+            "photos": ["https://10.img.avito.st/image/1/old.jpg"],
+        }
+        db.upsert_apartment(item_v1, db_path=self.temp_db_path)
+
+        item_v2 = {
+            "id": "avito_4001",
+            "source": "avito",
+            "title": "2-к квартира",
+            "price": 31000,
+            "address": "Томск, ул. Кирова, 10",
+            "photos": [
+                "https://10.img.avito.st/image/1/new_1.jpg",
+                "https://10.img.avito.st/image/1/new_2.jpg",
+            ],
+        }
+        db.upsert_apartment(item_v2, db_path=self.temp_db_path)
+        fetched = db.get_apartment_by_id("avito_4001", db_path=self.temp_db_path)
+        self.assertEqual(
+            fetched["photos"],
+            [
+                "https://10.img.avito.st/image/1/new_1.jpg",
+                "https://10.img.avito.st/image/1/new_2.jpg",
+            ],
+        )
+
+    def test_upsert_apartment_clears_photos_when_rescrape_has_empty_photos(self):
+        # Риск оставить старые фото при новом ответе без фото:
+        # гарантирует, что если при повторном сборе пришёл пустой список фото,
+        # старые фото не остаются в БД.
+        item_with_photos = {
+            "id": "bezposr_5001",
+            "source": "bezposrednikov",
+            "title": "Студия",
+            "price": 20000,
+            "address": "Томск, ул. Учебная, 5",
+            "photos": ["https://tsk.s.bsps.ru/images/sobipro/galleries/01/5001/a.jpg"],
+        }
+        db.upsert_apartment(item_with_photos, db_path=self.temp_db_path)
+        fetched_before = db.get_apartment_by_id("bezposr_5001", db_path=self.temp_db_path)
+        self.assertEqual(len(fetched_before["photos"]), 1)
+
+        item_without_photos = {
+            "id": "bezposr_5001",
+            "source": "bezposrednikov",
+            "title": "Студия",
+            "price": 20000,
+            "address": "Томск, ул. Учебная, 5",
+            "photos": [],
+        }
+        db.upsert_apartment(item_without_photos, db_path=self.temp_db_path)
+        fetched_after = db.get_apartment_by_id("bezposr_5001", db_path=self.temp_db_path)
+        self.assertEqual(fetched_after["photos"], [])
+
+    def test_upsert_apartment_handles_malformed_json_gracefully(self):
+        # Если photos_json в БД повреждён, чтение возвращает [] без исключения
+        item = {
+            "id": "cian_6001",
+            "source": "cian",
+            "title": "Квартира",
+            "price": 25000,
+            "address": "Томск",
+            "photos_json": "corrupted_non_json_string",
+        }
+        db.upsert_apartment(item, db_path=self.temp_db_path)
+        fetched = db.get_apartment_by_id("cian_6001", db_path=self.temp_db_path)
+        self.assertEqual(fetched["photos"], [])
+        listed = db.list_apartments(db_path=self.temp_db_path)
+        target = next((x for x in listed if x["id"] == "cian_6001"), None)
+        self.assertIsNotNone(target)
+        self.assertEqual(target["photos"], [])
+
+
+class TestExternalRefDatabaseApiPath(unittest.TestCase):
+    """Temporary in-project DB verifies schema migration, UPSERT and API serialization."""
+
+    def setUp(self):
+        self.test_db_path = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)), ".external_ref_api_test.db"
+        )
+        self._remove_test_db()
+
+    def tearDown(self):
+        self._remove_test_db()
+
+    def _remove_test_db(self):
+        for suffix in ("", "-wal", "-shm"):
+            path = self.test_db_path + suffix
+            if os.path.exists(path):
+                os.remove(path)
+
+    def test_new_source_listing_flows_through_db_list_api_model(self):
+        db.init_db(self.test_db_path)
+        db.upsert_apartment({
+            "id": "bezposr_175402",
+            "source": "bezposrednikov",
+            "title": "Студия",
+            "price": 28000,
+            "address": "Томск, ул. Савиных, 4а",
+            "url": "https://tomsk.bezposrednikov.ru/component/sobipro/?task=entry.details&sid=175402",
+            "photos": ["https://tsk.s.bsps.ru/images/sobipro/galleries/4c/175402/one.jpg"],
+        }, db_path=self.test_db_path)
+
+        # /api/apartments returns db.list_apartments() records unchanged under "apartments".
+        api_model = {"apartments": db.list_apartments(db_path=self.test_db_path)}
+        listing = next(item for item in api_model["apartments"] if item["id"] == "bezposr_175402")
+        self.assertEqual(listing["external_ref"], "bezposr_175402")
+        self.assertEqual(
+            listing["photos"],
+            ["https://tsk.s.bsps.ru/images/sobipro/galleries/4c/175402/one.jpg"],
+        )
+
+    def test_existing_schema_migrates_and_infers_reference_from_source_url(self):
+        db.init_db(self.test_db_path)
+        db.upsert_apartment({
+            "id": "SD-1001",
+            "source": "bezposrednikov",
+            "title": "Студия",
+            "price": 28000,
+            "address": "Томск",
+            "url": "https://tomsk.bezposrednikov.ru/component/sobipro/?sid=175402",
+            "external_ref": "bezposr_175402",
+            "photos": [],
+        }, db_path=self.test_db_path)
+
+        with db.get_connection(self.test_db_path) as conn:
+            conn.execute("ALTER TABLE apartments DROP COLUMN external_ref")
+            conn.commit()
+
+        db.init_db(self.test_db_path)
+        migrated = db.get_apartment_by_id("SD-1001", db_path=self.test_db_path)
+        self.assertEqual(migrated["external_ref"], "bezposr_175402")
+
+        # A later scrape without an explicit external_ref must not erase the persisted value.
+        db.upsert_apartment({
+            "id": "SD-1001",
+            "source": "bezposrednikov",
+            "title": "Студия",
+            "price": 28000,
+            "address": "Томск",
+            "photos": [],
+        }, db_path=self.test_db_path)
+        refreshed = db.get_apartment_by_id("SD-1001", db_path=self.test_db_path)
+        self.assertEqual(refreshed["external_ref"], "bezposr_175402")
+
+    def test_source_urls_infer_only_their_matching_listing_reference(self):
+        cases = [
+            ("cian", "SD-1002", "https://www.cian.ru/rent/flat/334986722/", "cian_334986722"),
+            ("avito", "SD-1003", "https://www.avito.ru/tomsk/kvartiry/listing_8167774294", "avito_8167774294"),
+            (
+                "bezposrednikov",
+                "SD-1004",
+                "https://tomsk.bezposrednikov.ru/component/sobipro/?sid=198244",
+                "bezposr_198244",
+            ),
+        ]
+        for source, listing_id, url, expected in cases:
+            with self.subTest(source=source):
+                self.assertEqual(db._infer_external_ref(source, listing_id, url), expected)
+        self.assertIsNone(
+            db._infer_external_ref("cian", "SD-1002", "https://example.org/flat/334986722/")
+        )
+
+    def test_sd_record_lifecycle_and_api_detail_model(self):
+        """Проверяет сквозной путь SD-* записей: сохранение external_ref, защиту от затирания и API-выдачу."""
+        db.init_db(self.test_db_path)
+        # Вставка SD-* записи с URL Циан
+        db.upsert_apartment({
+            "id": "SD-1002",
+            "source": "cian",
+            "title": "1-комн",
+            "price": 24000,
+            "address": "Томск, ул. Ленина, 20",
+            "url": "https://www.cian.ru/rent/flat/334986722/",
+            "photos": ["https://images.cian.site/flat.jpg"],
+        }, db_path=self.test_db_path)
+
+        # Проверка через list_apartments (аналог GET /api/apartments)
+        apts = db.list_apartments(db_path=self.test_db_path)
+        item = next(a for a in apts if a["id"] == "SD-1002")
+        self.assertEqual(item["external_ref"], "cian_334986722")
+        self.assertEqual(item["photos"], ["https://images.cian.site/flat.jpg"])
+
+        # Проверка через get_apartment_by_id (аналог GET /api/apartments/{id})
+        detail = db.get_apartment_by_id("SD-1002", db_path=self.test_db_path)
+        self.assertIsNotNone(detail)
+        self.assertEqual(detail["external_ref"], "cian_334986722")
+
+        # Re-scrape без URL и без external_ref не должен затереть external_ref
+        db.upsert_apartment({
+            "id": "SD-1002",
+            "source": "cian",
+            "title": "1-комн (новая цена)",
+            "price": 25000,
+            "address": "Томск, ул. Ленина, 20",
+        }, db_path=self.test_db_path)
+
+        refreshed = db.get_apartment_by_id("SD-1002", db_path=self.test_db_path)
+        self.assertEqual(refreshed["price"], 25000)
+        self.assertEqual(refreshed["external_ref"], "cian_334986722")
 
 
 if __name__ == "__main__":

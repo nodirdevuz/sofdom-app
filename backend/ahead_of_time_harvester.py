@@ -12,29 +12,52 @@ import time
 import argparse
 from datetime import datetime
 
+from typing import Optional
+
 # Setup paths
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 import db
 from scraper import RealtyScraper
 from cross_matcher import find_duplicate_match
-from bot import RealtyTelegramBot
+try:
+    from bot import RealtyTelegramBot
+except ImportError:
+    RealtyTelegramBot = None
 from captcha_solver import AntiBotGuardian
 
 class AheadOfTimeHarvester:
     def __init__(self):
         self.scraper = RealtyScraper()
-        self.bot = RealtyTelegramBot()
+        self.bot = RealtyTelegramBot() if RealtyTelegramBot else None
         self.guardian = AntiBotGuardian()
 
-    def harvest_round(self) -> dict:
+    def harvest_round(self, db_path: Optional[str] = None) -> dict:
         """Executes a single ahead-of-time harvest cycle across all sources."""
         t0 = time.time()
         print(f"\n[{datetime.now().strftime('%H:%M:%S')}] 🚀 Launching Ahead-of-Time Phone Harvest (Томск)...")
 
         # 1. Collect fresh listings (page 1)
-        cian_items = self.scraper.fetch_cian_tomsk(pages=1)
-        avito_items = self.scraper.fetch_avito_tomsk()
-        bezposr_items = self.scraper.fetch_bezposrednikov_tomsk(pages=1)
+        errors = {}
+        cian_items = []
+        try:
+            cian_items = self.scraper.fetch_cian_tomsk(pages=1)
+        except Exception as e:
+            errors["cian"] = str(e)
+            print(f"  [!] Cian harvest error: {e}")
+
+        avito_items = []
+        try:
+            avito_items = self.scraper.fetch_avito_tomsk()
+        except Exception as e:
+            errors["avito"] = str(e)
+            print(f"  [!] Avito harvest error: {e}")
+
+        bezposr_items = []
+        try:
+            bezposr_items = self.scraper.fetch_bezposrednikov_tomsk(pages=1)
+        except Exception as e:
+            errors["bezposrednikov"] = str(e)
+            print(f"  [!] Bezposrednikov harvest error: {e}")
 
         total_collected = len(cian_items) + len(avito_items) + len(bezposr_items)
         print(f"  [+] Fresh candidates: Cian={len(cian_items)}, Avito={len(avito_items)}, БП={len(bezposr_items)}")
@@ -50,7 +73,7 @@ class AheadOfTimeHarvester:
 
             # If phone is placeholder on Bezposrednikov, try Cross-Matching first
             if "БезПосредников" in phone or not phone:
-                match = find_duplicate_match(item)
+                match = find_duplicate_match(item, db_path=db_path)
                 if match and match.get("phone") and "БезПосредников" not in match["phone"]:
                     item["phone"] = match["phone"]
                     item["owner_name"] = match.get("owner_name", item.get("owner_name", "Собственник"))
@@ -68,22 +91,34 @@ class AheadOfTimeHarvester:
                         except Exception:
                             pass
 
-            db.upsert_apartment(item)
+            db.upsert_apartment(item, db_path=db_path)
             new_saved += 1
 
         # 3. Dispatch real-time Telegram alerts for newly discovered apartments
-        alerts_sent = self.bot.dispatch_pending_alerts()
+        alerts_sent = self.bot.dispatch_pending_alerts() if self.bot else 0
 
         elapsed = round(time.time() - t0, 2)
         print(f"[✓] Harvest round complete in {elapsed}s!")
         print(f"    Processed: {new_saved}, Cross-matched: {cross_matched}, Alerts sent: {alerts_sent}\n")
 
+        if not errors:
+            status = "success"
+        elif len(errors) == 3:
+            status = "failed"
+        else:
+            status = "partial"
+
         return {
-            "success": True,
+            "success": len(errors) == 0,
+            "status": status,
+            "errors": errors,
             "elapsed_seconds": elapsed,
             "total_processed": new_saved,
             "cross_matched": cross_matched,
-            "alerts_sent": alerts_sent
+            "alerts_sent": alerts_sent,
+            "cian_count": len(cian_items),
+            "avito_count": len(avito_items),
+            "bezposr_count": len(bezposr_items),
         }
 
     def run_daemon(self, interval_seconds: int = 60, max_iterations: int = None):

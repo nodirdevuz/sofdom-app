@@ -11,7 +11,9 @@ import json
 import os
 import math
 import heapq
+import re
 from datetime import datetime, date, timedelta
+from urllib.parse import parse_qs, urlparse
 
 from geo_utils import (
     haversine_distance,
@@ -76,6 +78,41 @@ def get_connection(db_path=DB_PATH):
         yield conn
     finally:
         conn.close()
+
+
+def _infer_external_ref(source, listing_id, url=None):
+    """Infer a source-qualified listing ID only when the source URL/ID proves it."""
+    source_prefix = {
+        "cian": "cian",
+        "avito": "avito",
+        "bezposrednikov": "bezposr",
+    }.get(str(source or "").lower())
+    if not source_prefix:
+        return None
+
+    listing_id = str(listing_id or "")
+    if re.fullmatch(rf"{re.escape(source_prefix)}_\d+", listing_id):
+        return listing_id
+
+    if not url:
+        return None
+    parsed = urlparse(str(url))
+    host = (parsed.hostname or "").lower()
+
+    if source_prefix == "bezposr" and (host == "bezposrednikov.ru" or host.endswith(".bezposrednikov.ru")):
+        sid = parse_qs(parsed.query).get("sid", [])
+        return f"bezposr_{sid[0]}" if sid and sid[0].isdigit() else None
+
+    if source_prefix == "cian" and (host == "cian.ru" or host.endswith(".cian.ru")):
+        match = re.search(r"/(?:rent/)?flat/(\d+)(?:/|$)", parsed.path)
+        return f"cian_{match.group(1)}" if match else None
+
+    if source_prefix == "avito" and (host == "avito.ru" or host.endswith(".avito.ru")):
+        match = re.search(r"(?:^|_)(\d+)/?$", parsed.path.rsplit("/", 1)[-1])
+        return f"avito_{match.group(1)}" if match else None
+
+    return None
+
 
 def init_db(db_path=DB_PATH):
     with get_connection(db_path) as conn:
@@ -159,7 +196,8 @@ def init_db(db_path=DB_PATH):
             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             geo_precision TEXT DEFAULT 'none',
             geo_source TEXT DEFAULT 'none',
-            geo_observed_at TIMESTAMP
+            geo_observed_at TIMESTAMP,
+            external_ref TEXT
         );
         """)
 
@@ -193,7 +231,8 @@ def init_db(db_path=DB_PATH):
             ("is_alerted", "INTEGER DEFAULT 0"),
             ("geo_precision", "TEXT DEFAULT 'none'"),
             ("geo_source", "TEXT DEFAULT 'none'"),
-            ("geo_observed_at", "TIMESTAMP")
+            ("geo_observed_at", "TIMESTAMP"),
+            ("external_ref", "TEXT")
         ]
         for col_name, col_type in cols_to_add:
             if col_name not in existing_cols:
@@ -201,6 +240,19 @@ def init_db(db_path=DB_PATH):
                     cursor.execute(f"ALTER TABLE apartments ADD COLUMN {col_name} {col_type}")
                 except Exception:
                     pass
+
+        cursor.execute("""
+            SELECT id, source, url, external_ref
+            FROM apartments
+            WHERE external_ref IS NULL OR TRIM(external_ref) = ''
+        """)
+        for row in cursor.fetchall():
+            external_ref = _infer_external_ref(row["source"], row["id"], row["url"])
+            if external_ref:
+                cursor.execute(
+                    "UPDATE apartments SET external_ref = ? WHERE id = ? AND (external_ref IS NULL OR TRIM(external_ref) = '')",
+                    (external_ref, row["id"]),
+                )
 
         conn.commit()
 
@@ -417,8 +469,9 @@ def mask_phone(phone: str) -> str:
 def re_digits(text: str) -> str:
     return "".join(c for c in str(text) if c.isdigit())
 
-def upsert_apartment(item: dict, db_path=DB_PATH):
-    with get_connection(db_path) as conn:
+def upsert_apartment(item: dict, db_path=None):
+    target_db = db_path or DB_PATH
+    with get_connection(target_db) as conn:
         cursor = conn.cursor()
 
         raw_lat = item.get("lat")
@@ -472,12 +525,12 @@ def upsert_apartment(item: dict, db_path=DB_PATH):
         INSERT INTO apartments (
             id, source, is_secret_early_access, secret_until, title, price, deposit, commission,
             address, city, district, rooms, area, floor, total_floors, lat, lng,
-            phone, owner_name, photos_json, description, url, updated_at,
+            phone, owner_name, photos_json, description, url, updated_at, external_ref,
             geo_precision, geo_source, geo_observed_at
         ) VALUES (
             :id, :source, :is_secret_early_access, :secret_until, :title, :price, :deposit, :commission,
             :address, :city, :district, :rooms, :area, :floor, :total_floors, :lat, :lng,
-            :phone, :owner_name, :photos_json, :description, :url, CURRENT_TIMESTAMP,
+            :phone, :owner_name, :photos_json, :description, :url, CURRENT_TIMESTAMP, :external_ref,
             :geo_precision, :geo_source, :geo_observed_at
         )
         ON CONFLICT(id) DO UPDATE SET
@@ -485,6 +538,7 @@ def upsert_apartment(item: dict, db_path=DB_PATH):
             deposit = excluded.deposit,
             phone = CASE WHEN apartments.phone != '' THEN apartments.phone ELSE excluded.phone END,
             photos_json = excluded.photos_json,
+            external_ref = COALESCE(NULLIF(excluded.external_ref, ''), apartments.external_ref),
             description = excluded.description,
             city = excluded.city,
             district = excluded.district,
@@ -526,6 +580,7 @@ def upsert_apartment(item: dict, db_path=DB_PATH):
             "phone": item.get("phone", ""),
             "owner_name": item.get("owner_name", "Собственник"),
             "photos_json": json.dumps(item.get("photos", []), ensure_ascii=False) if isinstance(item.get("photos"), list) else item.get("photos_json", "[]"),
+            "external_ref": item.get("external_ref") or _infer_external_ref(source, item.get("id"), item.get("url")),
             "description": item.get("description", ""),
             "url": item.get("url", "")
         })

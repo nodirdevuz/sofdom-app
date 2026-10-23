@@ -14,7 +14,10 @@ Handles:
 import os
 import re
 import time
-import httpx
+try:
+    import httpx
+except ImportError:
+    httpx = None
 
 class SmartCaptchaSolver:
     """Solves Yandex SmartCaptcha tokens for БезПосредников.ру."""
@@ -24,7 +27,7 @@ class SmartCaptchaSolver:
         self.sitekey = "n9Bfj0egThdszvaQif0adYeLyUXVY40JwjnA3NaR"  # Tomsk Bezposrednikov sitekey
 
     def is_configured(self) -> bool:
-        return bool(self.api_key and self.api_key != "MOCK_KEY")
+        return bool(self.api_key and self.api_key != "MOCK_KEY" and httpx is not None)
 
     def solve_yandex_smartcaptcha(self, page_url: str, sitekey: str = None) -> dict:
         """

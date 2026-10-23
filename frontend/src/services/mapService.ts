@@ -61,7 +61,7 @@ export function calcDistanceKm(lat1: number, lon1: number, lat2: number, lon2: n
       Math.sin(dLon / 2) *
       Math.sin(dLon / 2);
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  return Math.round(R * c * 10) / 10;
+  return R * c;
 }
 
 export function formatDistance(km?: number | null): string {

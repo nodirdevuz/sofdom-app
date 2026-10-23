@@ -16,6 +16,7 @@ import { MobileBottomNav } from './components/MobileBottomNav';
 import { YandexMap } from './components/YandexMap';
 import { useSwipeBack } from './hooks/useSwipeBack';
 import { telemetry } from './lib/telemetry';
+import { resolveSourceListingReference } from './lib/sourceListingRef';
 
 function formatTimeAgo(dateStr?: string): string {
   if (!dateStr) return 'Недавно';
@@ -156,6 +157,7 @@ export const App: React.FC = () => {
             const pPhone = a.phone || a.phone_display || `+7 (952) 880-${1000 + i}`;
             return {
               id: a.id,
+              external_ref: resolveSourceListingReference(a),
               title: a.title,
               raw_title: a.title,
               price_display: `${a.price.toLocaleString('ru-RU')} ₽`,

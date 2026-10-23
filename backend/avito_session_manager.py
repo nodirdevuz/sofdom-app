@@ -7,10 +7,18 @@ and replays the request so the caller ALWAYS gets HTTP 200.
 """
 
 import hashlib, base64, json, time, urllib.parse, re
-from curl_cffi import requests
+try:
+    from curl_cffi import requests
+except ImportError:
+    requests = None
+
 
 class AvitoSession:
     def __init__(self):
+        if requests is None:
+            raise RuntimeError(
+                "curl_cffi is required for AvitoSession to handle TLS impersonation and PoW challenges"
+            )
         self.session = requests.Session()
         self.headers = {
             'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',

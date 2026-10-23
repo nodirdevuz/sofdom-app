@@ -19,6 +19,7 @@ import sqlite3
 import subprocess
 import tempfile
 import unittest
+from unittest.mock import patch, MagicMock
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)) + "/..")
 
@@ -44,6 +45,7 @@ from geo_utils import (
     CITY_REGISTRY,
 )
 import db
+from scraper import RealtyScraper
 
 SCRAPER_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "scraper.py")
 DB_MODULE_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "db.py")
@@ -1113,6 +1115,33 @@ class TestRadiusParameterValidation(unittest.TestCase):
             db.list_apartments_geo(radius_km=5.0, db_path=self.temp_db)
         self.assertIn("center_lat", str(ctx.exception))
 
+    def test_radius_search_excludes_point_just_outside_unrounded_radius(self):
+        center_lat = 56.48
+        center_lng = 84.97
+        outside_lat = center_lat + 104 / 111_000
+        db.upsert_apartment({
+            "id": "radius_rounding_outside",
+            "source": "test_verified",
+            "title": "Точка немного за пределом радиуса",
+            "price": 25000,
+            "address": "г. Томск, ул. Ленина, 1",
+            "city": "Томск",
+            "lat": outside_lat,
+            "lng": center_lng,
+        }, db_path=self.temp_db)
+
+        result = db.list_apartments_geo(
+            center_lat=center_lat,
+            center_lng=center_lng,
+            radius_km=0.1,
+            db_path=self.temp_db,
+        )
+
+        self.assertNotIn(
+            "radius_rounding_outside",
+            {apartment["id"] for apartment in result["apartments"]},
+        )
+
     def test_incomplete_center_coordinates_raise_value_error(self):
         with self.assertRaises(ValueError):
             db.list_apartments_geo(center_lat=56.46, center_lng=None, db_path=self.temp_db)
@@ -1801,6 +1830,398 @@ class TestCityProfileArchitectureAndExtensibility(unittest.TestCase):
         lat_z, lng_z, prec_z = classify_coordinates(56.4977, 84.9744, city="Томск", source="cian")
         self.assertEqual(prec_z, "none")
         self.assertIsNone(lat_z)
+
+
+class TestScraperIngestionAndLifecycleGeoProvenance(unittest.TestCase):
+    """
+    Сквозной аудит call path:
+    Cian offer payload -> RealtyScraper.parse_cian_offer -> classify_coordinates -> db.upsert_apartment.
+    Проверяет:
+    1. Валидные координаты Циан внутри Томска -> unknown precision, geo_source='cian', geo_observed_at.
+    2. Null в coordinates/district/building не вызывают падений (AttributeError) и дают precision='none'.
+    3. Синтетический центр Томска в полезной нагрузке Циан отсекается в lat=None, geo_precision='none'.
+    4. Координаты за пределами конверта Томска (Колпашево) при адресе Томска отсекаются в lat=None, geo_precision='none'.
+    5. Коммерческие комиссии отсеиваются (return None).
+    6. Полный жизненный цикл в SQLite БД: вставка, обновление цены, смена координат со сбросом geo_observed_at,
+       сброс координат в NULL со сбросом geo_precision='none' и geo_source='none'.
+    """
+
+    def setUp(self):
+        self.temp_db_file = tempfile.NamedTemporaryFile(suffix=".db", delete=False)
+        self.temp_db = self.temp_db_file.name
+        self.temp_db_file.close()
+        db.init_db(self.temp_db)
+        self.scraper = RealtyScraper()
+
+    def tearDown(self):
+        if os.path.exists(self.temp_db):
+            os.remove(self.temp_db)
+
+    def test_cian_offer_with_valid_coordinates_has_unknown_precision_and_observed_at(self):
+        offer = {
+            "id": 1001,
+            "title": "1-комн. квартира, 36 м², 4/10 эт.",
+            "totalArea": "36.0",
+            "floorNumber": "4",
+            "building": {"floorsCount": "10"},
+            "bargainTerms": {"priceRur": 25000, "clientFee": 0},
+            "geo": {
+                "userInput": "г. Томск, ул. Кирова, 15",
+                "coordinates": {"lat": 56.4650, "lng": 84.9600},
+                "district": {"name": "Кировский район"},
+                "accuracy": "exact"
+            }
+        }
+        item = self.scraper.parse_cian_offer(offer, now_iso="2026-10-23 01:00:00")
+        self.assertIsNotNone(item)
+        self.assertEqual(item["id"], "cian_1001")
+        self.assertEqual(item["lat"], 56.465)
+        self.assertEqual(item["lng"], 84.96)
+        # Циан не имеет подтверждённой точности до дома -> unknown
+        self.assertEqual(item["geo_precision"], "unknown")
+        self.assertEqual(item["geo_source"], "cian")
+        self.assertEqual(item["geo_observed_at"], "2026-10-23 01:00:00")
+        self.assertEqual(item["district"], "Кировский район")
+
+    def test_cian_offer_with_none_coordinates_and_district_does_not_crash(self):
+        offer = {
+            "id": 1002,
+            "title": "Студия, 22 м²",
+            "bargainTerms": {"priceRur": 18000, "clientFee": 0},
+            "geo": {
+                "userInput": "г. Томск",
+                "coordinates": None,
+                "district": None,
+            },
+            "building": None
+        }
+        item = self.scraper.parse_cian_offer(offer)
+        self.assertIsNotNone(item)
+        self.assertIsNone(item["lat"])
+        self.assertIsNone(item["lng"])
+        self.assertEqual(item["geo_precision"], "none")
+        self.assertEqual(item["geo_source"], "none")
+        self.assertIsNone(item["geo_observed_at"])
+        self.assertEqual(item["district"], "")
+
+    def test_cian_offer_with_center_placeholder_coordinates_rejected_to_none(self):
+        offer = {
+            "id": 1003,
+            "title": "2-комн. квартира, 54 м²",
+            "bargainTerms": {"priceRur": 30000, "clientFee": 0},
+            "geo": {
+                "userInput": "г. Томск, ул. Красноармейская, 10",
+                "coordinates": {"lat": 56.4977, "lng": 84.9744},
+            }
+        }
+        item = self.scraper.parse_cian_offer(offer)
+        self.assertIsNotNone(item)
+        self.assertIsNone(item["lat"], "Заглушка центра должна отсекаться в None")
+        self.assertIsNone(item["lng"])
+        self.assertEqual(item["geo_precision"], "none")
+        self.assertEqual(item["geo_source"], "none")
+        self.assertIsNone(item["geo_observed_at"])
+
+    def test_cian_offer_with_out_of_envelope_coordinates_rejected_to_none(self):
+        offer = {
+            "id": 1004,
+            "title": "1-комн. квартира, 30 м²",
+            "bargainTerms": {"priceRur": 20000, "clientFee": 0},
+            "geo": {
+                "userInput": "г. Томск, ул. Ленина, 1",
+                "coordinates": {"lat": 58.31, "lng": 82.90},  # Колпашево при адресе Томска
+            }
+        }
+        item = self.scraper.parse_cian_offer(offer)
+        self.assertIsNotNone(item)
+        self.assertIsNone(item["lat"], "Координаты вне конверта Томска должны отсекаться в None")
+        self.assertEqual(item["geo_precision"], "none")
+
+    def test_cian_offer_with_commercial_fee_filtered_out(self):
+        offer = {
+            "id": 1005,
+            "title": "1-комн. квартира",
+            "bargainTerms": {"priceRur": 20000, "clientFee": 50},
+        }
+        item = self.scraper.parse_cian_offer(offer)
+        self.assertIsNone(item, "Объявление с комиссией должно быть отфильтровано")
+
+    def test_scraper_to_db_upsert_full_lifecycle_and_provenance_clearing(self):
+        # 1. Первичная вставка спарсенного объявления Циан
+        offer = {
+            "id": 2001,
+            "title": "1-комн. квартира, 35 м²",
+            "bargainTerms": {"priceRur": 22000, "clientFee": 0},
+            "geo": {
+                "userInput": "г. Томск, ул. Кирова, 15",
+                "coordinates": {"lat": 56.4650, "lng": 84.9600},
+            }
+        }
+        item = self.scraper.parse_cian_offer(offer, now_iso="2026-10-23 01:00:00")
+        db.upsert_apartment(item, db_path=self.temp_db)
+
+        with db.get_connection(self.temp_db) as conn:
+            row = dict(conn.execute("SELECT * FROM apartments WHERE id = 'cian_2001'").fetchone())
+            self.assertEqual(row["lat"], 56.465)
+            self.assertEqual(row["lng"], 84.96)
+            self.assertEqual(row["geo_precision"], "unknown")
+            self.assertEqual(row["geo_source"], "cian")
+            self.assertEqual(row["geo_observed_at"], "2026-10-23 01:00:00")
+
+        # 2. Обновление цены без нового наблюдения -> geo_observed_at сохраняется
+        item_price_upd = {
+            "id": "cian_2001",
+            "source": "cian",
+            "title": "1-комн. квартира, 35 м²",
+            "price": 24000,
+            "address": "г. Томск, ул. Кирова, 15",
+            "lat": 56.4650,
+            "lng": 84.9600,
+            # geo_observed_at не передан
+        }
+        db.upsert_apartment(item_price_upd, db_path=self.temp_db)
+
+        with db.get_connection(self.temp_db) as conn:
+            row = dict(conn.execute("SELECT * FROM apartments WHERE id = 'cian_2001'").fetchone())
+            self.assertEqual(row["price"], 24000)
+            self.assertEqual(row["geo_observed_at"], "2026-10-23 01:00:00")
+
+        # 3. Смена координат без нового наблюдения -> geo_observed_at сбрасывается в NULL
+        item_coords_upd = {
+            "id": "cian_2001",
+            "source": "cian",
+            "title": "1-комн. квартира, 35 м²",
+            "price": 24000,
+            "address": "г. Томск, пр-кт Ленина, 50",
+            "lat": 56.4750,
+            "lng": 84.9500,
+            # geo_observed_at не передан
+        }
+        db.upsert_apartment(item_coords_upd, db_path=self.temp_db)
+
+        with db.get_connection(self.temp_db) as conn:
+            row = dict(conn.execute("SELECT * FROM apartments WHERE id = 'cian_2001'").fetchone())
+            self.assertEqual(row["lat"], 56.475)
+            self.assertIsNone(row["geo_observed_at"], "При смене координат без таймстемпа geo_observed_at обязан сброситься в NULL")
+
+        # 4. Потеря координат (lat=None) -> geo_precision='none', geo_source='none', geo_observed_at=NULL
+        item_lost_coords = {
+            "id": "cian_2001",
+            "source": "cian",
+            "title": "1-комн. квартира, 35 м²",
+            "price": 24000,
+            "address": "г. Томск, пр-кт Ленина, 50",
+            "lat": None,
+            "lng": None,
+        }
+        db.upsert_apartment(item_lost_coords, db_path=self.temp_db)
+
+        with db.get_connection(self.temp_db) as conn:
+            row = dict(conn.execute("SELECT * FROM apartments WHERE id = 'cian_2001'").fetchone())
+            self.assertIsNone(row["lat"])
+            self.assertIsNone(row["lng"])
+            self.assertEqual(row["geo_precision"], "none")
+            self.assertEqual(row["geo_source"], "none")
+            self.assertIsNone(row["geo_observed_at"])
+
+
+class TestAvitoSessionAndScraperCurlCffiHandling(unittest.TestCase):
+    """
+    Тесты изоляции и обработки отсутствия curl_cffi:
+    1. AvitoSession().__init__ выбрасывает явный RuntimeError, если curl_cffi отсутствует (requests is None).
+       Объект с session=None никогда не создаётся.
+    2. AvitoSession().__init__ успешно инициализирует session, когда requests доступен.
+    3. RealtyScraper.fetch_avito_tomsk выбрасывает явный RuntimeError без сетевых вызовов,
+       если avito_session отсутствует.
+    4. RealtyScraper создаётся без ошибок для задач офлайн-парсинга даже без curl_cffi.
+    """
+
+    def test_avito_session_raises_runtime_error_when_curl_cffi_missing(self):
+        import avito_session_manager
+        with patch.object(avito_session_manager, "requests", None):
+            with self.assertRaisesRegex(RuntimeError, "curl_cffi is required"):
+                avito_session_manager.AvitoSession()
+
+    def test_avito_session_initializes_session_when_requests_available(self):
+        import avito_session_manager
+        mock_requests = MagicMock()
+        mock_session_instance = MagicMock()
+        mock_requests.Session.return_value = mock_session_instance
+        with patch.object(avito_session_manager, "requests", mock_requests):
+            session = avito_session_manager.AvitoSession()
+            self.assertIsNotNone(session.session)
+            self.assertEqual(session.session, mock_session_instance)
+
+    def test_realty_scraper_fetch_avito_raises_runtime_error_when_session_missing(self):
+        scraper = RealtyScraper(avito_session=None)
+        self.assertIsNone(scraper.avito_session)
+        with self.assertRaisesRegex(RuntimeError, "curl_cffi is required"):
+            scraper.fetch_avito_tomsk()
+
+    def test_realty_scraper_fetch_cian_raises_runtime_error_when_curl_client_missing(self):
+        import scraper as scraper_mod
+        with patch.object(scraper_mod, "requests", None):
+            s = scraper_mod.RealtyScraper()
+            with self.assertRaisesRegex(RuntimeError, "curl_cffi is required for live Cian scraping"):
+                s.fetch_cian_tomsk()
+
+    def test_realty_scraper_fetch_cian_raises_when_client_lacks_impersonate(self):
+        import scraper as scraper_mod
+        fake_requests = MagicMock()
+        def fake_get(*args, **kwargs):
+            if "impersonate" in kwargs:
+                raise TypeError("Session.request() got an unexpected keyword argument 'impersonate'")
+            return MagicMock(status_code=200, text="")
+        fake_requests.get.side_effect = fake_get
+        with patch.object(scraper_mod, "requests", fake_requests):
+            s = scraper_mod.RealtyScraper()
+            # Должен выдать явный RuntimeError, а не маскировать под пустую успешную выдачу (items=[])
+            with self.assertRaisesRegex(RuntimeError, "does not support impersonate"):
+                s.fetch_cian_tomsk()
+
+    def test_realty_scraper_fetch_cian_does_not_return_empty_list_on_network_error(self):
+        import scraper as scraper_mod
+        fake_requests = MagicMock()
+        fake_requests.get.side_effect = TimeoutError("request timed out")
+        with patch.object(scraper_mod, "requests", fake_requests):
+            s = scraper_mod.RealtyScraper()
+            with self.assertRaisesRegex(
+                RuntimeError,
+                r"Cian request failed on page 1: request timed out",
+            ):
+                s.fetch_cian_tomsk(pages=1)
+
+    def test_realty_scraper_offline_parser_works_without_network_or_curl_cffi(self):
+        import scraper as scraper_mod
+        import avito_session_manager
+        with patch.object(scraper_mod, "requests", None), patch.object(avito_session_manager, "requests", None):
+            s = scraper_mod.RealtyScraper()
+            offer = {
+                "id": 8888,
+                "title": "1-комн. квартира, 38 м²",
+                "bargainTerms": {"priceRur": 25000, "clientFee": 0},
+                "geo": {
+                    "userInput": "г. Томск, ул. Кирова, 10",
+                    "coordinates": {"lat": 56.465, "lng": 84.960},
+                    "district": {"name": "Кировский район"},
+                }
+            }
+            parsed = s.parse_cian_offer(offer)
+            self.assertIsNotNone(parsed)
+            self.assertEqual(parsed["id"], "cian_8888")
+            self.assertEqual(parsed["geo_precision"], "unknown")
+            self.assertEqual(parsed["geo_source"], "cian")
+            self.assertIsNone(parsed["geo_observed_at"])
+
+    def test_realty_scraper_parse_cian_offer_without_timestamp_does_not_create_geo_observed_at(self):
+        """Офлайн-разбор координат без переданного timestamp не синтезирует время: geo_observed_at=None."""
+        import scraper as scraper_mod
+        s = scraper_mod.RealtyScraper.__new__(scraper_mod.RealtyScraper)
+        offer = {
+            "id": 8889,
+            "title": "1-комн. квартира",
+            "bargainTerms": {"priceRur": 25000, "clientFee": 0},
+            "geo": {
+                "userInput": "г. Томск, пр-кт Ленина, 40",
+                "coordinates": {"lat": 56.470, "lng": 84.950},
+            }
+        }
+        parsed = s.parse_cian_offer(offer, now_iso=None)
+        self.assertIsNotNone(parsed)
+        self.assertIsNotNone(parsed["lat"])
+        self.assertIsNone(parsed["geo_observed_at"], "Офлайн-разбор без now_iso не должен генерировать фиктивный timestamp")
+
+    def test_realty_scraper_parse_cian_offer_with_timestamp_records_geo_observed_at(self):
+        """Live-путь с переданным timestamp сохраняет переданное время наблюдения для валидных координат."""
+        import scraper as scraper_mod
+        s = scraper_mod.RealtyScraper.__new__(scraper_mod.RealtyScraper)
+        offer = {
+            "id": 8890,
+            "title": "1-комн. квартира",
+            "bargainTerms": {"priceRur": 25000, "clientFee": 0},
+            "geo": {
+                "userInput": "г. Томск, пр-кт Ленина, 40",
+                "coordinates": {"lat": 56.470, "lng": 84.950},
+            }
+        }
+        verified_ts = "2026-10-23 10:25:00"
+        parsed = s.parse_cian_offer(offer, now_iso=verified_ts)
+        self.assertIsNotNone(parsed)
+        self.assertEqual(parsed["geo_observed_at"], verified_ts)
+
+    def test_realty_scraper_fetch_cian_pipeline_generates_observed_at_and_persists_to_sqlite(self):
+        """Сквозная проверка: fetch_cian_tomsk генерирует timestamp и upsert_apartment сохраняет его во временную SQLite."""
+        import json
+        import os
+        import tempfile
+        from unittest.mock import MagicMock, patch
+        import db
+        import scraper as scraper_mod
+
+        offer = {
+            "id": 999123,
+            "title": "1-комн. квартира",
+            "bargainTerms": {"priceRur": 30000, "clientFee": 0},
+            "geo": {
+                "userInput": "г. Томск, ул. Пушкина, 10",
+                "coordinates": {"lat": 56.495, "lng": 84.975},
+            },
+        }
+        html_content = f"""
+        <html><head></head><body>
+        <script>
+        window._cianConfig['frontend-serp'] = [];
+        concat([{{"key": "initialState", "value": {{"results": {{"offers": [{json.dumps(offer)}]}}}}}}])
+        </script></body></html>
+        """
+        mock_resp = MagicMock()
+        mock_resp.status_code = 200
+        mock_resp.text = html_content
+
+        with patch.object(scraper_mod, "requests") as mock_requests, \
+             patch.object(scraper_mod, "AvitoSession", MagicMock()):
+            mock_requests.get.return_value = mock_resp
+            scraper = scraper_mod.RealtyScraper()
+            items = scraper.fetch_cian_tomsk(pages=1)
+
+        self.assertEqual(len(items), 1)
+        item = items[0]
+        self.assertEqual(item["id"], "cian_999123")
+        self.assertEqual(item["lat"], 56.495)
+        self.assertEqual(item["lng"], 84.975)
+        self.assertIsNotNone(item.get("geo_observed_at"))
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            temp_db = os.path.join(tmpdir, "test_geo_pipeline.db")
+            db.init_db(temp_db)
+            db.upsert_apartment(item, db_path=temp_db)
+
+            with db.get_connection(temp_db) as conn:
+                cursor = conn.cursor()
+                cursor.execute(
+                    "SELECT id, lat, lng, geo_precision, geo_source, geo_observed_at FROM apartments WHERE id = ?",
+                    (item["id"],),
+                )
+                row = dict(cursor.fetchone())
+
+            self.assertEqual(row["id"], "cian_999123")
+            self.assertEqual(row["lat"], 56.495)
+            self.assertEqual(row["lng"], 84.975)
+            self.assertEqual(row["geo_precision"], "unknown")
+            self.assertEqual(row["geo_source"], "cian")
+            self.assertEqual(row["geo_observed_at"], item["geo_observed_at"])
+
+    def test_realty_scraper_init_does_not_swallow_unexpected_runtime_error(self):
+        import scraper as scraper_mod
+        with patch.object(scraper_mod, "AvitoSession", side_effect=RuntimeError("unexpected disk error")):
+            with self.assertRaisesRegex(RuntimeError, "unexpected disk error"):
+                scraper_mod.RealtyScraper()
+
+    def test_realty_scraper_init_does_not_swallow_unexpected_value_error(self):
+        import scraper as scraper_mod
+        with patch.object(scraper_mod, "AvitoSession", side_effect=ValueError("invalid config parameter")):
+            with self.assertRaisesRegex(ValueError, "invalid config parameter"):
+                scraper_mod.RealtyScraper()
 
 
 if __name__ == "__main__":

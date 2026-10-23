@@ -429,6 +429,7 @@ def partner_db_params(lot: dict) -> tuple:
         lot["desc_short"],
         now,
         now,
+        lot.get("external_ref") or lot["id"],
     )
 
 
@@ -488,13 +489,18 @@ export const OFFERS: Offer[] = {json.dumps(offers, ensure_ascii=False, indent=2)
     db_path = '/Users/macbookairm5/Desktop/Проекты/SofDom/backend/realty.db'
     conn = sqlite3.connect(db_path)
     c = conn.cursor()
+    c.execute("PRAGMA table_info(apartments)")
+    apartment_cols = [row[1] for row in c.fetchall()]
+    if "external_ref" not in apartment_cols:
+        c.execute("ALTER TABLE apartments ADD COLUMN external_ref TEXT")
     for lot in partner_listings:
         c.execute('''
             INSERT OR REPLACE INTO apartments (
                 id, source, is_secret_early_access, title, price, deposit, commission,
                 address, city, district, rooms, area, floor, total_floors,
-                lat, lng, phone, owner_name, photos_json, description, created_at, updated_at
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                lat, lng, phone, owner_name, photos_json, description, created_at, updated_at,
+                external_ref
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ''', partner_db_params(lot))
     conn.commit()
     conn.close()

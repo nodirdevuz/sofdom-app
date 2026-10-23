@@ -38,10 +38,15 @@ def find_duplicate_match(target_apt: dict, db_path=None) -> dict:
 
     norm_target = normalize_street_and_house(target_apt.get("address", ""))
     target_price = int(target_apt.get("price", 0))
-    target_rooms = str(target_apt.get("rooms", ""))
+    target_source = str(target_apt.get("source", "")).strip()
+    target_rooms = re.sub(r"\s+", "", str(target_apt.get("rooms", "")).lower())
+    try:
+        target_area = float(target_apt.get("area") or 0)
+    except (TypeError, ValueError):
+        target_area = 0
     target_id = str(target_apt.get("id", ""))
 
-    if not norm_target or target_price <= 0:
+    if not norm_target or target_price <= 0 or not target_source or not target_rooms or target_area <= 0:
         return None
 
     conn = sqlite3.connect(db_path)
@@ -55,15 +60,27 @@ def find_duplicate_match(target_apt: dict, db_path=None) -> dict:
     cursor.execute("""
     SELECT * FROM apartments 
     WHERE id != ? 
+      AND source != ?
       AND price BETWEEN ? AND ?
       AND phone != '' 
       AND phone NOT LIKE '%БезПосредников%'
-    """, (target_id, price_min, price_max))
+    """, (target_id, target_source, price_min, price_max))
 
     candidates = [dict(r) for r in cursor.fetchall()]
     conn.close()
 
+    matches = []
     for cand in candidates:
+        candidate_rooms = re.sub(r"\s+", "", str(cand.get("rooms", "")).lower())
+        try:
+            candidate_area = float(cand.get("area") or 0)
+        except (TypeError, ValueError):
+            continue
+        if candidate_rooms != target_rooms or candidate_area <= 0:
+            continue
+        if abs(candidate_area - target_area) > max(1.0, target_area * 0.03):
+            continue
+
         norm_cand = normalize_street_and_house(cand.get("address", ""))
         
         # Check if key tokens overlap (street name + house number)
@@ -79,9 +96,9 @@ def find_duplicate_match(target_apt: dict, db_path=None) -> dict:
             target_words = {t for t in target_tokens if not any(c.isdigit() for c in t) and len(t) > 3}
             cand_words = {t for t in cand_tokens if not any(c.isdigit() for c in t) and len(t) > 3}
             if target_words & cand_words:
-                return cand
+                matches.append(cand)
 
-    return None
+    return matches[0] if len(matches) == 1 else None
 
 if __name__ == '__main__':
     sample = {

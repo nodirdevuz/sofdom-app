@@ -414,7 +414,7 @@ def haversine_distance(lat1: float, lon1: float, lat2: float, lon2: float) -> fl
     a = (math.sin(dlat / 2) ** 2 +
          math.cos(math.radians(lat1)) * math.cos(math.radians(lat2)) *
          math.sin(dlon / 2) ** 2)
-    return round(2 * R * math.asin(math.sqrt(a)), 2)
+    return 2 * R * math.asin(math.sqrt(a))
 
 
 def calc_radius_bbox(

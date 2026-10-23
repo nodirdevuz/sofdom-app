@@ -21,13 +21,22 @@ export interface MarkerProperties {
  * - 'none': coordinates are absent / rejected; should not be rendered on the map.
  */
 export function buildMarkerProperties(apt: MapApartment, isActive = false): MarkerProperties {
-  const isUnknown = apt.geo_precision === 'unknown';
-  const isApprox = apt.geo_precision === 'approximate';
+  const rawPrecision = apt.geo_precision;
+  const precision: 'exact' | 'approximate' | 'unknown' | 'none' =
+    rawPrecision === 'exact' || rawPrecision === 'approximate' || rawPrecision === 'none'
+      ? rawPrecision
+      : 'unknown';
+
+  const isUnknown = precision === 'unknown';
+  const isApprox = precision === 'approximate';
+  const isNone = precision === 'none';
 
   const geoClass = isUnknown
     ? 'unknown-pin unverified-pin'
     : isApprox
     ? 'approximate-pin'
+    : isNone
+    ? 'none-pin'
     : 'exact-pin';
 
   const badgeHtml = isUnknown
@@ -42,7 +51,7 @@ export function buildMarkerProperties(apt: MapApartment, isActive = false): Mark
     is_secret_class: apt.is_secret ? 'secret-pin' : '',
     is_active_class: isActive ? 'active-pin' : '',
     geo_class: geoClass,
-    geo_precision: apt.geo_precision || 'unknown',
+    geo_precision: precision,
     precision_badge_html: badgeHtml,
   };
 }
