@@ -32,3 +32,9 @@ backend/.bezposrednikov.env
 *.xapk
 apks/
 
+
+# Runtime SQLite DB with personal data — never version this
+backend/realty.db
+backend/realty.db-shm
+backend/realty.db-wal
+realty/realty.db
