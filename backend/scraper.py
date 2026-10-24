@@ -183,7 +183,7 @@ class RealtyScraper:
             'geo_observed_at': observed_at,
             'phone': phone_str,
             'owner_name': 'Собственник',
-            'photos': clean_photos[:8],
+            'photos': clean_photos,  # no cap: keep every photo the listing has
             'description': o.get('description', ''),
             'url': f"https://www.cian.ru/rent/flat/{o.get('id')}/"
         }
@@ -370,7 +370,7 @@ class RealtyScraper:
                     'geo_source': 'none',
                     'phone': 'Собственник (Ранний доступ)' if is_secret else 'Собственник',
                     'owner_name': 'Собственник',
-                    'photos': clean_photos[:6],
+                    'photos': clean_photos,  # no cap: keep every photo the listing has
                     'description': desc,
                     'url': item_url
                 })
@@ -500,7 +500,7 @@ class RealtyScraper:
                         'geo_source': 'none',
                         'phone': 'Собственник (БезПосредников.ру)',
                         'owner_name': 'Собственник',
-                        'photos': full_photos[:8],
+                        'photos': full_photos,  # no cap: keep every photo the listing has
                         'description': desc,
                         'url': f"https://tomsk.bezposrednikov.ru/component/sobipro/?task=entry.details&sid={sid}"
                     })

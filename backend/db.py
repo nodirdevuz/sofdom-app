@@ -517,14 +517,28 @@ def _extract_gallery_id(url: str) -> str:
         path = urlparse(url).path or ""
     except Exception:
         return ""
-    # Avito: /image/1/1.<token> ; Cian: /images/<slug>-<id>-<idx>.jpg ;
-    # BezPosrednikov: /galleries/<hash>/<lot_id>/<photo>.jpg
+    # BezPosrednikov: /galleries/<hash>/<lot_id>/<photo>.jpg  -> lot_id is the
+    # per-listing gallery id.
     m = re.search(r"/galleries/[^/]+/(\d+)/", path)
     if m:
         return m.group(1)
-    m = re.search(r"/images/([a-z0-9-]+?)-\d+\.(?:jpg|jpeg|png|webp)", path, re.I)
-    if m:
-        return m.group(1)
+    # Cian: /images/<address-slug>-<imageId>-<renditionIdx>.jpg . Each PHOTO has
+    # its own imageId, so the stable per-listing id is the address slug, i.e.
+    # everything before the trailing -<imageId>-<idx>.jpg (fall back to a single
+    # trailing number form). The slug is identical for all photos of a listing.
+    for pat in (
+        r"/images/(.+?)-\d+-\d+\.(?:jpg|jpeg|png|webp)$",
+        r"/images/(.+?)-\d+\.(?:jpg|jpeg|png|webp)$",
+    ):
+        m = re.search(pat, path, re.I)
+        if m:
+            slug = m.group(1)
+            # A purely numeric "slug" is an image id in a short URL form, not an
+            # address slug -> treat as no signal to avoid false provenance flags.
+            if slug and not slug.isdigit():
+                return slug
+            return ""
+    # Avito uses opaque /image/1/1.<token> URLs with no listing id -> no signal.
     return ""
 
 
@@ -645,11 +659,27 @@ def check_photo_integrity(db_path=DB_PATH) -> dict:
             r["photo_id"] for r in cursor.fetchall()
             if not str(r["photo_id"]).startswith(f"{r['apartment_id']}-ph-")
         ]
+        # Provenance guard: within one listing, all photos that carry a source
+        # gallery id must share the SAME gallery id. A listing mixing gallery
+        # ids would mean a photo from another listing crept in (Cian/BP expose
+        # a per-listing gallery id in the URL; Avito tokens carry none, so those
+        # rows are simply skipped here, not flagged).
+        cursor.execute(
+            """
+            SELECT apartment_id
+            FROM photos
+            WHERE source_gallery_id IS NOT NULL AND source_gallery_id != ''
+            GROUP BY apartment_id
+            HAVING COUNT(DISTINCT source_gallery_id) > 1
+            """
+        )
+        mixed_gallery = [r["apartment_id"] for r in cursor.fetchall()]
         return {
             "total_photos": total,
             "orphans": orphans,
             "mismatched_ids": len(mismatched),
-            "ok": orphans == 0 and len(mismatched) == 0,
+            "mixed_gallery_listings": mixed_gallery,
+            "ok": orphans == 0 and len(mismatched) == 0 and len(mixed_gallery) == 0,
         }
 
 

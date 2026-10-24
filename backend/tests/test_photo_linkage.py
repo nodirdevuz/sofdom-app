@@ -111,6 +111,32 @@ class PhotoLinkageTest(unittest.TestCase):
         self.assertEqual(len(dbmod.get_apartment_photos("SD-OLD", db_path=self.db)), 2)
         self.assertTrue(dbmod.check_photo_integrity(self.db)["ok"])
 
+    def test_no_cap_keeps_all_photos(self):
+        urls = [f"https://img.test/{i}.jpg" for i in range(20)]
+        dbmod.upsert_apartment(_apartment("SD-1", urls), db_path=self.db)
+        self.assertEqual(len(dbmod.get_apartment_photos("SD-1", db_path=self.db)), 20)
+
+    def test_mixed_gallery_is_flagged(self):
+        # Two Cian photos from DIFFERENT galleries under one listing -> flagged.
+        urls = [
+            "https://images.cdn-cian.ru/images/kvartira-tomsk-lenina-111-1.jpg",
+            "https://images.cdn-cian.ru/images/kvartira-tomsk-mira-222-1.jpg",
+        ]
+        dbmod.upsert_apartment(_apartment("SD-9", urls, source="cian"), db_path=self.db)
+        report = dbmod.check_photo_integrity(self.db)
+        self.assertIn("SD-9", report["mixed_gallery_listings"])
+        self.assertFalse(report["ok"])
+
+    def test_same_gallery_passes(self):
+        urls = [
+            "https://images.cdn-cian.ru/images/kvartira-tomsk-lenina-111-1.jpg",
+            "https://images.cdn-cian.ru/images/kvartira-tomsk-lenina-111-2.jpg",
+        ]
+        dbmod.upsert_apartment(_apartment("SD-8", urls, source="cian"), db_path=self.db)
+        report = dbmod.check_photo_integrity(self.db)
+        self.assertEqual(report["mixed_gallery_listings"], [])
+        self.assertTrue(report["ok"])
+
     def test_cascade_delete_removes_photos(self):
         dbmod.upsert_apartment(_apartment("SD-1", ["u1", "u2"]), db_path=self.db)
         import sqlite3
