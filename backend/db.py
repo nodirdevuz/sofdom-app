@@ -683,6 +683,70 @@ def check_photo_integrity(db_path=DB_PATH) -> dict:
         }
 
 
+def rebuild_geo(db_path=DB_PATH, geocoder=None, progress=None) -> dict:
+    """Make every listing's coordinates real and honestly labelled, per listing.
+
+    For each apartment (keyed by its own id, using its OWN address):
+      - Cian with existing numeric coords  -> re-classify as 'unknown' (real
+        source point, shown with '?'), geo_source='cian'.
+      - otherwise (Avito/BP, or Cian without coords) -> geocode its own address;
+        on success store the point as geo_source='geocoded' ('unknown'/'?'),
+        on failure clear to NULL/'none' (never keep a fake point).
+
+    `geocoder(address)->{lat,lng,...}|None` is injectable for offline tests.
+    Returns a summary with counts. Each coordinate stays on its own row, so a
+    point can never belong to another listing.
+    """
+    summary = {"total": 0, "cian_kept": 0, "geocoded": 0, "cleared": 0}
+    with get_connection(db_path) as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT id, source, address, lat, lng FROM apartments")
+        rows = cursor.fetchall()
+        for row in rows:
+            summary["total"] += 1
+            aid = row["id"]
+            source = (row["source"] or "").lower()
+            address = row["address"] or ""
+            new_lat = new_lng = None
+            new_prec = "none"
+            new_src = "none"
+
+            if source.startswith("cian") and row["lat"] is not None and row["lng"] is not None:
+                city = detect_city(address, raw_city="Томск", lat=row["lat"], lng=row["lng"])
+                c_lat, c_lng, prec = classify_coordinates(
+                    row["lat"], row["lng"], city=city, source="cian"
+                )
+                if c_lat is not None and prec != "none":
+                    new_lat, new_lng, new_prec, new_src = c_lat, c_lng, prec, "cian"
+                    summary["cian_kept"] += 1
+
+            if new_lat is None and geocoder is not None and address.strip():
+                hit = geocoder(address)
+                if hit and hit.get("lat") is not None:
+                    new_lat = hit["lat"]
+                    new_lng = hit["lng"]
+                    new_prec = hit.get("precision", "unknown")
+                    new_src = hit.get("source", "geocoded")
+                    summary["geocoded"] += 1
+
+            if new_lat is None:
+                summary["cleared"] += 1
+
+            cursor.execute(
+                """
+                UPDATE apartments
+                SET lat = ?, lng = ?, geo_precision = ?, geo_source = ?,
+                    geo_observed_at = CASE WHEN ? IS NULL THEN NULL ELSE geo_observed_at END
+                WHERE id = ?
+                """,
+                (new_lat, new_lng, new_prec, new_src, new_lat, aid),
+            )
+            if progress:
+                progress(aid, new_src, new_prec)
+        conn.commit()
+    return summary
+
+
 def upsert_apartment(item: dict, db_path=None):
     target_db = db_path or DB_PATH
     with get_connection(target_db) as conn:
